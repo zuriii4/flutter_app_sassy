@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sassy/widgets/sidebar.dart';
+// import 'package:sassy/widgets/sidebar.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -11,10 +11,10 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 244, 211, 186),
+      backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       body: Row(
         children: [
-          Sidebar(controller: _controller),
+          // Sidebar(controller: _controller),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),

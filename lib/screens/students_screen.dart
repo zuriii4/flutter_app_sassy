@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/screens/student_detail_screen.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:sassy/widgets/sidebar.dart';
+// import 'package:sassy/widgets/sidebar.dart';
 
 class StudentsPage extends StatelessWidget {
   StudentsPage({Key? key}) : super(key: key);
@@ -12,10 +12,10 @@ class StudentsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 244, 211, 186),
+      backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       body: Row(
         children: [
-          Sidebar(controller: _controller),
+          // Sidebar(controller: _controller),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),

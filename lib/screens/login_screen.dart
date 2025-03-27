@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:sassy/screens/dashboard_screen.dart';
+import 'package:sassy/screens/main_screen.dart';
+import 'package:sassy/services/api_service.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final ApiService _apiService = ApiService();
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +66,7 @@ class LoginPage extends StatelessWidget {
                   child: Column(
                     children: [
                       TextField(
+                        controller: _emailController,
                         decoration: InputDecoration(
                           hintText: "Email",
                           filled: true,
@@ -68,6 +79,7 @@ class LoginPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: "Heslo",
@@ -81,13 +93,29 @@ class LoginPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 40),
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DashboardPage(),
-                            ),
-                          );
+                        onPressed: () async {
+                          try {
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text.trim();
+                            
+                            final token = await _apiService.login(email, password);
+
+                            if (token != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => MainScreen()),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Neplatné prihlasovacie údaje')),
+                              );
+                            }
+                          } catch (e) {
+                            print('❌ Chyba pri prihlasovaní: $e');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Chyba pri prihlasovaní')),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFF4A261),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:sassy/widgets/sidebar.dart';
+// import 'package:sassy/widgets/sidebar.dart';
 
 class StudentDetailPage extends StatelessWidget {
   final String studentName;
@@ -18,10 +18,10 @@ class StudentDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 244, 211, 186), // Oranžové pozadie
+      backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       body: Row(
         children: [
-          Sidebar(controller: _controller), // Sidebar
+          // Sidebar(controller: _controller), // Sidebar
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),

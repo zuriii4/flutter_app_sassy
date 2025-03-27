@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:sassy/widgets/sidebar.dart';
+// import 'package:sassy/widgets/sidebar.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({Key? key}) : super(key: key);
@@ -14,7 +14,7 @@ class DashboardPage extends StatelessWidget {
       backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       body: Row(
         children: [
-          Sidebar(controller: _controller), // Sidebar naľavo
+          // Sidebar(controller: _controller), // Sidebar naľavo
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),

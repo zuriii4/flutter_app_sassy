@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sassy/screens/dashboard_screen.dart';
+// import 'package:sassy/screens/dashboard_screen.dart';
+import 'package:sassy/screens/main_screen.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:sassy/widgets/sidebar.dart';
+// import 'package:sassy/widgets/sidebar.dart';
 
 class AddTaskPage extends StatefulWidget {
   @override
@@ -64,7 +65,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       body: Row(
         children: [
-          Sidebar(controller: _controller), // Sidebar naľavo
+          // Sidebar(controller: _controller), // Sidebar naľavo
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),
@@ -157,7 +158,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                                 if (_currentStep == 3) {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => DashboardPage()),
+                                    MaterialPageRoute(builder: (context) => MainScreen()),
                                   );
                                 } else {
                                   _nextStep();

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:sassy/screens/dashboard_screen.dart';
 import 'package:sassy/screens/main_screen.dart';
-import 'package:sidebarx/sidebarx.dart';
-// import 'package:sassy/widgets/sidebar.dart';
 
 class AddTaskPage extends StatefulWidget {
   @override
@@ -11,7 +8,6 @@ class AddTaskPage extends StatefulWidget {
 
 class _AddTaskPageState extends State<AddTaskPage> {
   final PageController _pageController = PageController();
-  final SidebarXController _controller = SidebarXController(selectedIndex: 0);
   int _currentStep = 0;
   bool _showImageSelection = false; // Stavová premenná pre zobrazenie widgetov
   bool _showDragAndDrop = false; // Stav pre zobrazenie drag-and-drop sekcie

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sassy/screens/add_task_screen.dart';
+import 'package:sassy/screens/create_material_screen.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:sassy/widgets/sidebar.dart';
 import 'package:sassy/screens/dashboard_screen.dart';
@@ -19,16 +19,17 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0; 
   final SidebarXController _controller = SidebarXController(selectedIndex: 0);
   String? _userRole;
+  String? _userName;
 
   Future<void> _loadUserRole() async {
     final apiService = ApiService();
     final userData = await apiService.getCurrentUser();
     if (userData != null && mounted) {
       setState(() {
-        _userRole = userData['role'];
+        _userRole = userData['user']['role'];
+        _userName = userData['user']['name'];
       });
     }
-    print(_userRole);
   }
 
   void _onItemSelected(int index) {
@@ -80,6 +81,7 @@ class _MainScreenState extends State<MainScreen> {
             controller: _controller,
             onItemSelected: _onItemSelected, 
             userRole: _userRole ?? 'student',
+            userName: _userName ?? 'Unknown',
           ),
           SizedBox(width: 16), 
           Expanded(

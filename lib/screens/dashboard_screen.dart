@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sidebarx/sidebarx.dart';
-// import 'package:sassy/widgets/sidebar.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({Key? key}) : super(key: key);
 
-  final SidebarXController _controller =
-      SidebarXController(selectedIndex: 0, extended: true);
 
   @override
   Widget build(BuildContext context) {

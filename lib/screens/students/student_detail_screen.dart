@@ -530,19 +530,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
             )).toList(),
             const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: () {
-                // Implementácia pridania do novej skupiny
-              },
-              icon: const Icon(Icons.group_add),
-              label: const Text('Pridať do novej skupiny'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF4A261),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
           ],
         );
       },

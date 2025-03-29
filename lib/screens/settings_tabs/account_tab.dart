@@ -36,18 +36,6 @@ class AccountTab extends StatelessWidget {
                 backgroundColor: Color(0xFFF4A261),
                 child: Icon(Icons.person, size: 60, color: Colors.white),
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.camera_alt, color: Colors.orange),
-                ),
-              ),
             ],
           ),
         ),

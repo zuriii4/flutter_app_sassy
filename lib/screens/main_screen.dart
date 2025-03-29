@@ -44,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
     StudentsPage(),
     SettingsPage(),
     SupportPage(),
-    AddTaskPage(),
+    CreateTaskScreen(),
   ];
 
   void _startTokenValidationLoop() {

@@ -229,22 +229,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                                 backgroundColor: _hasSpecialNeeds ? Colors.orange : Colors.blue,
                                 child: const Icon(Icons.person, size: 50, color: Colors.white),
                               ),
-                              Positioned(
-                                right: 0,
-                                bottom: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.grey,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),

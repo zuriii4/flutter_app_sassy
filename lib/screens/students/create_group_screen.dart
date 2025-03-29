@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/models/student.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   final List<String> selectedStudentIds;

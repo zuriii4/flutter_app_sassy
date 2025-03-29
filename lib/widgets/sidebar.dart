@@ -25,6 +25,7 @@ class Sidebar extends StatelessWidget {
       controller: controller,
       theme: SidebarXTheme(
         margin: const EdgeInsets.all(10),
+        width: 80, // Nastavíme pevnú šírku pre collapsed stav
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xffffd3ad), Color(0xfff9dfc8)],
@@ -34,22 +35,17 @@ class Sidebar extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Color.fromARGB(30, 0, 0, 0), // Dynamická hodnota
+              color: Color.fromARGB(30, 0, 0, 0),
               spreadRadius: 5,
               blurRadius: 7,
               offset: Offset(0, 3),
             ),
           ],
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-            topLeft: Radius.circular(20),
-            bottomLeft: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
         hoverColor: const Color.fromARGB(28, 0, 0, 0),
         hoverTextStyle: const TextStyle(color: Colors.black),
-        textStyle: const TextStyle(color: Colors.black54, fontSize: 14, fontFamily: 'Inter',),
+        textStyle: const TextStyle(color: Colors.black54, fontSize: 14, fontFamily: 'Inter'),
         selectedTextStyle: const TextStyle(color: Colors.black),
 
         itemMargin: const EdgeInsets.only(left:5, right: 5, top: 0, bottom: 0),
@@ -82,7 +78,7 @@ class Sidebar extends StatelessWidget {
         ),
       ),
       extendedTheme: const SidebarXTheme(
-        width: 250,
+        width: 250, // Pevná šírka pre rozbalený stav
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xffffd3ad), Color(0xfff9dfc8)],
@@ -92,16 +88,13 @@ class Sidebar extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Color.fromARGB(30, 0, 0, 0), // Dynamická hodnota
+              color: Color.fromARGB(30, 0, 0, 0),
               spreadRadius: 5,
               blurRadius: 7,
               offset: Offset(0, 3),
             ),
           ],
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
       ),
       headerBuilder: (context, extended) {
@@ -112,20 +105,25 @@ class Sidebar extends StatelessWidget {
           ),
           child: Center(
             child: Row(
-              mainAxisSize: MainAxisSize.min, // Minimalizuje šírku Row na obsah
+              mainAxisSize: MainAxisSize.min,
               children: [
+                // const CircleAvatar(
+                //   radius: 20,
+                //   backgroundImage: AssetImage('assets/img/avatar.png'),
+                // ),
                 const CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage('assets/img/avatar.png'),
+                  radius: 25,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 25, color: Color(0xFFF4A261)),
                 ),
-                if (controller.extended) ...[
+                if (extended) ...[
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         userName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1.2,
@@ -136,7 +134,7 @@ class Sidebar extends StatelessWidget {
                       const SizedBox(height: 5),
                       Text(
                         userRole == 'teacher' ? "UČITEĽ" : "ŠTUDENT",
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                        style: const TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                     ],
                   ),
@@ -155,7 +153,6 @@ class Sidebar extends StatelessWidget {
           label: 'Dashboard',
           onTap: () {
             onItemSelected(0);
-
           },
         ),
         SidebarXItem(
@@ -169,7 +166,6 @@ class Sidebar extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => MaterialsPage()),
             );
-
           },
         ),
         SidebarXItem(
@@ -180,7 +176,6 @@ class Sidebar extends StatelessWidget {
           label: 'Študenti',
           onTap: () {
             onItemSelected(2);
-
           },
         ),
         SidebarXItem(
@@ -191,7 +186,6 @@ class Sidebar extends StatelessWidget {
           label: 'Nastavenia',
           onTap: () {
             onItemSelected(3);
-
           },
         ),
         SidebarXItem(
@@ -202,7 +196,6 @@ class Sidebar extends StatelessWidget {
           label: 'Podpora',
           onTap: () {
             onItemSelected(4);
-
           },
         ),
         SidebarXItem(
@@ -219,12 +212,10 @@ class Sidebar extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,
               );
-
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
               );
-
             }
           },
         ),
@@ -237,7 +228,6 @@ class Sidebar extends StatelessWidget {
           label: 'Dashboard',
           onTap: () {
             onItemSelected(6);
-
           },
         ),
         SidebarXItem(
@@ -248,7 +238,6 @@ class Sidebar extends StatelessWidget {
           label: 'Profil',
           onTap: () {
             onItemSelected(2);
-
           },
         ),
         SidebarXItem(
@@ -265,18 +254,18 @@ class Sidebar extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,
               );
-
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
               );
-
             }
           },
         ),
       ],
       footerBuilder: (context, extended) {
+        // V footerBuilder už máme paramater extended, ktorý odráža stav sidebaru
         if (extended) {
+          // Plne rozbalený stav
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Container(
@@ -315,7 +304,6 @@ class Sidebar extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () {
                       onItemSelected(5);
-
                     },
                     icon: const Icon(
                       Icons.add,
@@ -341,24 +329,28 @@ class Sidebar extends StatelessWidget {
             ),
           );
         } else {
-          return ElevatedButton(
-            onPressed: () async {
-              onItemSelected(5);
-
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 229, 127, 37),
-              minimumSize: const Size(50, 50),
-              maximumSize: const Size(50, 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+          // Zabalený stav - používame jednoduchšiu verziu tlačidla
+          return Align(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: 40,
+                height: 40,
+                child: FloatingActionButton(
+                  elevation: 0,
+                  backgroundColor: const Color.fromARGB(255, 229, 127, 37),
+                  onPressed: () {
+                    onItemSelected(5);
+                  },
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
+                ),
               ),
-              padding: EdgeInsets.zero,
             ),
-            child: const Icon(Icons.add, color: Colors.white),
           );
         }
       },
+      animationDuration: const Duration(milliseconds: 300),
     );
   }
 }

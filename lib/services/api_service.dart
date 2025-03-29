@@ -99,6 +99,7 @@ class ApiService {
     required String email,
     required String password,
     required String role,
+    required DateTime dateOfBirth,
     String? specialization,
     String? group,
   }) async {
@@ -110,6 +111,7 @@ class ApiService {
         'email': email,
         'password': password,
         'role': role,
+        'dateOfBirth': dateOfBirth.toIso8601String(),
         if (specialization != null) 'specialization': specialization,
         if (group != null) 'group': group,
       }),
@@ -127,6 +129,9 @@ class ApiService {
       Uri.parse('$baseUrl/users'),
       headers: {'Authorization': 'Bearer $token'},
     );
+    
+    // print('📩 Status kód: ${response.statusCode}');
+    // print('📦 Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -153,18 +158,20 @@ class ApiService {
     }
   }
 
-  // ✅ Aktualizácia používateľa
   Future<bool> updateUser({
     String? name,
     String? email,
     String? password,
     String? role,
+    String? notes,
     String? specialization,
-    String? group,
+    bool? hasSpecialNeeds,
+    DateTime? dateOfBirth,
+    String? needsDescription,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-
+    
     final response = await http.put(
       Uri.parse('$baseUrl/users/update/'),
       headers: {
@@ -176,11 +183,56 @@ class ApiService {
         if (email != null) 'email': email,
         if (password != null) 'password': password,
         if (role != null) 'role': role,
+        if (notes != null) 'notes': notes,
         if (specialization != null) 'specialization': specialization,
-        if (group != null) 'group': group,
+        if (hasSpecialNeeds != null) 'hasSpecialNeeds': hasSpecialNeeds,
+        if (needsDescription != null) 'needsDescription': needsDescription,
+        if (dateOfBirth != null) 'dateOfBirth': dateOfBirth.toIso8601String(), // Convert to ISO format
       }),
     );
+    
+    print('📩 Status kód: ${response.statusCode}');
+    print('📦 Response body: ${response.body}');
+    
+    return response.statusCode == 200;
+  }
 
+  // Aktualizácia používateľa podľa ID (pre admin/učiteľ funkcie)
+  Future<bool> updateUserById({
+    required String userId,  // ID používateľa, ktorého aktualizujeme
+    String? name,
+    String? email,
+    String? password,
+    String? notes,
+    String? specialization,
+    bool? hasSpecialNeeds,
+    DateTime? dateOfBirth,
+    String? needsDescription,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    final response = await http.put(
+      Uri.parse('$baseUrl/students/update/$userId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        if (name != null) 'name': name,
+        if (email != null) 'email': email,
+        if (password != null) 'password': password,
+        if (notes != null) 'notes': notes,
+        if (specialization != null) 'specialization': specialization,
+        if (hasSpecialNeeds != null) 'hasSpecialNeeds': hasSpecialNeeds,
+        if (needsDescription != null) 'needsDescription': needsDescription,
+        if (dateOfBirth != null) 'dateOfBirth': dateOfBirth.toIso8601String(),
+      }),
+    );
+    
+    print('📩 Status kód: ${response.statusCode}');
+    print('📦 Response body: ${response.body}');
+    
     return response.statusCode == 200;
   }
 
@@ -194,7 +246,7 @@ class ApiService {
     final token = prefs.getString('token');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/groups'),
+      Uri.parse('$baseUrl/groups/create'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -205,6 +257,7 @@ class ApiService {
         'studentIds': studentIds,
       }),
     );
+    // print(response.body);
 
     return response.statusCode == 201;
   }
@@ -218,7 +271,7 @@ class ApiService {
     final token = prefs.getString('token');
 
     final response = await http.put(
-      Uri.parse('$baseUrl/groups/add-student'),
+      Uri.parse('$baseUrl/groups/groups/add-student'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -228,7 +281,7 @@ class ApiService {
         'studentId': studentId,
       }),
     );
-
+    // print(response.body);
     return response.statusCode == 200;
   }
 
@@ -238,7 +291,7 @@ class ApiService {
     final token = prefs.getString('token');
 
     final response = await http.delete(
-      Uri.parse('$baseUrl/groups/$groupId'),
+      Uri.parse('$baseUrl/groups/groups/$groupId'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -355,4 +408,216 @@ class ApiService {
 
     return response.statusCode == 200;
   }
+
+  // Získanie zoznamu všetkých študentov
+  Future<List<dynamic>> getStudents() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/students'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    // print(response.body);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa načítať študentov');
+    }
+  }
+
+  // Získanie detailov konkrétneho študenta
+  Future<Map<String, dynamic>> getStudentDetails(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/students/$studentId'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    // print(response.body);
+
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa načítať detaily študenta');
+    }
+  }
+
+  // Získanie skupín študenta
+  Future<List<Map<String, dynamic>>> getStudentGroups(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/students/$studentId/groups'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    // print(response.body);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Nepodarilo sa načítať skupiny študenta');
+    }
+  }
+
+  // Vyhľadávanie študentov
+  Future<List<dynamic>> searchStudents(String query) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/students/search?q=${Uri.encodeComponent(query)}'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa vyhľadať študentov');
+    }
+  }
+
+  // Odstránenie študenta zo skupiny
+  Future<bool> removeStudentFromGroup(String groupId, String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    // print(studentId);
+    final response = await http.delete(
+      Uri.parse('$baseUrl/students/groups/$groupId/students/$studentId'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    // print(response.body);
+
+    return response.statusCode == 200;
+  }
+
+  Future<Map<String, dynamic>?> getTeacher() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/users/teacher'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // print(data);
+      return data['teacher']; // Vraciaš konkrétny objekt učiteľa
+    } else {
+      throw Exception('Nepodarilo sa načítať učiteľa');
+    }
+  }
+
+// ✅ Získanie detailov skupiny vrátane učiteľa a študentov
+  Future<Map<String, dynamic>> getGroupDetails(String groupId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/groups/group/$groupId'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    // print(response.body);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa načítať detail skupiny');
+    }
+  }
+
+  // 🟢 Získanie všetkých skupín s detailmi učiteľa a študentov
+  Future<List<Map<String, dynamic>>> getAllGroupsWithDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/groups/groups'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Nepodarilo sa načítať skupiny');
+    }
+  }
+
+  
+  
+  // 🟥 Odstránenie aktuálne prihláseného používateľa
+  Future<bool> deleteCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+  
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+  
+    final response = await http.delete(
+      Uri.parse('$baseUrl/users/delete'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+  
+    return response.statusCode == 200;
+  }
+  
+  // 🟥 Odstránenie študenta podľa ID (admin alebo učiteľ)
+  Future<bool> deleteStudentById(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+  
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+  
+    final response = await http.delete(
+      Uri.parse('$baseUrl/students/delete/$studentId'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+  
+    return response.statusCode == 200;
+  }
+
+  
+  
 }

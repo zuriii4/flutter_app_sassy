@@ -7,14 +7,16 @@ import 'package:sidebarx/sidebarx.dart';
 
 class Sidebar extends StatelessWidget {
   final SidebarXController controller;
-  final Function(int) onItemSelected; // Callback na zmenu stránky
+  final Function(int) onItemSelected;
   final String userRole;
+  final String userName;
 
   const Sidebar({
     super.key,
     required this.controller,
     required this.onItemSelected,
     required this.userRole,
+    required this.userName
   });
 
   @override
@@ -118,11 +120,11 @@ class Sidebar extends StatelessWidget {
                 ),
                 if (controller.extended) ...[
                   const SizedBox(width: 10),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Branislav Zurian",
+                        userName,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -131,9 +133,9 @@ class Sidebar extends StatelessWidget {
                           fontFamily: 'Inter',
                         ),
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       Text(
-                        "UČITEĽ",
+                        userRole == 'teacher' ? "UČITEĽ" : "ŠTUDENT",
                         style: TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                     ],
@@ -153,7 +155,7 @@ class Sidebar extends StatelessWidget {
           label: 'Dashboard',
           onTap: () {
             onItemSelected(0);
-            debugPrint('Navigácia na Dashboard');
+
           },
         ),
         SidebarXItem(
@@ -167,7 +169,7 @@ class Sidebar extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => MaterialsPage()),
             );
-            debugPrint('Navigácia na Materiály');
+
           },
         ),
         SidebarXItem(
@@ -178,7 +180,7 @@ class Sidebar extends StatelessWidget {
           label: 'Študenti',
           onTap: () {
             onItemSelected(2);
-            debugPrint('Navigácia na Študenti');
+
           },
         ),
         SidebarXItem(
@@ -189,7 +191,7 @@ class Sidebar extends StatelessWidget {
           label: 'Nastavenia',
           onTap: () {
             onItemSelected(3);
-            debugPrint('Navigácia na Nastavenia');
+
           },
         ),
         SidebarXItem(
@@ -200,7 +202,7 @@ class Sidebar extends StatelessWidget {
           label: 'Podpora',
           onTap: () {
             onItemSelected(4);
-            debugPrint('Navigácia na Podpora');
+
           },
         ),
         SidebarXItem(
@@ -217,12 +219,12 @@ class Sidebar extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,
               );
-              debugPrint('✅ Odhlásenie úspešné');
+
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
               );
-              debugPrint('❌ Odhlásenie zlyhalo');
+
             }
           },
         ),
@@ -234,8 +236,8 @@ class Sidebar extends StatelessWidget {
           ),
           label: 'Dashboard',
           onTap: () {
-            onItemSelected(0);
-            debugPrint('Navigácia na Dashboard');
+            onItemSelected(6);
+
           },
         ),
         SidebarXItem(
@@ -245,8 +247,8 @@ class Sidebar extends StatelessWidget {
           ),
           label: 'Profil',
           onTap: () {
-            onItemSelected(1);
-            debugPrint('Navigácia na Profil');
+            onItemSelected(2);
+
           },
         ),
         SidebarXItem(
@@ -263,12 +265,12 @@ class Sidebar extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,
               );
-              debugPrint('✅ Odhlásenie úspešné');
+
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
               );
-              debugPrint('❌ Odhlásenie zlyhalo');
+
             }
           },
         ),
@@ -313,7 +315,7 @@ class Sidebar extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () {
                       onItemSelected(5);
-                      debugPrint("Pridať novú úlohu");
+
                     },
                     icon: const Icon(
                       Icons.add,
@@ -342,7 +344,7 @@ class Sidebar extends StatelessWidget {
           return ElevatedButton(
             onPressed: () async {
               onItemSelected(5);
-              debugPrint("Pridať novú úlohu 2");
+
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 229, 127, 37),

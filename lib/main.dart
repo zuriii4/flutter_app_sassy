@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/splash_screen.dart';
-import 'package:sassy/widgets/puzzle_board.dart';
-import 'package:sassy/widgets/connection_board.dart';
-import 'package:sassy/widgets/quiz_board.dart';
-import 'package:sassy/widgets/word_jumble_board.dart';
+// import 'package:sassy/materials/puzzle/puzzle_board.dart';
+// import 'package:sassy/materials/quiz/quiz_board.dart';
+// import 'package:sassy/materials/word_jumble/word_jumble_board.dart';
+// import 'package:sassy/materials/connection/connection_pair.dart';
+// import 'package:sassy/materials/connection/connection_board.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,13 +31,19 @@ class MyApp extends StatelessWidget {
     // );
 
     // return MaterialApp(
-    //   home: ConnectionGameWrapper(
-    //     pairs: [
-    //       ConnectionPair(left: "Slon", right: "🐘"),
-    //       ConnectionPair(left: "Pes", right: "🐕"),
-    //       ConnectionPair(left: "Mačka", right: "🐈"),
-    //     ],
-    //   ),
+    //   home: ConnectionBoard(
+    //           pairs: [
+    //             ConnectionPair(left: "Slon", right: "🐘"),
+    //             ConnectionPair(left: "Pes", right: "🐕"),
+    //             ConnectionPair(left: "Mačka", right: "🐈"),
+    //             ConnectionPair(left: "Žirafa", right: "🦒"),
+    //             ConnectionPair(left: "Lev", right: "🦁"),
+    //           ],
+    //           itemColor: const Color(0xFF3498DB),
+    //           selectedItemColor: const Color(0xFF2980B9),
+    //           connectedColor: const Color(0xFF2ECC71),
+    //           lineColor: Colors.grey,
+    //         )
     // );
 
     // return MaterialApp(

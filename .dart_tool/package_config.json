@@ -218,6 +218,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///Users/zuri/.pub-cache/hosted/pub.dev/intl-0.18.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///Users/zuri/.pub-cache/hosted/pub.dev/leak_tracker-10.0.5",
       "packageUri": "lib/",
@@ -518,7 +524,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-03-23T15:56:05.144983Z",
+  "generated": "2025-03-29T13:44:43.039522Z",
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/zuri/flutter",

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-// import 'package:sassy/widgets/sidebar.dart';
-import 'package:sidebarx/sidebarx.dart';
 
 class SupportPage extends StatelessWidget {
   SupportPage({Key? key}) : super(key: key);
 
-  final SidebarXController _controller =
-      SidebarXController(selectedIndex: 4, extended: true);
+
 
   @override
   Widget build(BuildContext context) {

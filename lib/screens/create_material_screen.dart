@@ -7,6 +7,10 @@ import 'package:sassy/services/api_service.dart';
 import 'package:sassy/models/material.dart';
 
 class CreateTaskScreen extends StatefulWidget {
+  final Function? onTaskSubmitted; // Add callback function
+
+  const CreateTaskScreen({Key? key, this.onTaskSubmitted}) : super(key: key);
+
   @override
   _CreateTaskScreenState createState() => _CreateTaskScreenState();
 }
@@ -16,18 +20,25 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   int _currentStep = 0;
   final ApiService _apiService = ApiService();
   
-  // Model pre uchovanie dát v rámci krokov
-  final TaskModel taskModel = TaskModel(
-    title: '',
-    description: '',
-    type: '',
-    content: {},
-    assignedTo: [],
-    assignedGroups: []
-  );
+  // Použitie existujúceho TaskModel
+  late TaskModel taskModel;
   
   // Referencia na obsah aktuálnej úlohy, ktorý sa mení podľa typu
   Widget _contentStep = Container();
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializácia TaskModel
+    taskModel = TaskModel(
+      title: '',
+      description: '',
+      type: '',
+      content: {},
+      assignedTo: [],
+      assignedGroups: []
+    );
+  }
 
   void _nextStep() {
     if (_currentStep < 3) {
@@ -80,23 +91,51 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   // Metóda pre odosielanie dát na server
   Future<void> _submitTask() async {
     try {
+      // Kontrola či obsah je validný pred odoslaním
+      if (!taskModel.isContentValid()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Obsah úlohy nie je správne vyplnený')),
+        );
+        return;
+      }
+      
       final result = await _apiService.createMaterial(
         title: taskModel.title,
         type: taskModel.type,
         content: taskModel.content,
         description: taskModel.description,
-        assignedTo: taskModel.assignedTo.isNotEmpty ? taskModel.assignedTo.join(',') : null,
+        assignedTo: taskModel.assignedTo,
         assignedGroups: taskModel.assignedGroups,
       );
       
       if (result) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Úloha bola úspešne vytvorená')),
+          const SnackBar(content: Text('Úloha bola úspešne vytvorená')),
         );
-        Navigator.pop(context);
+        
+        // Použitie callback funkcie pre návrat na predošlú obrazovku
+        if (widget.onTaskSubmitted != null) {
+          widget.onTaskSubmitted!();
+        }
+        
+        // Reset formulára
+        setState(() {
+          _currentStep = 0;
+          taskModel = TaskModel(
+            title: '',
+            description: '',
+            type: '',
+            content: {},
+            assignedTo: [],
+            assignedGroups: []
+          );
+          _contentStep = Container();
+          _pageController.jumpToPage(0);
+        });
+        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Chyba pri vytváraní úlohy')),
+          const SnackBar(content: Text('Chyba pri vytváraní úlohy')),
         );
       }
     } catch (e) {
@@ -206,6 +245,7 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                                 ),
                                 child: const Text('Späť'),
                               ),
+                            const Spacer(),
                             ElevatedButton(
                               onPressed: () {
                                 if (_currentStep == 3) {

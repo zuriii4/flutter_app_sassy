@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:3000/api';
@@ -297,28 +300,121 @@ class ApiService {
 
     return response.statusCode == 200;
   }
-
-  // 🟢 Vytvorenie nového materiálu
+  
+  // 🟢 Nahrávanie obrázka na server
+  Future<String?> uploadImage(File imageFile) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      if (token == null) {
+        throw Exception('Používateľ nie je prihlásený');
+      }
+      
+      // Vytvorenie formData pre multipart request
+      final dio = Dio();
+      
+      // Získanie názvu súboru a typu zo súborového rozšírenia
+      String fileName = imageFile.path.split('/').last;
+      String fileExtension = fileName.split('.').last.toLowerCase();
+      MediaType? contentType;
+      
+      // Nastavenie správneho typu obsahu podľa prípony súboru
+      switch (fileExtension) {
+        case 'jpg':
+        case 'jpeg':
+          contentType = MediaType.parse('image/jpeg');
+          break;
+        case 'png':
+          contentType = MediaType.parse('image/png');
+          break;
+        case 'gif':
+          contentType = MediaType.parse('image/gif');
+          break;
+        case 'webp':
+          contentType = MediaType.parse('image/webp');
+          break;
+        default:
+          contentType = MediaType.parse('image/jpeg'); // Predvolený typ
+      }
+      
+      // Vytvorenie FormData so správnym názvom poľa 'image'
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: fileName,
+          contentType: contentType,
+        ),
+      });
+      
+      // Odoslanie požiadavky na server
+      final response = await dio.post(
+        '$baseUrl/materials/image',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'multipart/form-data', // Explicitne nastavenie typu obsahu
+          },
+          followRedirects: false,
+          validateStatus: (status) => true, // Akceptácia akéhokoľvek stavového kódu pre ladenie
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        // Vrátime cestu k nahranému obrázku
+        return response.data['filePath'];
+      } else {
+        print('❌ Chyba pri nahrávaní obrázka: ${response.statusCode}');
+        print('❌ Response data: ${response.data}');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Výnimka pri nahrávaní obrázka: $e');
+      return null;
+    }
+  }
+  
+  // 🟢 Získanie URL pre obrázok
+  String getImageUrl(String imagePath) {
+    // Odstránenie lomítka na začiatku cesty, ak existuje
+    final path = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+    return 'http://localhost:3000/$path';
+  }
+  
+  // 🟡 Aktualizácia metódy createMaterial pre podporu nahrávania obrázkov
   Future<bool> createMaterial({
     required String title,
     required String type,
     required Map<String, dynamic> content,
     String? description,
-    String? assignedTo,
+    List<String>? assignedTo,
     List<String>? assignedGroups,
+    File? imageFile, // Nový parameter pre súbor obrázka
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-
+    
+    // Ak ide o typ puzzle a máme súbor obrázka, najprv ho nahráme
+    if (type == 'puzzle' && imageFile != null) {
+      final imagePath = await uploadImage(imageFile);
+      if (imagePath != null) {
+        // Aktualizujeme obsah s cestou k obrázku
+        content['image'] = imagePath;
+      } else {
+        return false; // Zlyhalo nahrávanie obrázka
+      }
+    }
+    
+    // Pokračujeme so štandardným vytvorením materiálu
     final body = {
       'title': title,
       'type': type,
       'content': content,
       if (description != null) 'description': description,
-      if (assignedTo != null) 'assignedTo': assignedTo,
-      if (assignedGroups != null) 'assignedGroups': assignedGroups,
+      if (assignedTo != null && assignedTo.isNotEmpty) 'assignedTo': assignedTo,
+      if (assignedGroups != null && assignedGroups.isNotEmpty) 'assignedGroups': assignedGroups,
     };
-
+        
     final response = await http.post(
       Uri.parse('$baseUrl/materials/create'),
       headers: {
@@ -327,11 +423,11 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
-
+    
     return response.statusCode == 201;
   }
-
-  // 🟡 Aktualizácia materiálu
+  
+  // 🟡 Aktualizácia materiálu s podporou obrázkov
   Future<bool> updateMaterial({
     required String materialId,
     String? title,
@@ -340,9 +436,21 @@ class ApiService {
     Map<String, dynamic>? content,
     String? assignedTo,
     List<String>? assignedGroups,
+    File? imageFile, // Nový parameter pre súbor obrázka
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    
+    // Ak máme nový obrázok a content nie je null
+    if (imageFile != null && content != null && type == 'puzzle') {
+      final imagePath = await uploadImage(imageFile);
+      if (imagePath != null) {
+        // Aktualizujeme obsah s cestou k obrázku
+        content['image'] = imagePath;
+      } else {
+        return false; // Zlyhalo nahrávanie obrázka
+      }
+    }
 
     final body = {
       if (title != null) 'title': title,
@@ -364,6 +472,7 @@ class ApiService {
 
     return response.statusCode == 200;
   }
+
 
   // 🔴 Odstránenie materiálu
   Future<bool> deleteMaterial(String materialId) async {
@@ -617,7 +726,4 @@ class ApiService {
   
     return response.statusCode == 200;
   }
-
-  
-  
 }

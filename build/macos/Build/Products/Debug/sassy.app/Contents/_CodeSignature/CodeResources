@@ -23,10 +23,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			l9uWCBRy7+WmzxhIDFzpSRIfsk0=
+			0Z3hwSBsTF8XpnNyMiUmjBiF9Vk=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"97db96081472efe5a6cf18480c5ce949121fb24d"</string>
+			<string>cdhash H"d19de1c1206c4c5f17a673723225268c1885f559"</string>
 		</dict>
 		<key>Frameworks/FlutterMacOS.framework</key>
 		<dict>
@@ -36,6 +36,15 @@
 			</data>
 			<key>requirement</key>
 			<string>cdhash H"4f2a08c8d8e366f2cbb02190afced16b7f2e6364"</string>
+		</dict>
+		<key>Frameworks/file_picker.framework</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			B2CTbFKsqSaIWkc984c/YBQKY28=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"0760936c52aca926885a473df3873f60140a636f"</string>
 		</dict>
 		<key>Frameworks/file_selector_macos.framework</key>
 		<dict>
@@ -239,10 +248,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			BSPd4Iq8+z7EiGJp1LC2iTlX43o=
+			fj/5BjgA/MmvNyNJceyiyBbsvcM=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"0523dde08abcfb3ec4886269d4b0b6893957e37a"</string>
+			<string>cdhash H"7e3ff9063800fcc9af37234971eca2c816ecbdc3"</string>
 		</dict>
 		<key>Resources/AppIcon.icns</key>
 		<dict>

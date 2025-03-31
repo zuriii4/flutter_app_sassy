@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/models/student.dart';
+import 'package:sassy/widgets/form_fields.dart';
+import 'package:sassy/widgets/message_display.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   final List<String> selectedStudentIds;
@@ -189,25 +191,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_errorMessage != null)
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      margin: const EdgeInsets.only(bottom: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade100,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.error, color: Colors.red),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              _errorMessage!,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ],
-                      ),
+                    MessageDisplay(
+                      message: _errorMessage!,
+                      type: MessageType.error,
                     ),
                   
                   // Sekcia pre informácie o skupine
@@ -233,16 +219,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         ),
                         const SizedBox(height: 15),
                         
-                        TextField(
+                        FormTextField(
+                          label: 'Názov skupiny',
+                          placeholder: 'Zadajte názov skupiny',
                           controller: _groupNameController,
-                          decoration: InputDecoration(
-                            labelText: 'Názov skupiny',
-                            filled: true,
-                            fillColor: Colors.grey.shade50,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
                         ),
                       ],
                     ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
+import 'package:sassy/widgets/form_fields.dart';
+import 'package:sassy/widgets/message_display.dart';
 
 class ConnectionContent extends StatefulWidget {
   final TaskModel taskModel;
@@ -14,6 +16,7 @@ class _ConnectionContentState extends State<ConnectionContent> {
   final TextEditingController _leftController = TextEditingController();
   final TextEditingController _rightController = TextEditingController();
   List<Map<String, String>> _pairs = [];
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -36,9 +39,15 @@ class _ConnectionContentState extends State<ConnectionContent> {
   }
 
   void _addPair() {
-    if (_leftController.text.isEmpty || _rightController.text.isEmpty) return;
+    if (_leftController.text.isEmpty || _rightController.text.isEmpty) {
+      setState(() {
+        _errorMessage = "Vyplňte obe strany páru";
+      });
+      return;
+    }
     
     setState(() {
+      _errorMessage = null;
       _pairs.add({
         'left': _leftController.text.trim(),
         'right': _rightController.text.trim(),
@@ -68,20 +77,16 @@ class _ConnectionContentState extends State<ConnectionContent> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            FormTextField(
+              label: 'Ľavá strana',
+              placeholder: 'Zadajte ľavú stranu',
               controller: _leftController,
-              decoration: const InputDecoration(
-                labelText: 'Ľavá strana',
-                border: OutlineInputBorder(),
-              ),
             ),
             const SizedBox(height: 16),
-            TextField(
+            FormTextField(
+              label: 'Pravá strana',
+              placeholder: 'Zadajte pravú stranu',
               controller: _rightController,
-              decoration: const InputDecoration(
-                labelText: 'Pravá strana',
-                border: OutlineInputBorder(),
-              ),
             ),
           ],
         ),
@@ -107,6 +112,11 @@ class _ConnectionContentState extends State<ConnectionContent> {
                 Navigator.pop(context);
                 _leftController.clear();
                 _rightController.clear();
+              } else {
+                Navigator.pop(context);
+                setState(() {
+                  _errorMessage = "Vyplňte obe strany páru";
+                });
               }
             },
             child: const Text('Uložiť'),
@@ -134,8 +144,15 @@ class _ConnectionContentState extends State<ConnectionContent> {
             ),
             const SizedBox(height: 20),
             
+            if (_errorMessage != null)
+              MessageDisplay(
+                message: _errorMessage!,
+                type: MessageType.error,
+              ),
+            
             Card(
               elevation: 2,
+              // color: Color.fromARGB(255, 255, 255, 255),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -149,22 +166,21 @@ class _ConnectionContentState extends State<ConnectionContent> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    
+                    FormTextField(
+                      label: 'Ľavá strana',
+                      placeholder: 'Zadajte ľavú stranu',
                       controller: _leftController,
-                      decoration: const InputDecoration(
-                        labelText: 'Ľavá strana',
-                        border: OutlineInputBorder(),
-                      ),
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    
+                    FormTextField(
+                      label: 'Pravá strana',
+                      placeholder: 'Zadajte pravú stranu',
                       controller: _rightController,
-                      decoration: const InputDecoration(
-                        labelText: 'Pravá strana',
-                        border: OutlineInputBorder(),
-                      ),
                     ),
                     const SizedBox(height: 16),
+                    
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

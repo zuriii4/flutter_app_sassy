@@ -8,15 +8,14 @@ import 'package:sassy/screens/material_steps/content/connection_content.dart';
 // Základná abstraktná trieda pre obsahové kroky
 abstract class TaskContentStep extends StatefulWidget {
   final TaskModel taskModel;
-  
   const TaskContentStep({Key? key, required this.taskModel}) : super(key: key);
 }
 
 // Konkrétna implementácia pre typ Quiz
 class TaskContentQuizStep extends TaskContentStep {
-  const TaskContentQuizStep({Key? key, required TaskModel taskModel}) 
-    : super(key: key, taskModel: taskModel);
-
+  const TaskContentQuizStep({Key? key, required TaskModel taskModel})
+      : super(key: key, taskModel: taskModel);
+  
   @override
   State<TaskContentQuizStep> createState() => _TaskContentQuizStepState();
 }
@@ -30,7 +29,7 @@ class _TaskContentQuizStepState extends State<TaskContentQuizStep> {
       widget.taskModel.content['questions'] = [];
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return QuizContent(taskModel: widget.taskModel);
@@ -39,29 +38,37 @@ class _TaskContentQuizStepState extends State<TaskContentQuizStep> {
 
 // Konkrétna implementácia pre typ Puzzle
 class TaskContentPuzzleStep extends TaskContentStep {
-  const TaskContentPuzzleStep({Key? key, required TaskModel taskModel}) 
-    : super(key: key, taskModel: taskModel);
-
+  const TaskContentPuzzleStep({Key? key, required TaskModel taskModel})
+      : super(key: key, taskModel: taskModel);
+  
   @override
   State<TaskContentPuzzleStep> createState() => _TaskContentPuzzleStepState();
 }
 
 class _TaskContentPuzzleStepState extends State<TaskContentPuzzleStep> {
+  late Map<String, dynamic> _content;
+
   @override
   void initState() {
     super.initState();
-    // Inicializácia štruktúry pre puzzle
-    if (widget.taskModel.content.isEmpty) {
-      widget.taskModel.content = {
-        'image': '',
-        'grid': {
-          'columns': 3,
-          'rows': 3
-        }
+
+    _content = Map<String, dynamic>.from(widget.taskModel.content);
+
+    if (!_content.containsKey('grid')) {
+      _content['grid'] = {
+        'columns': 3,
+        'rows': 3
       };
     }
-  }
 
+    if (!_content.containsKey('image')) {
+      _content['image'] = null;
+    }
+
+    // Ak treba aktualizovať model neskôr, môžeš použiť:
+    widget.taskModel.content = _content;
+  }
+  
   @override
   Widget build(BuildContext context) {
     return PuzzleContent(taskModel: widget.taskModel);
@@ -70,9 +77,9 @@ class _TaskContentPuzzleStepState extends State<TaskContentPuzzleStep> {
 
 // Konkrétna implementácia pre typ Word Jumble
 class TaskContentWordJumbleStep extends TaskContentStep {
-  const TaskContentWordJumbleStep({Key? key, required TaskModel taskModel}) 
-    : super(key: key, taskModel: taskModel);
-
+  const TaskContentWordJumbleStep({Key? key, required TaskModel taskModel})
+      : super(key: key, taskModel: taskModel);
+  
   @override
   State<TaskContentWordJumbleStep> createState() => _TaskContentWordJumbleStepState();
 }
@@ -87,9 +94,17 @@ class _TaskContentWordJumbleStepState extends State<TaskContentWordJumbleStep> {
         'words': [],
         'correct_order': []
       };
+    } else {
+      // Kontrola existencie potrebných kľúčov
+      if (!widget.taskModel.content.containsKey('words')) {
+        widget.taskModel.content['words'] = [];
+      }
+      if (!widget.taskModel.content.containsKey('correct_order')) {
+        widget.taskModel.content['correct_order'] = [];
+      }
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return WordJumbleContent(taskModel: widget.taskModel);
@@ -98,9 +113,9 @@ class _TaskContentWordJumbleStepState extends State<TaskContentWordJumbleStep> {
 
 // Konkrétna implementácia pre typ Connection
 class TaskContentConnectionStep extends TaskContentStep {
-  const TaskContentConnectionStep({Key? key, required TaskModel taskModel}) 
-    : super(key: key, taskModel: taskModel);
-
+  const TaskContentConnectionStep({Key? key, required TaskModel taskModel})
+      : super(key: key, taskModel: taskModel);
+  
   @override
   State<TaskContentConnectionStep> createState() => _TaskContentConnectionStepState();
 }
@@ -110,11 +125,43 @@ class _TaskContentConnectionStepState extends State<TaskContentConnectionStep> {
   void initState() {
     super.initState();
     // Inicializácia štruktúry pre connection
-    if (!widget.taskModel.content.containsKey('pairs')) {
+    if (widget.taskModel.content.isEmpty) {
+      widget.taskModel.content = {
+        'pairs': []
+      };
+    } else if (!widget.taskModel.content.containsKey('pairs')) {
       widget.taskModel.content['pairs'] = [];
     }
+    
+    // Zabezpečenie správnej štruktúry pre každý pár
+    if (widget.taskModel.content.containsKey('pairs') && 
+        widget.taskModel.content['pairs'] is List) {
+      
+      final List pairs = widget.taskModel.content['pairs'];
+      
+      for (int i = 0; i < pairs.length; i++) {
+        if (pairs[i] is! Map<String, dynamic>) {
+          pairs[i] = {};
+        }
+        
+        if (!pairs[i].containsKey('left')) {
+          pairs[i]['left'] = '';
+        }
+        if (!pairs[i].containsKey('right')) {
+          pairs[i]['right'] = '';
+        }
+        
+        // Podpora pre obrázky v pároch
+        if (!pairs[i].containsKey('leftImage')) {
+          pairs[i]['leftImage'] = null;
+        }
+        if (!pairs[i].containsKey('rightImage')) {
+          pairs[i]['rightImage'] = null;
+        }
+      }
+    }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return ConnectionContent(taskModel: widget.taskModel);

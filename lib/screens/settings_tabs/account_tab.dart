@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/widgets/message_display.dart';
 import 'package:sassy/widgets/form_fields.dart';
+import 'package:sassy/services/api_service.dart';
 
-class AccountTab extends StatelessWidget {
+class AccountTab extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController surnameController;
   final TextEditingController birthdateController;
@@ -25,7 +26,77 @@ class AccountTab extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<AccountTab> createState() => _AccountTabState();
+}
+
+class _AccountTabState extends State<AccountTab> {
+  final ApiService _apiService = ApiService();
+  bool _isInitializing = true;
+  String? _initErrorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    setState(() {
+      _isInitializing = true;
+    });
+
+    try {
+      final userData = await _apiService.getCurrentUser();
+      if (userData != null && mounted) {
+        // Rozdelenie celého mena na meno a priezvisko
+        final nameParts = userData['user']['name']?.split(' ') ?? [];
+        if (nameParts.isNotEmpty) {
+          widget.nameController.text = nameParts.first;
+          if (nameParts.length > 1) {
+            widget.surnameController.text = nameParts.skip(1).join(' ');
+          }
+        }
+        
+        widget.emailController.text = userData['user']['email'] ?? '';
+        
+        // Správne formátovanie dátumu narodenia
+        if (userData['user']['dateOfBirth'] != null) {
+          try {
+            // Parsovanie dátumu z API
+            final DateTime date = DateTime.parse(userData['user']['dateOfBirth']);
+            // Formátovanie do DD/MM/YYYY (rovnaký formát ako používa FormDateField)
+            widget.birthdateController.text = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+          } catch (e) {
+            // Ak parsovanie zlyhá, necháme pole prázdne
+            widget.birthdateController.text = '';
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _initErrorMessage = "Nepodarilo sa načítať používateľské údaje: ${e.toString()}";
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isInitializing = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF4A261)),
+        ),
+      );
+    }
+
     return ListView(
       children: [
         Center(
@@ -41,43 +112,53 @@ class AccountTab extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         
-        // Status messages
-        if (errorMessage != null)
+        // Init error message
+        if (_initErrorMessage != null)
           MessageDisplay(
-            message: errorMessage!,
+            message: _initErrorMessage!,
             type: MessageType.error,
           ),
           
-        if (successMessage != null)
+        // Status messages from parent
+        if (widget.errorMessage != null)
           MessageDisplay(
-            message: successMessage!,
+            message: widget.errorMessage!,
+            type: MessageType.error,
+          ),
+        if (widget.successMessage != null)
+          MessageDisplay(
+            message: widget.successMessage!,
             type: MessageType.success,
           ),
         
         FormTextField(
-          label: "Meno", 
-          placeholder: "Zadajte vaše meno", 
-          controller: nameController
+          label: "Meno",
+          placeholder: "Zadajte vaše meno",
+          controller: widget.nameController
         ),
         const SizedBox(height: 10),
+        
         FormTextField(
-          label: "Priezvisko", 
-          placeholder: "Zadajte vaše priezvisko", 
-          controller: surnameController
+          label: "Priezvisko",
+          placeholder: "Zadajte vaše priezvisko",
+          controller: widget.surnameController
         ),
         const SizedBox(height: 10),
+        
         FormDateField(
-          label: "Dátum narodenia", 
-          placeholder: "DD.MM.RRRR", 
-          controller: birthdateController
+          label: "Dátum narodenia",
+          placeholder: "DD.MM.RRRR",
+          controller: widget.birthdateController
         ),
         const SizedBox(height: 10),
+        
         FormTextField(
-          label: "Email", 
-          placeholder: "Zadajte váš email", 
-          controller: emailController
+          label: "Email",
+          placeholder: "Zadajte váš email",
+          controller: widget.emailController
         ),
         const SizedBox(height: 20),
+        
         const Row(
           children: [
             Icon(Icons.info, color: Colors.blue),
@@ -91,20 +172,21 @@ class AccountTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 20),
+        
         ElevatedButton.icon(
-          onPressed: isLoading ? null : onSave,
-          icon: isLoading 
-              ? Container(
-                  width: 24,
-                  height: 24,
-                  padding: const EdgeInsets.all(2.0),
-                  child: const CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 3,
-                  ),
-                )
-              : const Icon(Icons.save),
-          label: Text(isLoading ? "Aktualizácia..." : "Uložiť zmeny"),
+          onPressed: widget.isLoading ? null : widget.onSave,
+          icon: widget.isLoading
+            ? Container(
+                width: 24,
+                height: 24,
+                padding: const EdgeInsets.all(2.0),
+                child: const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 3,
+                ),
+              )
+            : const Icon(Icons.save),
+          label: Text(widget.isLoading ? "Aktualizácia..." : "Uložiť zmeny"),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFF4A261),
             disabledBackgroundColor: const Color(0xFFF4A261).withOpacity(0.7),
@@ -118,4 +200,3 @@ class AccountTab extends StatelessWidget {
     );
   }
 }
-              

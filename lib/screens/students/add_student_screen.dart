@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
+import 'package:sassy/widgets/search_bar.dart';   // Importujeme vlastný search bar
+import 'package:sassy/widgets/message_display.dart';  // Importujeme message display
 
 class AddStudentScreen extends StatefulWidget {
   final String groupId;
@@ -136,20 +138,12 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       ),
       body: Column(
         children: [
-          // Search bar
+          // Search bar - používame vlastný CustomSearchBar
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextField(
+            child: CustomSearchBar(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Vyhľadať študenta...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
+              hintText: 'Vyhľadať študenta...',
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
@@ -197,6 +191,14 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       onPressed: _loadAvailableStudents,
                       icon: const Icon(Icons.refresh),
                       label: const Text('Skúsiť znova'),
+                    ),
+                    // Použitie MessageDisplay pre chybovú správu
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: MessageDisplay(
+                        message: _errorMessage!,
+                        type: MessageType.error,
+                      ),
                     ),
                   ],
                 ),

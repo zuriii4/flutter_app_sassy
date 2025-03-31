@@ -23,7 +23,7 @@ class TaskTypeStep extends StatelessWidget {
           Expanded(
             child: GridView.count(
               crossAxisCount: 2,
-              childAspectRatio: 1.5,
+              childAspectRatio: 2.5,
               padding: const EdgeInsets.all(16),
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,

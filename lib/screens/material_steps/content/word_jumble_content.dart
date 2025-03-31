@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
+import 'package:sassy/widgets/form_fields.dart';
 
 class WordJumbleContent extends StatefulWidget {
   final TaskModel taskModel;
@@ -32,6 +33,12 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
         _correctOrder = List<String>.from(_words);
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _wordController.dispose();
+    super.dispose();
   }
 
   void _updateModel() {
@@ -122,13 +129,10 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
+                          child: FormTextField(
+                            label: 'Nové slovo',
+                            placeholder: 'Zadajte nové slovo',
                             controller: _wordController,
-                            decoration: const InputDecoration(
-                              labelText: 'Nové slovo',
-                              border: OutlineInputBorder(),
-                            ),
-                            onSubmitted: (_) => _addWord(),
                           ),
                         ),
                         const SizedBox(width: 16),

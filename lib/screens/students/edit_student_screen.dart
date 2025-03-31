@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sassy/models/student.dart';
 import 'package:sassy/services/api_service.dart';
-import 'package:sassy/widgets/form_fields.dart'; // Import pre FormDateField
+import 'package:sassy/widgets/form_fields.dart';
+import 'package:sassy/widgets/message_display.dart';
 
 class EditStudentScreen extends StatefulWidget {
   final Student student;
@@ -25,7 +26,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _notesController;
-  late TextEditingController _dateOfBirthController; // Pridaný controller pre dátum narodenia
+  late TextEditingController _dateOfBirthController;
   bool _hasSpecialNeeds = false;
   late TextEditingController _needsDescriptionController;
 
@@ -56,7 +57,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     _emailController.dispose();
     _notesController.dispose();
     _needsDescriptionController.dispose();
-    _dateOfBirthController.dispose(); // Uvoľnenie controllera
+    _dateOfBirthController.dispose();
     super.dispose();
   }
 
@@ -87,13 +88,13 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
       // Použite novú metódu updateUserById
       final success = await _apiService.updateUserById(
-        userId: widget.student.id,  // ID študenta, ktorého aktualizujeme
+        userId: widget.student.id,
         name: _nameController.text,
         email: _emailController.text,
         notes: _notesController.text,
         hasSpecialNeeds: _hasSpecialNeeds,
         needsDescription: _hasSpecialNeeds ? _needsDescriptionController.text : null,
-        dateOfBirth: birthDate, // Pridaný dátum narodenia
+        dateOfBirth: birthDate,
       );
 
       if (success) {
@@ -113,7 +114,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
             hasSpecialNeeds: _hasSpecialNeeds,
             needsDescription: _hasSpecialNeeds ? _needsDescriptionController.text : '',
             lastActive: widget.student.lastActive,
-            dateOfBirth: birthDate, // Pridaný dátum narodenia
+            dateOfBirth: birthDate,
           ),
         );
       } else {
@@ -198,26 +199,9 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (_errorMessage != null)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.shade200),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.error_outline, color: Colors.red.shade700),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _errorMessage!,
-                                    style: TextStyle(color: Colors.red.shade700),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          MessageDisplay(
+                            message: _errorMessage!,
+                            type: MessageType.error,
                           ),
                         
                         // Profile image placeholder
@@ -235,47 +219,23 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                         const SizedBox(height: 24),
                         
                         // Name field
-                        TextFormField(
+                        FormTextField(
+                          label: 'Meno a priezvisko',
+                          placeholder: 'Zadajte meno a priezvisko',
                           controller: _nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Meno a priezvisko',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            prefixIcon: const Icon(Icons.person),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Zadajte meno a priezvisko';
-                            }
-                            return null;
-                          },
                         ),
                         const SizedBox(height: 16),
                         
                         // Email field
-                        TextFormField(
+                        FormTextField(
+                          label: 'E-mail',
+                          placeholder: 'Zadajte e-mail',
                           controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: 'E-mail',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            prefixIcon: const Icon(Icons.email),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Zadajte e-mail';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Zadajte platný e-mail';
-                            }
-                            return null;
-                          },
+                          keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 16),
                         
-                        // Date of Birth field - NOVÉ POLE
+                        // Date of Birth field
                         FormDateField(
                           label: 'Dátum narodenia',
                           placeholder: 'DD/MM/RRRR',
@@ -301,37 +261,19 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                         // Special needs description (conditional)
                         if (_hasSpecialNeeds) ...[
                           const SizedBox(height: 16),
-                          TextFormField(
+                          FormTextField(
+                            label: 'Popis špeciálnych potrieb',
+                            placeholder: 'Zadajte popis špeciálnych potrieb',
                             controller: _needsDescriptionController,
-                            decoration: InputDecoration(
-                              labelText: 'Popis špeciálnych potrieb',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              prefixIcon: const Icon(Icons.medical_services),
-                            ),
-                            maxLines: 2,
-                            validator: (value) {
-                              if (_hasSpecialNeeds && (value == null || value.isEmpty)) {
-                                return 'Zadajte popis špeciálnych potrieb';
-                              }
-                              return null;
-                            },
                           ),
                         ],
                         const SizedBox(height: 16),
                         
                         // Notes field
-                        TextFormField(
+                        FormTextField(
+                          label: 'Poznámky',
+                          placeholder: 'Zadajte poznámky',
                           controller: _notesController,
-                          decoration: InputDecoration(
-                            labelText: 'Poznámky',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            prefixIcon: const Icon(Icons.note),
-                          ),
-                          maxLines: 3,
                         ),
                         const SizedBox(height: 24),
                         

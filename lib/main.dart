@@ -25,8 +25,8 @@ class MyApp extends StatelessWidget {
     // return MaterialApp(
     //   home: const PuzzleBoard(
     //     assetPath: 'assets/img/sample.jpg',
-    //     rows: 3,
-    //     cols: 3,
+    //     rows: 6,
+    //     cols: 6,
     //   ),
     // );
 

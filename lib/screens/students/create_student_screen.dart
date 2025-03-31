@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/widgets/form_fields.dart';
+import 'package:sassy/widgets/message_display.dart';
 
 class CreateStudentScreen extends StatefulWidget {
   const CreateStudentScreen({Key? key}) : super(key: key);
@@ -137,27 +138,11 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Chybová hláška (ak existuje)
+                // Chybová hláška (ak existuje) - použitie MessageDisplay
                 if (_errorMessage != null)
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.only(bottom: 15),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade100,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error, color: Colors.red),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
+                  MessageDisplay(
+                    message: _errorMessage!,
+                    type: MessageType.error,
                   ),
                 
                 const Text(
@@ -166,7 +151,7 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
                 ),
                 const SizedBox(height: 20),
                 
-                // Formulárové polia
+                // Formulárové polia - už používajú vlastné komponenty
                 FormTextField(
                   label: 'Meno a priezvisko',
                   placeholder: 'Zadajte meno a priezvisko',

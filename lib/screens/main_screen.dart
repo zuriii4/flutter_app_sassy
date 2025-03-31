@@ -16,7 +16,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0; 
+  int _selectedIndex = 0;
   final SidebarXController _controller = SidebarXController(selectedIndex: 0);
   String? _userRole;
   String? _userName;
@@ -35,17 +35,33 @@ class _MainScreenState extends State<MainScreen> {
   void _onItemSelected(int index) {
     setState(() {
       _selectedIndex = index;
+      _loadUserRole();
+      if (index == 5) {
+        _controller.selectIndex(-1);
+      } else {
+        _controller.selectIndex(index);
+      }
     });
   }
 
-  final List<Widget> _pages = [
-    DashboardPage(),
-    MaterialsPage(),
-    StudentsPage(),
-    SettingsPage(),
-    SupportPage(),
-    CreateTaskScreen(),
-  ];
+  void _onTaskSubmitted() {
+    setState(() {
+      _selectedIndex = 0; 
+      _controller.selectIndex(0);
+    });
+  }
+
+  // We need to create pages within build to pass callback
+  List<Widget> _getPages() {
+    return [
+      DashboardPage(),
+      MaterialsPage(),
+      StudentsPage(),
+      SettingsPage(),
+      SupportPage(),
+      CreateTaskScreen(onTaskSubmitted: _onTaskSubmitted),
+    ];
+  }
 
   void _startTokenValidationLoop() {
     Future.doWhile(() async {
@@ -73,21 +89,23 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pages = _getPages();
+    
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       body: Row(
         children: [
           Sidebar(
             controller: _controller,
-            onItemSelected: _onItemSelected, 
+            onItemSelected: _onItemSelected,
             userRole: _userRole ?? 'student',
             userName: _userName ?? 'Unknown',
           ),
-          SizedBox(width: 16), 
+          SizedBox(width: 16),
           Expanded(
             child: IndexedStack(
               index: _selectedIndex,
-              children: _pages,
+              children: pages,
             ),
           ),
         ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
+import 'package:sassy/widgets/form_fields.dart';
+import 'package:sassy/services/api_service.dart';
 
 class QuizContent extends StatefulWidget {
   final TaskModel taskModel;
@@ -13,8 +15,8 @@ class QuizContent extends StatefulWidget {
 class _QuizContentState extends State<QuizContent> {
   final List<Map<String, dynamic>> _questions = [];
   final TextEditingController _questionController = TextEditingController();
-  bool _showImageSelection = false;
-  String? _selectedImage;
+  String? _questionImagePath;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -34,7 +36,7 @@ class _QuizContentState extends State<QuizContent> {
       final newQuestion = {
         'text': _questionController.text,
         'answers': [],
-        if (_selectedImage != null) 'image': _selectedImage,
+        if (_questionImagePath != null) 'image': _questionImagePath,
       };
       
       _questions.add(newQuestion);
@@ -42,16 +44,14 @@ class _QuizContentState extends State<QuizContent> {
       
       // Reset fields
       _questionController.clear();
-      _selectedImage = null;
-      _showImageSelection = false;
+      _questionImagePath = null;
     });
   }
 
   void _addAnswer(int questionIndex) {
     final TextEditingController answerController = TextEditingController();
     bool isCorrect = false;
-    String? answerImage;
-    bool showImageSelection = false;
+    String? answerImagePath;
     
     showDialog(
       context: context,
@@ -64,12 +64,10 @@ class _QuizContentState extends State<QuizContent> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextField(
+                  FormTextField(
+                    label: 'Text odpovede',
+                    placeholder: 'Zadajte text odpovede',
                     controller: answerController,
-                    decoration: const InputDecoration(
-                      labelText: 'Text odpovede',
-                      border: OutlineInputBorder(),
-                    ),
                   ),
                   const SizedBox(height: 16),
                   CheckboxListTile(
@@ -82,113 +80,17 @@ class _QuizContentState extends State<QuizContent> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setDialogState(() {
-                            showImageSelection = !showImageSelection;
-                          });
-                        },
-                        icon: const Icon(Icons.image),
-                        label: Text(answerImage == null 
-                          ? 'Pridať obrázok' 
-                          : 'Zmeniť obrázok'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF67E4A),
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      if (answerImage != null)
-                        Expanded(
-                          child: Text(
-                            'Vybraný obrázok: $answerImage',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
+                  
+                  // Použitie FormImagePicker pre výber obrázka odpovede
+                  FormImagePicker(
+                    label: 'Obrázok odpovede',
+                    onImagePathSelected: (path) {
+                      setDialogState(() {
+                        answerImagePath = path;
+                      });
+                    },
+                    initialImagePath: answerImagePath,
                   ),
-                  if (showImageSelection)
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Vyberte obrázok:'),
-                          const SizedBox(height: 16),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  setDialogState(() {
-                                    answerImage = 'odpoved1.jpg';
-                                    showImageSelection = false;
-                                  });
-                                },
-                                child: Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: answerImage == 'odpoved1.jpg'
-                                        ? Border.all(color: const Color(0xFFF67E4A), width: 2)
-                                        : null,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'odpoved1.jpg',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  setDialogState(() {
-                                    answerImage = 'odpoved2.jpg';
-                                    showImageSelection = false;
-                                  });
-                                },
-                                child: Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: answerImage == 'odpoved2.jpg'
-                                        ? Border.all(color: const Color(0xFFF67E4A), width: 2)
-                                        : null,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'odpoved2.jpg',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -206,8 +108,8 @@ class _QuizContentState extends State<QuizContent> {
                         'correct': isCorrect,
                       };
                       
-                      if (answerImage != null) {
-                        answer['image'] = answerImage as Object;
+                      if (answerImagePath != null) {
+                        answer['image'] = answerImagePath as Object;
                       }
                       
                       _questions[questionIndex]['answers'].add(answer);
@@ -231,16 +133,9 @@ class _QuizContentState extends State<QuizContent> {
     });
   }
 
-  void _toggleImageSelection() {
+  void _onQuestionImageSelected(String path) {
     setState(() {
-      _showImageSelection = !_showImageSelection;
-    });
-  }
-
-  void _selectImage(String imagePath) {
-    setState(() {
-      _selectedImage = imagePath;
-      _showImageSelection = false;
+      _questionImagePath = path;
     });
   }
 
@@ -278,39 +173,20 @@ class _QuizContentState extends State<QuizContent> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    FormTextField(
+                      label: 'Text otázky',
+                      placeholder: 'Zadajte text otázky',
                       controller: _questionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Text otázky',
-                        border: OutlineInputBorder(),
-                      ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: _toggleImageSelection,
-                          icon: const Icon(Icons.image),
-                          label: Text(_selectedImage == null 
-                            ? 'Pridať obrázok' 
-                            : 'Zmeniť obrázok'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFF67E4A),
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        if (_selectedImage != null)
-                          Expanded(
-                            child: Text(
-                              'Vybraný obrázok: $_selectedImage',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                      ],
+                    
+                    // Použitie FormImagePicker pre výber obrázka otázky
+                    FormImagePicker(
+                      label: 'Obrázok otázky',
+                      onImagePathSelected: _onQuestionImageSelected,
+                      initialImagePath: _questionImagePath,
                     ),
-                    if (_showImageSelection)
-                      _buildImageSelectionWidget(),
+                    
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
@@ -371,11 +247,33 @@ class _QuizContentState extends State<QuizContent> {
                               ),
                             ],
                           ),
+                          
+                          // Zobrazenie obrázka otázky
                           if (question.containsKey('image') && question['image'] != null)
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Text('Obrázok: ${question['image']}'),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Obrázok otázky:'),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    height: 120,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          _apiService.getImageUrl(question['image']),
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
+                          
                           const SizedBox(height: 8),
                           
                           // Odpovede
@@ -405,14 +303,22 @@ class _QuizContentState extends State<QuizContent> {
                                       ),
                                     ],
                                   ),
+                                  
+                                  // Zobrazenie obrázka odpovede
                                   if (answer.containsKey('image') && answer['image'] != null)
                                     Padding(
                                       padding: const EdgeInsets.only(top: 8.0, left: 24.0),
-                                      child: Text(
-                                        'Obrázok: ${answer['image']}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
+                                      child: Container(
+                                        height: 80,
+                                        width: 120,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(4),
+                                          image: DecorationImage(
+                                            image: NetworkImage(
+                                              _apiService.getImageUrl(answer['image']),
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -447,62 +353,6 @@ class _QuizContentState extends State<QuizContent> {
                 ),
               ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageSelectionWidget() {
-    // Placeholder pre výber obrázku - v reálnej aplikácii by sa tu nachádzala galéria alebo upload
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Vyberte obrázok:'),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildImageTile('obrazok1.jpg'),
-              _buildImageTile('obrazok2.jpg'),
-              _buildImageTile('obrazok3.jpg'),
-              _buildImageTile('obrazok4.jpg'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageTile(String imagePath) {
-    return InkWell(
-      onTap: () => _selectImage(imagePath),
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(4),
-          border: _selectedImage == imagePath
-              ? Border.all(color: const Color(0xFFF67E4A), width: 2)
-              : null,
-        ),
-        child: Center(
-          child: Text(
-            imagePath,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[800],
-            ),
-          ),
         ),
       ),
     );

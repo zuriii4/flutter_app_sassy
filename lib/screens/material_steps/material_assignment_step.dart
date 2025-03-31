@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/services/api_service.dart';
+import 'package:sassy/widgets/search_bar.dart';
+import 'package:sassy/widgets/message_display.dart';
 
 class TaskAssignmentStep extends StatefulWidget {
   final TaskModel taskModel;
@@ -15,26 +17,43 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
   final ApiService _apiService = ApiService();
   final TextEditingController _searchController = TextEditingController();
   
-  List<dynamic> _allStudents = [];
-  List<dynamic> _filteredStudents = [];
-  List<dynamic> _selectedStudents = [];
+  List<Map<String, dynamic>> _allStudents = [];
+  List<Map<String, dynamic>> _filteredStudents = [];
+  List<String> _selectedStudentIds = [];
   
-  List<dynamic> _allGroups = [];
-  List<dynamic> _filteredGroups = [];
-  List<dynamic> _selectedGroups = [];
+  List<Map<String, dynamic>> _allGroups = [];
+  List<Map<String, dynamic>> _filteredGroups = [];
+  List<String> _selectedGroupIds = [];
   
   bool _isLoading = true;
   bool _showStudentTab = true; // Pre prepínanie medzi študentmi a skupinami
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    
+    // Predvyplnenie zvolených študentov a skupín z taskModel
+    if (widget.taskModel.assignedTo.isNotEmpty) {
+      _selectedStudentIds = List<String>.from(widget.taskModel.assignedTo);
+    }
+    
+    if (widget.taskModel.assignedGroups.isNotEmpty) {
+      _selectedGroupIds = List<String>.from(widget.taskModel.assignedGroups);
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
     
     try {
@@ -45,68 +64,62 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
       final groups = await _apiService.getAllGroupsWithDetails();
       
       setState(() {
-        _allStudents = students;
-        _filteredStudents = List.from(students);
+        _allStudents = List<Map<String, dynamic>>.from(students);
+        _filteredStudents = List<Map<String, dynamic>>.from(students);
         
-        _allGroups = groups;
-        _filteredGroups = List.from(groups);
+        _allGroups = List<Map<String, dynamic>>.from(groups);
+        _filteredGroups = List<Map<String, dynamic>>.from(groups);
         
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
+        _errorMessage = 'Chyba pri načítavaní dát: $e';
       });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Chyba pri načítavaní dát: $e')),
-      );
     }
   }
 
-  void _toggleStudentSelection(dynamic student) {
+  void _toggleStudentSelection(String studentId, bool isSelected) {
     setState(() {
-      final studentId = student['_id'];
-      if (_isStudentSelected(student)) {
-        _selectedStudents.removeWhere((s) => s['_id'] == studentId);
+      if (isSelected) {
+        _selectedStudentIds.add(studentId);
+        if (!widget.taskModel.assignedTo.contains(studentId)) {
+          widget.taskModel.assignedTo.add(studentId);
+        }
+      } else {
+        _selectedStudentIds.remove(studentId);
         widget.taskModel.assignedTo.remove(studentId);
-      } else {
-        _selectedStudents.add(student);
-        widget.taskModel.assignedTo.add(studentId);
       }
     });
   }
 
-  bool _isStudentSelected(dynamic student) {
-    return _selectedStudents.any((s) => s['_id'] == student['_id']);
-  }
-
-  void _toggleGroupSelection(dynamic group) {
+  void _toggleGroupSelection(String groupId, bool isSelected) {
     setState(() {
-      final groupId = group['_id'];
-      if (_isGroupSelected(group)) {
-        _selectedGroups.removeWhere((g) => g['_id'] == groupId);
-        widget.taskModel.assignedGroups.remove(groupId);
+      if (isSelected) {
+        _selectedGroupIds.add(groupId);
+        if (!widget.taskModel.assignedGroups.contains(groupId)) {
+          widget.taskModel.assignedGroups.add(groupId);
+        }
       } else {
-        _selectedGroups.add(group);
-        widget.taskModel.assignedGroups.add(groupId);
+        _selectedGroupIds.remove(groupId);
+        widget.taskModel.assignedGroups.remove(groupId);
       }
     });
-  }
-
-  bool _isGroupSelected(dynamic group) {
-    return _selectedGroups.any((g) => g['_id'] == group['_id']);
   }
 
   void _filterStudents(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredStudents = List.from(_allStudents);
+        _filteredStudents = List<Map<String, dynamic>>.from(_allStudents);
       } else {
         _filteredStudents = _allStudents
-            .where((student) => 
-                student['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
-                (student['email']?.toString().toLowerCase() ?? '').contains(query.toLowerCase()))
+            .where((student) {
+              final name = student['name'] as String? ?? '';
+              final email = student['email'] as String? ?? '';
+              return name.toLowerCase().contains(query.toLowerCase()) ||
+                email.toLowerCase().contains(query.toLowerCase());
+            })
             .toList();
       }
     });
@@ -115,11 +128,13 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
   void _filterGroups(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredGroups = List.from(_allGroups);
+        _filteredGroups = List<Map<String, dynamic>>.from(_allGroups);
       } else {
         _filteredGroups = _allGroups
-            .where((group) => 
-                group['name'].toString().toLowerCase().contains(query.toLowerCase()))
+            .where((group) {
+              final name = group['name'] as String? ?? '';
+              return name.toLowerCase().contains(query.toLowerCase());
+            })
             .toList();
       }
     });
@@ -141,6 +156,13 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
               ),
               const SizedBox(height: 16),
               
+              // Zobrazenie chybovej správy, ak je nejaká
+              if (_errorMessage != null)
+                MessageDisplay(
+                  message: _errorMessage!,
+                  type: MessageType.error,
+                ),
+              
               // Tabs pre prepínanie medzi študentmi a skupinami
               Row(
                 children: [
@@ -157,7 +179,7 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
                           ),
                         ),
                         child: Text(
-                          'Študenti (${_selectedStudents.length})',
+                          'Študenti (${_selectedStudentIds.length})',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: _showStudentTab ? Colors.white : Colors.black,
@@ -180,7 +202,7 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
                           ),
                         ),
                         child: Text(
-                          'Skupiny (${_selectedGroups.length})',
+                          'Skupiny (${_selectedGroupIds.length})',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: !_showStudentTab ? Colors.white : Colors.black,
@@ -195,31 +217,21 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
               
               const SizedBox(height: 16),
               
-              // Vyhľadávanie
-              TextField(
+              // Vyhľadávanie s použitím CustomSearchBar
+              CustomSearchBar(
                 controller: _searchController,
-                decoration: InputDecoration(
-                  labelText: _showStudentTab 
-                      ? 'Vyhľadať študenta' 
-                      : 'Vyhľadať skupinu',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            _showStudentTab 
-                                ? _filterStudents('') 
-                                : _filterGroups('');
-                          },
-                        )
-                      : null,
-                ),
+                hintText: _showStudentTab 
+                    ? 'Vyhľadať študenta' 
+                    : 'Vyhľadať skupinu',
                 onChanged: (value) {
                   _showStudentTab 
                       ? _filterStudents(value) 
                       : _filterGroups(value);
+                },
+                onClear: () {
+                  _showStudentTab 
+                      ? _filterStudents('') 
+                      : _filterGroups('');
                 },
               ),
               
@@ -249,7 +261,15 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
       itemCount: _filteredStudents.length,
       itemBuilder: (context, index) {
         final student = _filteredStudents[index];
-        final isSelected = _isStudentSelected(student);
+        final studentId = student['_id'] as String? ?? student['id'] as String? ?? '';
+        final studentName = student['name'] as String? ?? 'Neznámy študent';
+        final isSelected = _selectedStudentIds.contains(studentId);
+        
+        // Bezpečný prístup k prvému znaku mena
+        String firstLetter = 'N';
+        if (studentName.isNotEmpty) {
+          firstLetter = studentName[0].toUpperCase();
+        }
         
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
@@ -258,20 +278,19 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
             leading: CircleAvatar(
               backgroundColor: isSelected ? Colors.blue : Colors.grey[300],
               child: Text(
-                student['name'][0] ?? '?',
+                firstLetter,
                 style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
                 ),
               ),
             ),
-            title: Text(student['name'] ?? 'Neznámy študent'),
-            subtitle: Text(student['email'] ?? ''),
+            title: Text(studentName),
             trailing: Checkbox(
               value: isSelected,
               activeColor: Colors.blue,
-              onChanged: (_) => _toggleStudentSelection(student),
+              onChanged: (value) => _toggleStudentSelection(studentId, value ?? false),
             ),
-            onTap: () => _toggleStudentSelection(student),
+            onTap: () => _toggleStudentSelection(studentId, !isSelected),
           ),
         );
       },
@@ -292,8 +311,16 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
       itemCount: _filteredGroups.length,
       itemBuilder: (context, index) {
         final group = _filteredGroups[index];
-        final isSelected = _isGroupSelected(group);
-        final studentCount = group['students']?.length ?? 0;
+        final groupId = group['_id'] as String? ?? group['id'] as String? ?? '';
+        final groupName = group['name'] as String? ?? 'Neznáma skupina';
+        final isSelected = _selectedGroupIds.contains(groupId);
+        final studentCount = (group['students'] as List?)?.length ?? 0;
+        
+        // Bezpečný prístup k prvému znaku názvu
+        String firstLetter = 'S';
+        if (groupName.isNotEmpty) {
+          firstLetter = groupName[0].toUpperCase();
+        }
         
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
@@ -302,20 +329,20 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
             leading: CircleAvatar(
               backgroundColor: isSelected ? Colors.green : Colors.grey[300],
               child: Text(
-                group['name'][0] ?? '?',
+                firstLetter,
                 style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
                 ),
               ),
             ),
-            title: Text(group['name'] ?? 'Neznáma skupina'),
+            title: Text(groupName),
             subtitle: Text('Počet študentov: $studentCount'),
             trailing: Checkbox(
               value: isSelected,
               activeColor: Colors.green,
-              onChanged: (_) => _toggleGroupSelection(group),
+              onChanged: (value) => _toggleGroupSelection(groupId, value ?? false),
             ),
-            onTap: () => _toggleGroupSelection(group),
+            onTap: () => _toggleGroupSelection(groupId, !isSelected),
           ),
         );
       },

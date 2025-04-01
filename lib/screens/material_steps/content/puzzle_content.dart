@@ -239,14 +239,11 @@ class _PuzzleContentState extends State<PuzzleContent> {
               // Podkladový obrázok
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  _apiService.getImageUrl(_serverImagePath!),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
+                child: NetworkImageFromBytes(
+                  imagePath: _serverImagePath!,
+                  apiService: _apiService,
                 ),
               ),
-              
               // Mriežka
               CustomPaint(
                 size: const Size(double.infinity, double.infinity),

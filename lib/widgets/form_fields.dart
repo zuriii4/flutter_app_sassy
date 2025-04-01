@@ -295,7 +295,7 @@ class _FormImagePickerState extends State<FormImagePicker> {
       ],
     );
   }
-  
+
   // Metóda na zobrazenie náhľadu obrázka
   Widget _buildImagePreview() {
     // Ak máme lokálne vybraný obrázok, zobrazíme ho
@@ -315,36 +315,9 @@ class _FormImagePickerState extends State<FormImagePicker> {
     if (_serverImagePath != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
-        child: Image.network(
-          _apiService.getImageUrl(_serverImagePath!),
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                    : null,
-              ),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error, color: Colors.red, size: 40),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Nepodarilo sa načítať obrázok',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            );
-          },
+        child: NetworkImageFromBytes(
+          imagePath: _serverImagePath!,
+          apiService: _apiService,
         ),
       );
     }
@@ -362,6 +335,48 @@ class _FormImagePickerState extends State<FormImagePicker> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class NetworkImageFromBytes extends StatefulWidget {
+  final String imagePath;
+  final ApiService apiService;
+  
+  const NetworkImageFromBytes({
+    Key? key,
+    required this.imagePath,
+    required this.apiService,
+  }) : super(key: key);
+
+  @override
+  State<NetworkImageFromBytes> createState() => _NetworkImageFromBytesState();
+}
+
+class _NetworkImageFromBytesState extends State<NetworkImageFromBytes> {
+  late Future<Uint8List?> _imageFuture;
+  
+  @override
+  void initState() {
+    super.initState();
+    _imageFuture = widget.apiService.getImageBytes(widget.imagePath);
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Uint8List?>(
+      future: _imageFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData && snapshot.data != null) {
+          return Image(image: MemoryImage(snapshot.data!));
+        } else {
+          return const Center(child: Text('No image available'));
+        }
+      },
     );
   }
 }

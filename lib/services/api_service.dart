@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
@@ -374,11 +375,26 @@ class ApiService {
     }
   }
   
-  // 🟢 Získanie URL pre obrázok
-  String getImageUrl(String imagePath) {
-    // Odstránenie lomítka na začiatku cesty, ak existuje
-    final path = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-    return 'http://localhost:3000/$path';
+  // 🟢 Získanie obrázka ako bajtov
+  Future<Uint8List?> getImageBytes(String fullPath) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+ 
+    final response = await http.post(
+      Uri.parse('$baseUrl/materials/get-image'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'path': fullPath}),
+    );
+ 
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      print('❌ Chyba pri získavaní obrázka: ${response.statusCode}');
+      return null;
+    }
   }
   
   // 🟡 Aktualizácia metódy createMaterial pre podporu nahrávania obrázkov
@@ -683,6 +699,28 @@ class ApiService {
       headers: {'Authorization': 'Bearer $token'},
     );
 
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Nepodarilo sa načítať skupiny');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllMaterials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/materials/'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    
+    print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.cast<Map<String, dynamic>>();

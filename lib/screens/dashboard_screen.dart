@@ -1,8 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:sassy/services/api_service.dart';
+import 'package:sassy/screens/students/student_detail_screen.dart';
+import 'package:sassy/models/student.dart';
 
-class DashboardPage extends StatelessWidget {
-  DashboardPage({Key? key}) : super(key: key);
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({Key? key}) : super(key: key);
 
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  final ApiService _apiService = ApiService();
+  List<dynamic> _students = [];
+  List<dynamic> _materials = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Načítanie študentov a materiálov súčasne
+      final studentsResult = await _apiService.getStudents();
+      final materialsResult = await _apiService.getAllMaterials();
+      
+      setState(() {
+        _students = studentsResult;
+        _materials = materialsResult;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Chyba pri načítaní dát: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      // Tu môžete pridať zobrazenie chybového hlásenia
+    }
+  }
+
+  // Získanie ikony podľa typu materiálu
+  IconData _getMaterialIcon(String type) {
+    switch (type.toLowerCase()) {
+      case 'quiz':
+        return Icons.question_answer;
+      case 'alphabet':
+        return Icons.sort_by_alpha;
+      case 'match':
+        return Icons.compare_arrows;
+      case 'puzzle':
+        return Icons.extension;
+      default:
+        return Icons.description; // Predvolená ikona
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,142 +68,193 @@ class DashboardPage extends StatelessWidget {
       backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       body: Row(
         children: [
-          // Sidebar(controller: _controller), // Sidebar naľavo
+          // Sidebar môžete pridať podľa potreby
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),
-              child: Container(
-                color: const Color.fromARGB(0, 244, 163, 97), // Oranžové pozadie
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(20.0),
-                    margin: const EdgeInsets.symmetric(vertical: 20.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white, // Biely kontajner
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Sekcia Vaše projekty
-                        const Text(
-                          "Vaše projekty",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2E2E48),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Container(
+                      color: const Color.fromARGB(0, 244, 163, 97), // Oranžové pozadie
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(20.0),
+                          margin: const EdgeInsets.symmetric(vertical: 20.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white, // Biely kontajner
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          height: 400, // Výška pre projekty
-                          child: GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisSpacing: 20,
-                              crossAxisSpacing: 20,
-                            ),
-                            itemCount: 6,
-                            itemBuilder: (context, index) {
-                              return ProjectCard(
-                                title: "Projekt ${index + 1}",
-                                description:
-                                    "Toto je krátky popis projektu ${index + 1}, ktorý môže obsahovať užitočné detaily.",
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        // Sekcia Oznámenia a Študenti
-                        Expanded(
-                          child: Row(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Oznámenia
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Oznámenia",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2E2E48),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: 5,
-                                        itemBuilder: (context, index) {
-                                          return ListTile(
-                                            title: Text(
-                                              "Oznámenie ${index + 1}",
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            subtitle: const Text(
-                                              "Krátky popis oznámenia...",
-                                              style: TextStyle(fontSize: 12),
-                                            ),
-                                            leading: const Icon(
-                                              Icons.notification_important,
-                                              color: Colors.orange,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
+                              // Sekcia Materiály
+                              const Text(
+                                "Vaše materiály",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2E2E48),
                                 ),
                               ),
-                              const SizedBox(width: 20),
-                              // Študenti
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 400, // Výška pre materiály
+                                child: GridView.builder(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    mainAxisSpacing: 20,
+                                    crossAxisSpacing: 20,
+                                  ),
+                                  itemCount: _materials.length,
+                                  itemBuilder: (context, index) {
+                                    final material = _materials[index];
+                                    return InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MaterialDetailScreen(
+                                              materialId: material['_id'],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: MaterialCard(
+                                        title: material['title'] ?? 'Bez názvu',
+                                        description: material['description'] ?? 'Bez popisu',
+                                        icon: _getMaterialIcon(material['type'] ?? ''),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              // Sekcia Oznámenia a Študenti
                               Expanded(
-                                child: Column(
+                                child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      "Študenti",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2E2E48),
+                                    // Oznámenia - zachované z pôvodného kódu
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Oznámenia",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF2E2E48),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Expanded(
+                                            child: ListView.builder(
+                                              itemCount: 5,
+                                              itemBuilder: (context, index) {
+                                                return ListTile(
+                                                  title: Text(
+                                                    "Oznámenie ${index + 1}",
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  subtitle: const Text(
+                                                    "Krátky popis oznámenia...",
+                                                    style: TextStyle(fontSize: 12),
+                                                  ),
+                                                  leading: const Icon(
+                                                    Icons.notification_important,
+                                                    color: Colors.orange,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 10),
+                                    const SizedBox(width: 20),
+                                    // Študenti - aktualizované s dynamickými dátami
                                     Expanded(
-                                      child: ListView.builder(
-                                        itemCount: 5,
-                                        itemBuilder: (context, index) {
-                                          return ListTile(
-                                            title: Text(
-                                              "Študent ${index + 1}",
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Študenti",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF2E2E48),
                                             ),
-                                            leading: const CircleAvatar(
-                                              backgroundColor: Colors.orange,
-                                              child: Icon(
-                                                Icons.person,
-                                                color: Colors.white,
-                                              ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Expanded(
+                                            child: ListView.builder(
+                                              itemCount: _students.length,
+                                              itemBuilder: (context, index) {
+                                                final student = _students[index];
+                                                final bool hasSpecialNeeds = student['hasSpecialNeeds'] ?? false;
+                                                
+                                                return ListTile(
+                                                  title: Text(
+                                                    student['name'] ?? 'Neznámy študent',
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  subtitle: Text(
+                                                    student['email'] ?? 'Bez emailu',
+                                                    style: const TextStyle(fontSize: 12),
+                                                  ),
+                                                  leading: CircleAvatar(
+                                                    backgroundColor: hasSpecialNeeds 
+                                                      ? Colors.orange 
+                                                      : Colors.blue,
+                                                    child: const Icon(
+                                                      Icons.person,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  onTap: () {
+                                                    // Vytvorenie Student objektu z JSON
+                                                    final studentObj = Student(
+                                                      id: student['_id'] ?? '',
+                                                      name: student['name'] ?? '',
+                                                      email: student['email'] ?? '',
+                                                      notes: student['notes'] ?? '',
+                                                      status: student['status'] ?? 'Aktívny',
+                                                      needsDescription: student['needsDescription'] ?? '',
+                                                      lastActive: student['lastActive'] ?? 'Dnes',
+                                                      hasSpecialNeeds: student['hasSpecialNeeds'] ?? false,
+                                                      dateOfBirth: student['dateOfBirth'] != null 
+                                                        ? DateTime.parse(student['dateOfBirth']) 
+                                                        : null,
+                                                    );
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => StudentDetailScreen(
+                                                          student: studentObj,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
                                             ),
-                                          );
-                                        },
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
@@ -154,11 +263,8 @@ class DashboardPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
           ),
         ],
@@ -167,12 +273,17 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
-class ProjectCard extends StatelessWidget {
+class MaterialCard extends StatelessWidget {
   final String title;
   final String description;
+  final IconData icon;
 
-  const ProjectCard({Key? key, required this.title, required this.description})
-      : super(key: key);
+  const MaterialCard({
+    Key? key, 
+    required this.title, 
+    required this.description,
+    required this.icon,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -186,26 +297,50 @@ class ProjectCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              description,
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
-            ),
-            const Spacer(),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.edit, color: Colors.grey),
-                Icon(Icons.visibility, color: Colors.grey),
-                Icon(Icons.link, color: Colors.grey),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                Icon(icon, color: Colors.orange),
               ],
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Text(
+                description,
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 4,
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Zakomentujte alebo odstráňte túto triedu, ak už máte MaterialDetailScreen
+class MaterialDetailScreen extends StatelessWidget {
+  final String materialId;
+
+  const MaterialDetailScreen({Key? key, required this.materialId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detail materiálu'),
+      ),
+      body: Center(
+        child: Text('Detail materiálu s ID: $materialId'),
       ),
     );
   }

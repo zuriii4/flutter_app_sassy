@@ -262,12 +262,11 @@ class _QuizContentState extends State<QuizContent> {
                                     width: double.infinity,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          _apiService.getImageUrl(question['image']),
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,  // Add this to ensure the image respects the border radius
+                                    child: NetworkImageFromBytes(
+                                      imagePath: question['image'],
+                                      apiService: _apiService,
                                     ),
                                   ),
                                 ],
@@ -313,12 +312,11 @@ class _QuizContentState extends State<QuizContent> {
                                         width: 120,
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(4),
-                                          image: DecorationImage(
-                                            image: NetworkImage(
-                                              _apiService.getImageUrl(answer['image']),
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
+                                        ),
+                                        clipBehavior: Clip.antiAlias,  // Add this to ensure the image respects the border radius
+                                        child: NetworkImageFromBytes(
+                                          imagePath: answer['image'].toString(),
+                                          apiService: _apiService,
                                         ),
                                       ),
                                     ),

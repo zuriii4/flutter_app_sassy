@@ -164,7 +164,7 @@ class Sidebar extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => MaterialsPage()),
+              MaterialPageRoute(builder: (context) => TemplatesPage()),
             );
           },
         ),
@@ -264,93 +264,96 @@ class Sidebar extends StatelessWidget {
       ],
       footerBuilder: (context, extended) {
         // V footerBuilder už máme paramater extended, ktorý odráža stav sidebaru
-        if (extended) {
-          // Plne rozbalený stav
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8EDE3),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+        if (userRole == 'teacher' ) {
+          if (extended) {
+            // Plne rozbalený stav
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8EDE3),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Začnime!",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      "Vytváranie alebo pridávanie nových úloh",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        onItemSelected(5);
+                      },
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white, 
+                      ),
+                      label: const Text(
+                        "Pridať novú úlohu",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 229, 127, 37),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "Začnime!",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    "Vytváranie alebo pridávanie nových úloh",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
+            );
+          } else {
+            // Zabalený stav - používame jednoduchšiu verziu tlačidla
+            return Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  child: FloatingActionButton(
+                    elevation: 0,
+                    backgroundColor: const Color.fromARGB(255, 229, 127, 37),
                     onPressed: () {
                       onItemSelected(5);
                     },
-                    icon: const Icon(
-                      Icons.add,
-                      color: Colors.white, 
-                    ),
-                    label: const Text(
-                      "Pridať novú úlohu",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 229, 127, 37),
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 20),
                   ),
-                ],
-              ),
-            ),
-          );
-        } else {
-          // Zabalený stav - používame jednoduchšiu verziu tlačidla
-          return Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: 40,
-                height: 40,
-                child: FloatingActionButton(
-                  elevation: 0,
-                  backgroundColor: const Color.fromARGB(255, 229, 127, 37),
-                  onPressed: () {
-                    onItemSelected(5);
-                  },
-                  child: const Icon(Icons.add, color: Colors.white, size: 20),
                 ),
               ),
-            ),
-          );
+            );
+          }
+        } else {
+            return const SizedBox.shrink();
         }
-      },
-      animationDuration: const Duration(milliseconds: 300),
+      }
     );
   }
 }

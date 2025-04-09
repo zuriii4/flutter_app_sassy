@@ -1,148 +1,115 @@
 import 'package:flutter/material.dart';
+import 'package:sassy/services/api_service.dart';
+import 'package:sassy/widgets/material_card.dart';
 
-class MaterialsPage extends StatelessWidget {
-  const MaterialsPage({Key? key}) : super(key: key);
+class TemplatesPage extends StatefulWidget {
+  const TemplatesPage({Key? key}) : super(key: key);
+
+  @override
+  State<TemplatesPage> createState() => _TemplatesPageState();
+}
+
+class _TemplatesPageState extends State<TemplatesPage> {
+  final ApiService _apiService = ApiService();
+  List<dynamic> _templates = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final templatesResult = await _apiService.getAllTemplates();
+      
+      setState(() {
+        _templates = templatesResult;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Nepodarilo sa načítať šablóny: ${e.toString()}";
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _handleUseTemplate(Map<String, dynamic> template) {
+    // Implementácia použitia šablóny
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Táto funkcia ešte nie je implementovaná')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       appBar: AppBar(
+        title: const Text('Šablóny materiálov'),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 0,
-        backgroundColor: const Color.fromARGB(255, 244, 211, 186),
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: TextField(
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.white,
-              hintText: "Vyhľadajte materiály",
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              contentPadding: const EdgeInsets.all(12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-            ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadData,
+            tooltip: 'Obnoviť',
           ),
-        ),
+        ],
       ),
-      body: Container(
-        color: const Color.fromARGB(255, 244, 211, 186), // Oranžové pozadie
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Sekcia Populárne
-              const Text(
-                "POPULÁRNE",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
-                  ),
-                  itemCount: 8, // Počet kariet
-                  itemBuilder: (context, index) {
-                    return MaterialCard(
-                      title: "Projekt ${index + 1}",
-                      description:
-                        "Toto je krátky popis projektu ${index + 1}, ktorý môže obsahovať užitočné detaily.",
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Sekcia Najnovšie
-              const Text(
-                "NAJNOVŠIE",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
-                  ),
-                  itemCount: 8, // Počet kariet
-                  itemBuilder: (context, index) {
-                    return MaterialCard(
-                      title: "Material ${index + 1}",
-                      description:
-                          "Body text for whatever you'd like to say. Add main takeaway points, quotes, anecdotes, or even a very short story.",
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: Colors.orange))
+          : _errorMessage != null
+              ? ErrorStateWidget(
+                  errorMessage: _errorMessage!,
+                  onRetry: _loadData,
+                )
+              : _templates.isEmpty
+                  ? EmptyStateWidget(
+                      title: "Zatiaľ nemáte žiadne šablóny",
+                      description: "Šablóny môžete vytvoriť uložením existujúcich materiálov ako šablóny",
+                      icon: Icons.folder_off,
+                      buttonText: 'Prejsť na materiály',
+                      onButtonPressed: () => Navigator.pop(context),
+                    )
+                  : _buildTemplatesGrid(),
     );
   }
-}
 
-class MaterialCard extends StatelessWidget {
-  final String title;
-  final String description;
-
-  const MaterialCard({
-    Key? key,
-    required this.title,
-    required this.description,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(
-              Icons.image,
-              size: 50,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+  Widget _buildTemplatesGrid() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 1.2,
               ),
+              itemCount: _templates.length,
+              itemBuilder: (context, index) {
+                final template = _templates[index];
+                return TemplateCard(
+                  template: template,
+                  onUseTemplate: () => _handleUseTemplate(template),
+                  onRefresh: _loadData,
+                );
+              },
             ),
-            const SizedBox(height: 10),
-            Text(
-              description,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black54,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

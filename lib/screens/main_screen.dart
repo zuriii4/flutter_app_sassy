@@ -55,7 +55,7 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> _getPages() {
     return [
       DashboardPage(),
-      MaterialsPage(),
+      TemplatesPage(),
       StudentsPage(),
       SettingsPage(),
       SupportPage(),

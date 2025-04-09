@@ -247,13 +247,37 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                               ),
                             const Spacer(),
                             ElevatedButton(
+                              // onPressed: () {
+                              //   if (_currentStep == 3) {
+                              //     _submitTask();
+                              //   } else if (_currentStep != 1) { // Ak nie je na kroku výberu typu
+                              //     _nextStep();
+                              //   }
+                              //   // Pre krok 1 (výber typu) sa posun riadi funkciou _selectTaskType
+                              // },
                               onPressed: () {
                                 if (_currentStep == 3) {
                                   _submitTask();
-                                } else if (_currentStep != 1) { // Ak nie je na kroku výberu typu
+                                } else if (_currentStep == 0) {
+                                  if (taskModel.title.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Zadajte názov úlohy')),
+                                    );
+                                    return;
+                                  }
+                                  _nextStep();
+                                } else if (_currentStep != 1) {
+                                  _nextStep();
+                                } else if (_currentStep == 1) {
+                                  if (taskModel.type.isEmpty){
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Vyberte typ úlohy')),
+                                  );
+                                  return;
+                                  }
+                                  
                                   _nextStep();
                                 }
-                                // Pre krok 1 (výber typu) sa posun riadi funkciou _selectTaskType
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFF67E4A),

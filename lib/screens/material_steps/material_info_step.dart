@@ -60,7 +60,7 @@ class _TaskInfoStepState extends State<TaskInfoStep> {
             ),
             const SizedBox(height: 30),
             
-            // Použitie FormTextField s kontrolérom a indikáciou povinného poľa
+            // Použitie FormTextField s onChanged pre validáciu
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -100,29 +100,12 @@ class _TaskInfoStepState extends State<TaskInfoStep> {
             
             const SizedBox(height: 20),
             
-            // Vytvorenie vlastného widgetu pre viacriadkový vstup
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Popis úlohy',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Zadajte popis úlohy',
-                    filled: true,
-                    fillColor: const Color(0xFFF4F4F4),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ],
+            // Použitie FormTextField pre viacriadkový vstup
+            FormTextField(
+              label: 'Popis úlohy',
+              placeholder: 'Zadajte popis úlohy',
+              controller: _descriptionController,
+              keyboardType: TextInputType.multiline,
             ),
           ],
         ),

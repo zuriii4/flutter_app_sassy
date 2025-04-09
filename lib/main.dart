@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/splash_screen.dart';
 import 'package:sassy/services/api_service.dart';
-import 'package:sassy/materials/puzzle/puzzle_board.dart';
+// import 'package:sassy/materials/puzzle/puzzle_board.dart';
 // import 'package:sassy/materials/quiz/quiz_board.dart';
 // import 'package:sassy/materials/word_jumble/word_jumble_board.dart';
 // import 'package:sassy/materials/connection/connection_pair.dart';
@@ -18,20 +18,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 final ApiService _apiService = ApiService();
-    // return MaterialApp(
-    //   debugShowCheckedModeBanner: false,
-    //   title: 'Flutter Login Demo',
-    //   theme: ThemeData(primarySwatch: Colors.orange),
-    //   home: const SplashScreen(),
-    // );
-
     return MaterialApp(
-      home: const PuzzleBoard(
-        assetPath: 'assets/img/sample.jpg',
-        rows: 3,
-        cols: 3,
-      ),
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Login Demo',
+      theme: ThemeData(primarySwatch: Colors.orange),
+      home: const SplashScreen(),
     );
+
+    // return MaterialApp(
+    //   home: const PuzzleBoard(
+    //     assetPath: 'assets/img/sample.jpg',
+    //     rows: 3,
+    //     cols: 3,
+    //   ),
+    // );
 
     // return MaterialApp(
     //   home: ConnectionBoard(

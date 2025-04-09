@@ -55,66 +55,101 @@ class _QuizContentState extends State<QuizContent> {
     
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (dialogContext) => StatefulBuilder( // Note: Using dialogContext instead of context
+        builder: (dialogContext, setDialogState) {
+          final double screenWidth = MediaQuery.of(dialogContext).size.width;
+          final double dialogWidth = screenWidth > 600 ? 500 : screenWidth * 0.8;
+          
           return AlertDialog(
             title: const Text('Pridať odpoveď'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FormTextField(
-                    label: 'Text odpovede',
-                    placeholder: 'Zadajte text odpovede',
-                    controller: answerController,
-                  ),
-                  const SizedBox(height: 16),
-                  CheckboxListTile(
-                    title: const Text('Správna odpoveď'),
-                    value: isCorrect,
-                    onChanged: (value) {
-                      setDialogState(() {
-                        isCorrect = value ?? false;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Použitie FormImagePicker pre výber obrázka odpovede
-                  FormImagePicker(
-                    label: 'Obrázok odpovede',
-                    onImagePathSelected: (path) {
-                      setDialogState(() {
-                        answerImagePath = path;
-                      });
-                    },
-                    initialImagePath: answerImagePath,
-                  ),
-                ],
+            content: Container(
+              width: dialogWidth,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(dialogContext).size.height * 0.7,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FormTextField(
+                      label: 'Text odpovede',
+                      placeholder: 'Zadajte text odpovede',
+                      controller: answerController,
+                    ),
+                    const SizedBox(height: 16),
+                    CheckboxListTile(
+                      title: const Text('Správna odpoveď'),
+                      value: isCorrect,
+                      onChanged: (value) {
+                        setDialogState(() {
+                          isCorrect = value ?? false;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Ensure FormImagePicker has proper constraints
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: dialogWidth - 32, // Subtract padding
+                      ),
+                      child: FormImagePicker(
+                        label: 'Obrázok odpovede',
+                        onImagePathSelected: (path) {
+                          setDialogState(() {
+                            answerImagePath = path;
+                          });
+                        },
+                        initialImagePath: answerImagePath,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.of(dialogContext).pop(), // Use dialogContext
                 child: const Text('Zrušiť'),
               ),
               TextButton(
                 onPressed: () {
                   if (answerController.text.isNotEmpty) {
+                    // Create the answer object
+                    final Map<String, dynamic> answer = {
+                      'text': answerController.text,
+                      'correct': isCorrect,
+                    };
+                    
+                    if (answerImagePath != null) {
+                      answer['image'] = answerImagePath;
+                    }
+                    
+                    // First close the dialog
+                    Navigator.of(dialogContext).pop();
+                    
+                    // Then update the parent widget's state
                     setState(() {
-                      final answer = {
-                        'text': answerController.text,
-                        'correct': isCorrect,
-                      };
-                      
-                      if (answerImagePath != null) {
-                        answer['image'] = answerImagePath as Object;
+                      if (_questions[questionIndex]['answers'] == null) {
+                        _questions[questionIndex]['answers'] = [];
                       }
-                      
                       _questions[questionIndex]['answers'].add(answer);
+                      
+                      // Make sure to update the task model content
+                      widget.taskModel.content['questions'] = _questions;
                     });
-                    Navigator.pop(context);
+                    
+                    // Optional: Add a brief delay and then scroll to show the new answer
+                    Future.delayed(Duration(milliseconds: 100), () {
+                      // You could add logic here to scroll to the newly added answer if needed
+                    });
+                  } else {
+                    // Show error if answer text is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Prosím, zadajte text odpovede')),
+                    );
                   }
                 },
                 child: const Text('Pridať'),

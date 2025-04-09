@@ -60,13 +60,15 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
+    // print("id: $materialId");
+
     final response = await http.get(
       Uri.parse('$baseUrl/materials/details/$materialId'),
       headers: {'Authorization': 'Bearer $token'},
     );
-
+    // print(response.body);
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)['material'];
+      return jsonDecode(response.body);
     } else {
       return null;
     }
@@ -195,8 +197,8 @@ class ApiService {
       }),
     );
     
-    print('📩 Status kód: ${response.statusCode}');
-    print('📦 Response body: ${response.body}');
+    // print('📩 Status kód: ${response.statusCode}');
+    // print('📦 Response body: ${response.body}');
     
     return response.statusCode == 200;
   }
@@ -234,8 +236,8 @@ class ApiService {
       }),
     );
     
-    print('📩 Status kód: ${response.statusCode}');
-    print('📦 Response body: ${response.body}');
+    // print('📩 Status kód: ${response.statusCode}');
+    // print('📦 Response body: ${response.body}');
     
     return response.statusCode == 200;
   }
@@ -439,7 +441,7 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
-    
+    print(response.body);
     return response.statusCode == 201;
   }
   
@@ -450,9 +452,9 @@ class ApiService {
     String? description,
     String? type,
     Map<String, dynamic>? content,
-    String? assignedTo,
+    List<String>? assignedTo,  // Zmena z String? na List<String>?
     List<String>? assignedGroups,
-    File? imageFile, // Nový parameter pre súbor obrázka
+    File? imageFile,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -461,22 +463,21 @@ class ApiService {
     if (imageFile != null && content != null && type == 'puzzle') {
       final imagePath = await uploadImage(imageFile);
       if (imagePath != null) {
-        // Aktualizujeme obsah s cestou k obrázku
         content['image'] = imagePath;
       } else {
-        return false; // Zlyhalo nahrávanie obrázka
+        return false;
       }
     }
-
+ 
     final body = {
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (type != null) 'type': type,
       if (content != null) 'content': content,
-      if (assignedTo != null) 'assignedTo': assignedTo,
-      if (assignedGroups != null) 'assignedGroups': assignedGroups,
+      if (assignedTo != null && assignedTo.isNotEmpty) 'assignedTo': assignedTo,
+      if (assignedGroups != null && assignedGroups.isNotEmpty) 'assignedGroups': assignedGroups,
     };
-
+ 
     final response = await http.put(
       Uri.parse('$baseUrl/materials/materials/$materialId'),
       headers: {
@@ -485,7 +486,9 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
-
+ 
+    print(response.body);
+ 
     return response.statusCode == 200;
   }
 
@@ -588,12 +591,12 @@ class ApiService {
     if (token == null) {
       throw Exception('Používateľ nie je prihlásený');
     }
-
+    print(studentId);
     final response = await http.get(
       Uri.parse('$baseUrl/students/$studentId/groups'),
       headers: {'Authorization': 'Bearer $token'},
     );
-    // print(response.body);
+    print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.cast<Map<String, dynamic>>();
@@ -719,8 +722,8 @@ class ApiService {
       Uri.parse('$baseUrl/materials/'),
       headers: {'Authorization': 'Bearer $token'},
     );
-    
-    print(response.body);
+
+    // print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.cast<Map<String, dynamic>>();
@@ -764,4 +767,54 @@ class ApiService {
   
     return response.statusCode == 200;
   }
+
+  Future<bool> saveMaterialAsTemplate(String materialId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/materials/save-as-template'), // uprav podľa reálnej cesty
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'materialId': materialId}),
+    );
+
+    if (response.statusCode == 201) {
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // 🟢 Získanie všetkých šablón materiálov
+  Future<List<Map<String, dynamic>>> getAllTemplates() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/materials/templates'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    // print(response.body);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Nepodarilo sa načítať šablóny materiálov');
+    }
+  }
+
 }
+

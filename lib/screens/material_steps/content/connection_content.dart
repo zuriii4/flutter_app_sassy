@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/widgets/form_fields.dart';
 import 'package:sassy/widgets/message_display.dart';
+import 'package:sassy/screens/material_steps/previews/connections_preview.dart';
 
 class ConnectionContent extends StatefulWidget {
   final TaskModel taskModel;
@@ -152,7 +153,6 @@ class _ConnectionContentState extends State<ConnectionContent> {
             
             Card(
               elevation: 2,
-              // color: Color.fromARGB(255, 255, 255, 255),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -274,75 +274,10 @@ class _ConnectionContentState extends State<ConnectionContent> {
   }
 
   Widget _buildConnectionPreview() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Náhľad spojení',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              // Ľavá strana
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _pairs.map((pair) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: Text(
-                        pair['left'] ?? '',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              
-              const SizedBox(width: 20),
-              
-              // Pravá strana - náhodne preusporiadaná v náhľade
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: List.of(_pairs)
-                    .map((pair) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        child: Text(
-                          pair['right'] ?? '',
-                          textAlign: TextAlign.right,
-                        ),
-                      );
-                    }).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    // Using the ConnectionsPreview widget instead of custom implementation
+    return ConnectionsPreview(
+      pairs: _pairs,
+      isInteractive: false, // We're in edit mode, so we use non-interactive preview
     );
   }
 }

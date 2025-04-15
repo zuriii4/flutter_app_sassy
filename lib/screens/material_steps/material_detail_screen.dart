@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/widgets/form_fields.dart';
 import 'package:sassy/widgets/search_bar.dart';
+import 'package:sassy/screens/material_steps/material_edit_screen.dart';
+import 'package:sassy/screens/material_steps/previews/preview_builder.dart';
 
 class MaterialDetailScreen extends StatefulWidget {
   final String materialId;
@@ -18,6 +20,7 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
   Map<String, dynamic>? _material;
   List<dynamic> _students = [];
   List<Map<String, dynamic>> _groups = [];
+  bool _isInteractivePreview = false;
 
   @override
   void initState() {
@@ -185,7 +188,17 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
             icon: const Icon(Icons.edit),
             tooltip: 'Upraviť materiál',
             onPressed: _material == null ? null : () async {
-              // Úprava materiálu - bude implementovaná neskôr
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MaterialEditScreen(material: _material!),
+                ),
+              );
+              
+              if (result == true) {
+                // Refresh data if changes were made
+                _loadMaterialData();
+              }
             },
           ),
           IconButton(
@@ -316,12 +329,39 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Detaily materiálu',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Náhľad materiálu',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                // Toggle pre interaktívny režim
+                Row(
+                  children: [
+                    const Text('Interaktívny režim'),
+                    Switch(
+                      value: _isInteractivePreview, // Add this state variable to your class
+                      onChanged: (value) {
+                        setState(() {
+                          _isInteractivePreview = value;
+                        });
+                      },
+                      activeColor: const Color(0xFFF67E4A),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            _buildMaterialContent(),
+            const SizedBox(height: 16),
+            
+            // Použitie MaterialPreviewBuilder pre zobrazenie náhľadu
+            MaterialPreviewBuilder.buildPreview(
+              _material?['type'] ?? '', 
+              _material?['content'] ?? {}, 
+              _apiService,
+              isInteractive: _isInteractivePreview
+            ),
           ],
         ),
       ),

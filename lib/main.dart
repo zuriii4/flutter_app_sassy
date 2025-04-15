@@ -13,11 +13,10 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-  
+
 
   @override
   Widget build(BuildContext context) {
-final ApiService _apiService = ApiService();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Login Demo',
@@ -28,8 +27,8 @@ final ApiService _apiService = ApiService();
     // return MaterialApp(
     //   home: const PuzzleBoard(
     //     assetPath: 'assets/img/sample.jpg',
-    //     rows: 3,
-    //     cols: 3,
+    //     rows: 5,
+    //     cols: 5,
     //   ),
     // );
 

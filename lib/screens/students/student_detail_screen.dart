@@ -19,13 +19,27 @@ class StudentDetailScreen extends StatefulWidget {
 
 class _StudentDetailScreenState extends State<StudentDetailScreen> {
   final ApiService _apiService = ApiService();
-  late Student _student; // <- lokálna premenná pre študenta
+  late Student _student;
   bool _isLoading = false;
+  bool _isOnline = false;
 
   @override
   void initState() {
     super.initState();
-    _student = widget.student; // inicializuj kópiu
+    _student = widget.student;
+    _checkOnlineStatus();
+  }
+
+  Future<void> _checkOnlineStatus() async {
+    try {
+      final statusData = await _apiService.getStudentOnlineStatus(_student.id);
+      print(statusData);
+      setState(() {
+        _isOnline = statusData['isOnline'] ?? false;
+      });
+    } catch (e) {
+      print('Error fetching online status: $e');
+    }
   }
 
   Future<void> _editStudent() async {
@@ -162,44 +176,87 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       ),
     );
   }
-  
+
+
+
   Widget _buildStudentHeader() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundColor: _student.hasSpecialNeeds ? Colors.orange : Colors.blue,
-          child: const Icon(Icons.person, size: 40, color: Colors.white),
+        Stack(
+          children: [
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: _student.hasSpecialNeeds ? Colors.orange : Colors.blue,
+              child: const Icon(Icons.person, size: 40, color: Colors.white),
+            ),
+            // Online status indicator
+            if (_isOnline)
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(width: 20),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _student.name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _student.name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (_isOnline)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Online',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.green.shade800,
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _student.status == 'Aktívny' 
-                      ? Colors.green.withOpacity(0.2) 
+                  color: _isOnline
+                      ? Colors.green.withOpacity(0.2)
                       : Colors.grey.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  _student.status,
+                  _isOnline ? 'Aktívny' : 'Neaktívny',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: _student.status == 'Aktívny' 
-                        ? Colors.green.shade800 
+                    color: _isOnline
+                        ? Colors.green.shade800
                         : Colors.grey.shade700,
                   ),
                 ),
@@ -223,13 +280,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
               ],
               const SizedBox(height: 8),
-              Text(
-                'Posledná aktivita: ${_student.lastActive}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
-              ),
               Text(
                 'Poznamky: ${_student.notes}',
                 style: TextStyle(

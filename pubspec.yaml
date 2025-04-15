@@ -41,7 +41,6 @@ dependencies:
   flutter_svg: ^2.0.0
   http: ^1.3.0  # Komunikácia s REST API
   provider: ^6.1.2  # Stavová správa
-  web_socket_channel: ^3.0.2  # WebSocket komunikácia
   shared_preferences: ^2.5.2  # Ukladanie tokenu (autentifikácia)
   image_picker: ^1.1.2
   path_provider: ^2.1.5
@@ -51,6 +50,8 @@ dependencies:
   dio: ^5.8.0+1
   file_picker: ^9.2.3
   image_cropper: ^9.1.0
+  socket_io_client: ^3.1.1
+  flutter_local_notifications: ^13.0.0
 
 
 dev_dependencies:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/widgets/form_fields.dart';
+import 'package:sassy/screens/material_steps/previews/word_jumble_preview.dart';
 
 class WordJumbleContent extends StatefulWidget {
   final TaskModel taskModel;
@@ -89,6 +90,14 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
       }
       final String item = _correctOrder.removeAt(oldIndex);
       _correctOrder.insert(newIndex, item);
+      _updateModel();
+    });
+  }
+
+  // Handler for the WordJumblePreview reordering callback
+  void _handleReorder(List<String> newOrder) {
+    setState(() {
+      _correctOrder = List<String>.from(newOrder);
       _updateModel();
     });
   }
@@ -192,29 +201,27 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
                       
                       const SizedBox(height: 24),
                       const Text(
-                        'Správne poradie (preusporiadajte)',
+                        'Nastavenie správneho poradia',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 16),
+                      
+                      // Použitie WordJumblePreview pre nastavenie správneho poradia
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey[100],
+                          color: Colors.grey[50],
                           borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
-                        child: ReorderableListView(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          onReorder: _onReorder,
-                          children: _correctOrder.map((word) {
-                            return ListTile(
-                              key: ValueKey(word),
-                              title: Text(word),
-                              trailing: const Icon(Icons.drag_handle),
-                            );
-                          }).toList(),
+                        padding: const EdgeInsets.all(16),
+                        child: WordJumblePreview(
+                          words: _words,
+                          correctOrder: _correctOrder,
+                          isInteractive: true, // V režime úprav chceme interaktívny náhľad
+                          onReordered: _handleReorder,
                         ),
                       ),
                     ] else

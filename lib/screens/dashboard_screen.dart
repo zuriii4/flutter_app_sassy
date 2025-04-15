@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/screens/students/student_detail_screen.dart';
 import 'package:sassy/models/student.dart';
-import 'package:sassy/screens/material_detail_screen.dart';
+import 'package:sassy/screens/material_steps/material_detail_screen.dart';
 import 'package:sassy/widgets/material_card.dart'; // Import nových komponentov
 
 class DashboardPage extends StatefulWidget {
@@ -16,8 +16,11 @@ class _DashboardPageState extends State<DashboardPage> {
   final ApiService _apiService = ApiService();
   List<Student> _students = [];
   List<dynamic> _materials = [];
+  List<dynamic> _notifications = [];
   bool _isLoading = true;
   String? _errorMessage;
+
+
 
   @override
   void initState() {
@@ -32,14 +35,27 @@ class _DashboardPageState extends State<DashboardPage> {
     });
 
     try {
-      // Load students and materials simultaneously
-      final studentsResult = await _apiService.getStudents();
+      // Load online students, materials, and notifications simultaneously
+      final onlineStudentsResult = await _apiService.getOnlineStudents();
       final materialsResult = await _apiService.getAllMaterials();
-      
+      final notificationsResult = await _apiService.getNotifications(limit: 10);
+
+      List<Student> completeStudents = [];
+      for (var onlineStudent in onlineStudentsResult) {
+        String studentId = onlineStudent['studentId'] ?? onlineStudent['_id'];
+
+        try {
+          final studentDetails = await _apiService.getStudentDetails(studentId);
+          completeStudents.add(Student.fromJson(studentDetails));
+        } catch (e) {
+          print('Failed to fetch details for student $studentId: $e');
+        }
+      }
+
       setState(() {
-        // Convert JSON to Student objects
-        _students = studentsResult.map((json) => Student.fromJson(json)).toList();
+        _students = completeStudents;
         _materials = materialsResult;
+        _notifications = notificationsResult;
         _isLoading = false;
       });
     } catch (e) {
@@ -190,7 +206,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text(
-                                          "Študenti",
+                                          "Online študenti",  // Changed label
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -203,99 +219,71 @@ class _DashboardPageState extends State<DashboardPage> {
                                     Expanded(
                                       child: _students.isEmpty
                                           ? const Center(
-                                              child: Text(
-                                                "Nenašli sa žiadni študenti",
-                                                style: TextStyle(fontSize: 16, color: Colors.black54),
-                                              ),
-                                            )
+                                        child: Text(
+                                          "Momentálne nie sú žiadni študenti online",  // Updated message
+                                          style: TextStyle(fontSize: 16, color: Colors.black54),
+                                        ),
+                                      )
                                           : ListView.builder(
-                                              itemCount: _students.length,
-                                              itemBuilder: (context, index) {
-                                                final student = _students[index];
-                                                
-                                                return ListTile(
-                                                  title: Text(
-                                                    student.name,
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                  subtitle: Text(
-                                                    student.needsDescription.isEmpty 
-                                                        ? student.status
-                                                        : student.needsDescription,
-                                                    style: const TextStyle(fontSize: 12),
-                                                  ),
-                                                  leading: CircleAvatar(
-                                                    backgroundColor: student.hasSpecialNeeds 
-                                                        ? Colors.orange 
-                                                        : Colors.blue,
-                                                    child: const Icon(
-                                                      Icons.person,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  trailing: Text(
-                                                    student.lastActive,
-                                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                                  ),
-                                                  onTap: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) => StudentDetailScreen(
-                                                          student: student,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              
-                              // Announcements section
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Oznámenia",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2E2E48),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: 5,
+                                        itemCount: _students.length,
                                         itemBuilder: (context, index) {
-                                          return Card(
-                                            margin: const EdgeInsets.only(bottom: 8),
-                                            child: ListTile(
-                                              title: Text(
-                                                "Oznámenie ${index + 1}",
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              subtitle: const Text(
-                                                "Krátky popis oznámenia...",
-                                                style: TextStyle(fontSize: 12),
-                                              ),
-                                              leading: const Icon(
-                                                Icons.notification_important,
-                                                color: Colors.orange,
+                                          final student = _students[index];
+
+                                          return ListTile(
+                                            title: Text(
+                                              student.name,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
+                                            subtitle: Text(
+                                              student.needsDescription.isEmpty
+                                                  ? "Aktívny" // Always show as active since they're online
+                                                  : student.needsDescription,
+                                              style: const TextStyle(fontSize: 12),
+                                            ),
+                                            leading: Stack(
+                                              children: [
+                                                CircleAvatar(
+                                                  backgroundColor: student.hasSpecialNeeds
+                                                      ? Colors.orange
+                                                      : Colors.blue,
+                                                  child: const Icon(
+                                                    Icons.person,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                // Online indicator
+                                                Positioned(
+                                                  right: 0,
+                                                  bottom: 0,
+                                                  child: Container(
+                                                    width: 12,
+                                                    height: 12,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(color: Colors.white, width: 2),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            trailing: Text(
+                                              student.lastActive,
+                                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                            ),
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => StudentDetailScreen(
+                                                    student: student,
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           );
                                         },
                                       ),
@@ -303,6 +291,155 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ],
                                 ),
                               ),
+                              const SizedBox(width: 20),
+                              
+                              // Announcements section
+                              // Announcements section
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "Oznámenia",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF2E2E48),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            try {
+                                              final success = await _apiService.markAllNotificationsAsRead();
+                                              if (success) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text('Všetky oznámenia označené ako prečítané')),
+                                                );
+                                                _loadData(); // Reload to update UI
+                                              }
+                                            } catch (e) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text('Chyba: ${e.toString()}')),
+                                              );
+                                            }
+                                          },
+                                          child: const Text('Označiť všetky ako prečítané'),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Expanded(
+                                      child: _notifications.isEmpty
+                                          ? const Center(
+                                        child: Text(
+                                          "Nemáte žiadne oznámenia",
+                                          style: TextStyle(fontSize: 16, color: Colors.black54),
+                                        ),
+                                      )
+                                          : ListView.builder(
+                                        itemCount: _notifications.length,
+                                        itemBuilder: (context, index) {
+                                          final notification = _notifications[index];
+                                          final bool isRead = notification['isRead'] ?? false;
+                                          final String type = notification['type'] ?? 'system';
+
+                                          IconData iconData;
+                                          Color iconColor;
+
+                                          // Choose icon based on notification type
+                                          switch (type) {
+                                            case 'material_assigned':
+                                              iconData = Icons.assignment;
+                                              iconColor = Colors.blue;
+                                              break;
+                                            case 'material_completed':
+                                              iconData = Icons.task_alt;
+                                              iconColor = Colors.green;
+                                              break;
+                                            default:
+                                              iconData = Icons.notification_important;
+                                              iconColor = Colors.orange;
+                                          }
+
+                                          return Card(
+                                            margin: const EdgeInsets.only(bottom: 8),
+                                            color: isRead ? null : Colors.blue.shade50,
+                                            child: ListTile(
+                                              title: Text(
+                                                notification['title'] ?? "Oznámenie",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                                                ),
+                                              ),
+                                              subtitle: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    notification['message'] ?? "",
+                                                    style: const TextStyle(fontSize: 12),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    _formatDate(notification['createdAt']),
+                                                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                                  ),
+                                                ],
+                                              ),
+                                              leading: Icon(
+                                                iconData,
+                                                color: iconColor,
+                                              ),
+                                              trailing: isRead
+                                                  ? null
+                                                  : IconButton(
+                                                icon: const Icon(Icons.check_circle_outline),
+                                                onPressed: () async {
+                                                  try {
+                                                    final success = await _apiService.markNotificationAsRead(notification['_id']);
+                                                    if (success) {
+                                                      _loadData(); // Reload to update UI
+                                                    }
+                                                  } catch (e) {
+                                                    print('Error marking notification as read: $e');
+                                                  }
+                                                },
+                                                tooltip: 'Označiť ako prečítané',
+                                              ),
+                                              onTap: () {
+                                                // Handle notification tap, e.g., navigate to related content
+                                                if (!isRead) {
+                                                  _apiService.markNotificationAsRead(notification['_id']).then((_) {
+                                                    _loadData(); // Reload to update UI
+                                                  });
+                                                }
+
+                                                // If there's a related ID, navigate to the appropriate screen
+                                                if (notification['relatedId'] != null) {
+                                                  // Handle navigation based on type
+                                                  if (type == 'material_assigned' || type == 'material_completed') {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => MaterialDetailScreen(
+                                                          materialId: notification['relatedId'],
+                                                        ),
+                                                      ),
+                                                    ).then((_) => _loadData());
+                                                  }
+                                                }
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -311,5 +448,27 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
       ),
     );
+  }
+}
+
+String _formatDate(String? dateString) {
+  if (dateString == null) return '';
+
+  try {
+    final DateTime date = DateTime.parse(dateString);
+    final DateTime now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} ${difference.inDays == 1 ? 'deň' : difference.inDays < 5 ? 'dni' : 'dní'} dozadu';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} ${difference.inHours == 1 ? 'hodina' : difference.inHours < 5 ? 'hodiny' : 'hodín'} dozadu';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minúta' : difference.inMinutes < 5 ? 'minúty' : 'minút'} dozadu';
+    } else {
+      return 'Práve teraz';
+    }
+  } catch (e) {
+    return dateString;
   }
 }

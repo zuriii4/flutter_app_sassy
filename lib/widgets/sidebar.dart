@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sassy/screens/login_screen.dart';
 import 'package:sassy/screens/materials_screen.dart';
 import 'package:sassy/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sidebarx/sidebarx.dart';
+
+import '../services/socket_service.dart';
 
 
 class Sidebar extends StatelessWidget {
@@ -18,6 +21,36 @@ class Sidebar extends StatelessWidget {
     required this.userRole,
     required this.userName
   });
+
+  Future<void> logout(BuildContext context) async {
+    final apiService = ApiService();
+    final socketService = SocketService();
+
+    try {
+      // Odhlásenie používateľa na serveri
+      final success = await apiService.logoutUser();
+
+      // Odpojenie socketu
+      socketService.disconnect();
+
+      // Vymazanie údajov zo SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      await prefs.remove('userId');
+      await prefs.remove('userRole');
+
+      // Navigácia na prihlasovaciu obrazovku
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+            (route) => false, // Odstránenie všetkých predchádzajúcich obrazoviek zo zásobníka
+      );
+    } catch (e) {
+      print('❌ Chyba pri odhlasovaní: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Chyba pri odhlasovaní')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +144,7 @@ class Sidebar extends StatelessWidget {
                 //   radius: 20,
                 //   backgroundImage: AssetImage('assets/img/avatar.png'),
                 // ),
+                const SizedBox(width: 5,),
                 const CircleAvatar(
                   radius: 25,
                   backgroundColor: Colors.white,
@@ -118,25 +152,27 @@ class Sidebar extends StatelessWidget {
                 ),
                 if (extended) ...[
                   const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        userName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1.2,
-                          color: Colors.black,
-                          fontFamily: 'Inter',
+                  Expanded( // <- tu je tvoj Column
+                    child:Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          userName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                            color: Colors.black,
+                            fontFamily: 'Inter',
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        userRole == 'teacher' ? "UČITEĽ" : "ŠTUDENT",
-                        style: const TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
-                    ],
+                        const SizedBox(height: 5),
+                        Text(
+                          userRole == 'teacher' ? "UČITEĽ" : "ŠTUDENT",
+                          style: const TextStyle(fontSize: 12, color: Colors.black54),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ],
@@ -204,20 +240,21 @@ class Sidebar extends StatelessWidget {
             child: Icon(Icons.logout),
           ),
           label: 'Odhlásiť sa',
-          onTap: () async {
-            final success = await ApiService().logoutUser();
-            if (success) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-                (route) => false,
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
-              );
-            }
-          },
+          // onTap: () async {
+          //   final success = await ApiService().logoutUser();
+          //   if (success) {
+          //     Navigator.pushAndRemoveUntil(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const LoginPage()),
+          //       (route) => false,
+          //     );
+          //   } else {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
+          //     );
+          //   }
+          // },
+          onTap: () => logout(context),
         ),
       ] : [
         SidebarXItem(
@@ -233,11 +270,11 @@ class Sidebar extends StatelessWidget {
         SidebarXItem(
           iconWidget: const Padding(
             padding: EdgeInsets.only(left: 2),
-            child: Icon(Icons.person),
+            child: Icon(Icons.notification_important),
           ),
-          label: 'Profil',
+          label: 'Notifikácie',
           onTap: () {
-            onItemSelected(2);
+            onItemSelected(7);
           },
         ),
         SidebarXItem(
@@ -246,20 +283,21 @@ class Sidebar extends StatelessWidget {
             child: Icon(Icons.logout),
           ),
           label: 'Odhlásiť sa',
-          onTap: () async {
-            final success = await ApiService().logoutUser();
-            if (success) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-                (route) => false,
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
-              );
-            }
-          },
+          // onTap: () async {
+          //   final success = await ApiService().logoutUser();
+          //   if (success) {
+          //     Navigator.pushAndRemoveUntil(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const LoginPage()),
+          //       (route) => false,
+          //     );
+          //   } else {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       const SnackBar(content: Text('Nepodarilo sa odhlásiť')),
+          //     );
+          //   }
+          // },
+          onTap: () => logout(context),
         ),
       ],
       footerBuilder: (context, extended) {
@@ -282,50 +320,52 @@ class Sidebar extends StatelessWidget {
                   ],
                 ),
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Začnime!",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    const Text(
-                      "Vytváranie alebo pridávanie nových úloh",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        onItemSelected(5);
-                      },
-                      icon: const Icon(
-                        Icons.add,
-                        color: Colors.white, 
-                      ),
-                      label: const Text(
-                        "Pridať novú úlohu",
+                child: Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "Začnime!",
                         style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 229, 127, 37),
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                      const SizedBox(height: 5),
+                      const Text(
+                        "Vytváranie alebo pridávanie nových úloh",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          onItemSelected(5);
+                        },
+                        icon: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          "Pridať novú úlohu",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 229, 127, 37),
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

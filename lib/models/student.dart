@@ -41,7 +41,7 @@ class Student {
       notes: json['notes'] ?? '',
       status: json['status'] ?? 'Aktívny',
       needsDescription: json['needsDescription'] ?? '',
-      lastActive: json['lastActive'] ?? 'Dnes',
+      lastActive: json['lastActive'] ?? 'Nezname',
       hasSpecialNeeds: json['hasSpecialNeeds'] ?? false,
       dateOfBirth: parsedDate,  // použitie sparsovaného dátumu
     );

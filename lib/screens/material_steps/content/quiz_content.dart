@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/widgets/form_fields.dart';
 import 'package:sassy/services/api_service.dart';
+import 'package:sassy/screens/material_steps/previews/quiz_preview.dart'; 
 
 class QuizContent extends StatefulWidget {
   final TaskModel taskModel;
@@ -140,15 +141,10 @@ class _QuizContentState extends State<QuizContent> {
                       // Make sure to update the task model content
                       widget.taskModel.content['questions'] = _questions;
                     });
-                    
-                    // Optional: Add a brief delay and then scroll to show the new answer
-                    Future.delayed(Duration(milliseconds: 100), () {
-                      // You could add logic here to scroll to the newly added answer if needed
-                    });
                   } else {
                     // Show error if answer text is empty
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Prosím, zadajte text odpovede')),
+                      const SnackBar(content: Text('Prosím, zadajte text odpovede')),
                     );
                   }
                 },
@@ -241,140 +237,9 @@ class _QuizContentState extends State<QuizContent> {
             
             const SizedBox(height: 20),
             
-            // Zoznam existujúcich otázok
+            // Použitie QuizPreview pre náhľad existujúcich otázok
             if (_questions.isNotEmpty) ...[
-              const Text(
-                'Existujúce otázky',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _questions.length,
-                itemBuilder: (context, index) {
-                  final question = _questions[index];
-                  final answers = List<Map<String, dynamic>>.from(question['answers'] ?? []);
-                  
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  'Otázka ${index + 1}: ${question['text']}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () => _removeQuestion(index),
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                              ),
-                            ],
-                          ),
-                          
-                          // Zobrazenie obrázka otázky
-                          if (question.containsKey('image') && question['image'] != null)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Obrázok otázky:'),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    height: 120,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    clipBehavior: Clip.antiAlias,  // Add this to ensure the image respects the border radius
-                                    child: NetworkImageFromBytes(
-                                      imagePath: question['image'],
-                                      apiService: _apiService,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          
-                          const SizedBox(height: 8),
-                          
-                          // Odpovede
-                          if (answers.isEmpty)
-                            const Text('Žiadne odpovede'),
-                          ...answers.map((answer) => Card(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            color: Colors.grey[50],
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        answer['correct'] ? Icons.check_circle : Icons.cancel,
-                                        color: answer['correct'] ? Colors.green : Colors.red,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          answer['text'],
-                                          style: const TextStyle(fontWeight: FontWeight.w500),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  
-                                  // Zobrazenie obrázka odpovede
-                                  if (answer.containsKey('image') && answer['image'] != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 8.0, left: 24.0),
-                                      child: Container(
-                                        height: 80,
-                                        width: 120,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        clipBehavior: Clip.antiAlias,  // Add this to ensure the image respects the border radius
-                                        child: NetworkImageFromBytes(
-                                          imagePath: answer['image'].toString(),
-                                          apiService: _apiService,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          )).toList(),
-                          
-                          const SizedBox(height: 12),
-                          ElevatedButton(
-                            onPressed: () => _addAnswer(index),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF67E4A),
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text('Pridať odpoveď'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+              _buildQuestionList(),
             ] else
               Center(
                 child: Padding(
@@ -388,6 +253,98 @@ class _QuizContentState extends State<QuizContent> {
           ],
         ),
       ),
+    );
+  }
+  
+  // Nová metóda pre zobrazenie zoznamu otázok s možnosťou úpravy
+  Widget _buildQuestionList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Existujúce otázky',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        
+        // Zoznam otázok s možnosťou úpravy
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _questions.length,
+          itemBuilder: (context, index) {
+            final question = _questions[index];
+            
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Hlavička otázky s tlačidlami pre správu
+                  ListTile(
+                    title: Text(
+                      'Otázka ${index + 1}: ${question['text']}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.add_circle, color: Color(0xFFF67E4A)),
+                          onPressed: () => _addAnswer(index),
+                          tooltip: 'Pridať odpoveď',
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _removeQuestion(index),
+                          tooltip: 'Odstrániť otázku',
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Použitie QuizPreview pre zobrazenie náhľadu otázky a jej odpovedí
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: QuizPreview(
+                      questions: [question], // Posielame len jednu otázku ako zoznam
+                      apiService: _apiService,
+                      isInteractive: false,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        
+        // Náhľad celého kvízu
+        const SizedBox(height: 32),
+        const Text(
+          'Náhľad celého kvízu',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Card(
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: QuizPreview(
+              questions: _questions,
+              apiService: _apiService,
+              isInteractive: false,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

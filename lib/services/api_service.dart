@@ -367,8 +367,8 @@ class ApiService {
         // Vrátime cestu k nahranému obrázku
         return response.data['filePath'];
       } else {
-        print('❌ Chyba pri nahrávaní obrázka: ${response.statusCode}');
-        print('❌ Response data: ${response.data}');
+        // print('❌ Chyba pri nahrávaní obrázka: ${response.statusCode}');
+        // print('❌ Response data: ${response.data}');
         return null;
       }
     } catch (e) {
@@ -441,7 +441,7 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
-    print(response.body);
+    // print(response.body);
     return response.statusCode == 201;
   }
   
@@ -487,7 +487,7 @@ class ApiService {
       body: jsonEncode(body),
     );
  
-    print(response.body);
+    // print(response.body);
  
     return response.statusCode == 200;
   }
@@ -591,12 +591,12 @@ class ApiService {
     if (token == null) {
       throw Exception('Používateľ nie je prihlásený');
     }
-    print(studentId);
+    // print(studentId);
     final response = await http.get(
       Uri.parse('$baseUrl/students/$studentId/groups'),
       headers: {'Authorization': 'Bearer $token'},
     );
-    print(response.body);
+    // print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.cast<Map<String, dynamic>>();
@@ -816,5 +816,127 @@ class ApiService {
     }
   }
 
+  // Získanie notifikácií pre aktuálneho používateľa
+  Future<List<dynamic>> getNotifications({int page = 1, int limit = 20, bool unreadOnly = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final queryParams = {
+      'page': page.toString(),
+      'limit': limit.toString(),
+      'unreadOnly': unreadOnly.toString(),
+    };
+
+    final uri = Uri.parse('$baseUrl/notifications').replace(queryParameters: queryParams);
+
+    final response = await http.get(
+      uri,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['notifications'];
+    } else {
+      throw Exception('Nepodarilo sa získať notifikácie');
+    }
+  }
+
+  // Označenie notifikácie ako prečítanej
+  Future<bool> markNotificationAsRead(String notificationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.patch(
+      Uri.parse('$baseUrl/notifications/$notificationId/read'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    return response.statusCode == 200;
+  }
+
+  // Označenie všetkých notifikácií ako prečítaných
+  Future<bool> markAllNotificationsAsRead() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.patch(
+      Uri.parse('$baseUrl/notifications/read-all'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    return response.statusCode == 200;
+  }
+
+  // Získanie online stavu študenta
+  Future<Map<String, dynamic>> getStudentOnlineStatus(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/activity/status/$userId'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa získať online stav študenta');
+    }
+  }
+
+  // Získanie zoznamu online študentov (pre učiteľov)
+  Future<List<dynamic>> getOnlineStudents() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/activity/online-students'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa získať zoznam online študentov');
+    }
+  }
+
+  // Získanie zoznamu online študentov (pre učiteľov)
+  Future<List<dynamic>> getOfflineStudents() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/activity/offline-students'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa získať zoznam online študentov');
+    }
+  }
+
+  // Zaznamenanie aktivity používateľa (volané periodicky)
+  Future<bool> recordUserActivity() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/activity/record'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 

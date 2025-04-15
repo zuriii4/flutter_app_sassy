@@ -18,38 +18,44 @@ class StudentsPage extends StatefulWidget {
 class _StudentsPageState extends State<StudentsPage> {
   final ApiService _apiService = ApiService();
   final TextEditingController _searchController = TextEditingController();
-  
+
   List<Student> _allStudents = [];
   List<Student> _filteredStudents = [];
   List<String> _selectedStudentIds = [];
   bool _isLoading = true;
   String? _errorMessage;
-  
+
   @override
   void initState() {
     super.initState();
     _loadStudents();
-    
+
     _searchController.addListener(() {
       _filterStudents(_searchController.text);
     });
   }
-  
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _loadStudents() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    
+
     try {
+      // Najprv načítame všetkých študentov
       final data = await _apiService.getStudents();
       _allStudents = data.map((json) => Student.fromJson(json)).toList();
+
+      // Potom získame online statusy všetkých študentov
+      await _updateStudentsOnlineStatus();
+
+      // Aktualizujeme filtrovaný zoznam
       _filteredStudents = List.from(_allStudents);
     } catch (e) {
       setState(() {
@@ -59,6 +65,76 @@ class _StudentsPageState extends State<StudentsPage> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  // Nová metóda pre aktualizáciu online statusov
+  Future<void> _updateStudentsOnlineStatus() async {
+    try {
+      // Získame online študentov
+      final onlineStudents = await _apiService.getOnlineStudents();
+      final offlineStudents = await _apiService.getOfflineStudents();
+
+      // Najprv označíme všetkých študentov ako offline
+      for (var i = 0; i < _allStudents.length; i++) {
+        _allStudents[i] = Student.fromJson({
+          ..._allStudents[i].toJson(),
+          'lastActive': 'Offline',
+        });
+      }
+
+      // Aktualizujeme online študentov
+      for (var i = 0; i < _allStudents.length; i++) {
+        final student = _allStudents[i];
+
+        // Hľadáme zhodu v online študentoch
+        final onlineMatch = onlineStudents.firstWhere(
+                (item) => item['studentId'] == student.id || item['userId'] == student.id,
+            orElse: () => null
+        );
+
+        if (onlineMatch != null) {
+          // Študent je online
+          _allStudents[i] = Student.fromJson({
+            ...student.toJson(),
+            'lastActive': 'Online',
+          });
+          continue; // Preskoč ďalší krok, keďže študent je už označený ako online
+        }
+
+        // Hľadáme zhodu v offline študentoch
+        final offlineMatch = offlineStudents.firstWhere(
+                (item) => item['studentId'] == student.id || item['userId'] == student.id,
+            orElse: () => null
+        );
+
+        if (offlineMatch != null && offlineMatch['lastActive'] != null) {
+          // Formátovanie času poslednej aktivity
+          try {
+            final lastActive = DateTime.parse(offlineMatch['lastActive']);
+            final now = DateTime.now();
+            final diff = now.difference(lastActive);
+
+            String formattedTime;
+            if (diff.inHours < 24) {
+              formattedTime = 'Dnes ${lastActive.hour}:${lastActive.minute.toString().padLeft(2, '0')}';
+            } else if (diff.inDays < 2) {
+              formattedTime = 'Včera ${lastActive.hour}:${lastActive.minute.toString().padLeft(2, '0')}';
+            } else {
+              formattedTime = '${lastActive.day}.${lastActive.month}.${lastActive.year}';
+            }
+
+            _allStudents[i] = Student.fromJson({
+              ...student.toJson(),
+              'lastActive': formattedTime,
+            });
+          } catch (e) {
+            // Ponechajme "Offline" ak je neplatný dátum
+          }
+        }
+      }
+    } catch (e) {
+      print('Chyba pri získavaní statusov: $e');
     }
   }
   
@@ -282,7 +358,7 @@ class _StudentsPageState extends State<StudentsPage> {
       ),
     );
   }
-  
+
   Widget _buildStudentsTable() {
     if (_filteredStudents.isEmpty) {
       return const Center(
@@ -292,7 +368,7 @@ class _StudentsPageState extends State<StudentsPage> {
         ),
       );
     }
-    
+
     return SingleChildScrollView(
       child: DataTable(
         columns: const [
@@ -304,7 +380,8 @@ class _StudentsPageState extends State<StudentsPage> {
         ],
         rows: _filteredStudents.map((student) {
           final isSelected = _selectedStudentIds.contains(student.id);
-          
+          final isOnline = student.lastActive == 'Online';
+
           return DataRow(
             selected: isSelected,
             cells: [
@@ -326,11 +403,30 @@ class _StudentsPageState extends State<StudentsPage> {
                   },
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        backgroundColor: student.hasSpecialNeeds 
-                            ? Colors.orange 
-                            : Colors.blue,
-                        child: const Icon(Icons.person, color: Colors.white),
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: student.hasSpecialNeeds
+                                ? Colors.orange
+                                : Colors.blue,
+                            child: const Icon(Icons.person, color: Colors.white),
+                          ),
+                          // Indikátor online statusu
+                          if (isOnline)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: Colors.green,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 1),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(width: 10),
                       Text(student.name),
@@ -340,7 +436,22 @@ class _StudentsPageState extends State<StudentsPage> {
               ),
               DataCell(Text(student.status)),
               DataCell(Text(student.needsDescription)),
-              DataCell(Text(student.lastActive)),
+              DataCell(
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isOnline ? Colors.green : Colors.grey,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(student.lastActive),
+                  ],
+                ),
+              ),
             ],
           );
         }).toList(),

@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sassy/screens/create_material_screen.dart';
+import 'package:sassy/screens/student_dashboard_screen.dart';
+import 'package:sassy/screens/student_notification_screen.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:sassy/widgets/sidebar.dart';
 import 'package:sassy/screens/dashboard_screen.dart';
@@ -20,6 +23,20 @@ class _MainScreenState extends State<MainScreen> {
   final SidebarXController _controller = SidebarXController(selectedIndex: 0);
   String? _userRole;
   String? _userName;
+  Timer? _activityTimer;
+
+  @override
+  void dispose() {
+    _activityTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startUserActivityLoop() {
+    _activityTimer = Timer.periodic(Duration(minutes: 3), (timer) async {
+      final apiService = ApiService();
+      await apiService.recordUserActivity();
+    });
+  }
 
   Future<void> _loadUserRole() async {
     final apiService = ApiService();
@@ -46,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onTaskSubmitted() {
     setState(() {
-      _selectedIndex = 0; 
+      _selectedIndex = 0;
       _controller.selectIndex(0);
     });
   }
@@ -60,6 +77,8 @@ class _MainScreenState extends State<MainScreen> {
       SettingsPage(),
       SupportPage(),
       CreateTaskScreen(onTaskSubmitted: _onTaskSubmitted),
+      StudentDashboardScreen(),
+      StudentNotificationPage(),
     ];
   }
 
@@ -84,7 +103,13 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _startTokenValidationLoop();
-    _loadUserRole();
+    _loadUserRole().then((_) {
+      setState(() {
+        _selectedIndex = _userRole == 'teacher' ? 0 : 6;
+        _controller.selectIndex(_selectedIndex);
+      });
+    });
+    _startUserActivityLoop();
   }
 
   @override

@@ -3,10 +3,10 @@ import 'package:sassy/services/api_service.dart';
 import 'package:sassy/models/student.dart';
 import 'package:sassy/widgets/search_bar.dart';
 import 'package:sassy/widgets/stat_card.dart';
-import 'package:sassy/screens/students/student_detail_screen.dart';
-import 'package:sassy/screens/students/create_group_screen.dart';
-import 'package:sassy/screens/students/create_student_screen.dart';
-import 'package:sassy/screens/group_screen.dart'; 
+import 'package:sassy/screens/teacher/students/student_detail_screen.dart';
+import 'package:sassy/screens/teacher/students/create_group_screen.dart';
+import 'package:sassy/screens/teacher/students/create_student_screen.dart';
+import 'package:sassy/screens/teacher/group_screen.dart';
 
 class StudentsPage extends StatefulWidget {
   const StudentsPage({Key? key}) : super(key: key);

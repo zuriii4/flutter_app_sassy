@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sassy/screens/material_steps/material_detail_screen.dart';
+import 'package:sassy/screens/teacher/material_steps/material_detail_screen.dart';
 
 class MaterialUtils {
   // Get icon based on material type

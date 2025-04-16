@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/student.dart';
 import 'package:sassy/services/api_service.dart';
-import 'package:sassy/screens/students/group_detail_screen.dart';
-import 'package:sassy/screens/students/edit_student_screen.dart';
+import 'package:sassy/screens/teacher/students/group_detail_screen.dart';
+import 'package:sassy/screens/teacher/students/edit_student_screen.dart';
 
 class StudentDetailScreen extends StatefulWidget {
   final Student student;

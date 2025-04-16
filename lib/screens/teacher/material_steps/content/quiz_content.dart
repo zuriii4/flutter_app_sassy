@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/widgets/form_fields.dart';
 import 'package:sassy/services/api_service.dart';
-import 'package:sassy/screens/material_steps/previews/quiz_preview.dart'; 
+import 'package:sassy/screens/teacher/material_steps/previews/quiz_preview.dart';
 
 class QuizContent extends StatefulWidget {
   final TaskModel taskModel;

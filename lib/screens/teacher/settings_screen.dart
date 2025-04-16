@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
-import 'package:sassy/screens/settings_tabs/account_tab.dart';
-import 'package:sassy/screens/settings_tabs/privacy_tab.dart';
-import 'package:sassy/screens/settings_tabs/specialization_tab.dart';
+import 'package:sassy/screens/teacher/settings_tabs/account_tab.dart';
+import 'package:sassy/screens/teacher/settings_tabs/privacy_tab.dart';
+import 'package:sassy/screens/teacher/settings_tabs/specialization_tab.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);

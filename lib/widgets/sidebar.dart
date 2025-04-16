@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sassy/screens/login_screen.dart';
-import 'package:sassy/screens/materials_screen.dart';
+import 'package:sassy/screens/teacher/login_screen.dart';
+import 'package:sassy/screens/teacher/materials_screen.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sidebarx/sidebarx.dart';

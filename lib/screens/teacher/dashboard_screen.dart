@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
-import 'package:sassy/screens/students/student_detail_screen.dart';
+import 'package:sassy/screens/teacher/students/student_detail_screen.dart';
 import 'package:sassy/models/student.dart';
-import 'package:sassy/screens/material_steps/material_detail_screen.dart';
+import 'package:sassy/screens/teacher/material_steps/material_detail_screen.dart';
 import 'package:sassy/widgets/material_card.dart'; // Import nových komponentov
 
 class DashboardPage extends StatefulWidget {

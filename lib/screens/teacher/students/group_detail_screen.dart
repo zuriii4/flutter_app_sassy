@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sassy/screens/students/add_student_screen.dart';
+import 'package:sassy/screens/teacher/students/add_student_screen.dart';
 import 'package:sassy/services/api_service.dart';
 
 class GroupDetailScreen extends StatefulWidget {

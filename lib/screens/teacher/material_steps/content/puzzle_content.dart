@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/widgets/form_fields.dart';
 import 'package:sassy/services/api_service.dart';
-import 'package:sassy/screens/material_steps/previews/puzzle_preview.dart'; 
+import 'package:sassy/screens/teacher/material_steps/previews/puzzle_preview.dart';
 
 class PuzzleContent extends StatefulWidget {
   final TaskModel taskModel;

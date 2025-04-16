@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
-import 'package:sassy/screens/material_steps/content/quiz_content.dart';
-import 'package:sassy/screens/material_steps/content/puzzle_content.dart';
-import 'package:sassy/screens/material_steps/content/word_jumble_content.dart';
-import 'package:sassy/screens/material_steps/content/connection_content.dart';
+import 'package:sassy/screens/teacher/material_steps/content/quiz_content.dart';
+import 'package:sassy/screens/teacher/material_steps/content/puzzle_content.dart';
+import 'package:sassy/screens/teacher/material_steps/content/word_jumble_content.dart';
+import 'package:sassy/screens/teacher/material_steps/content/connection_content.dart';
 
 // Základná abstraktná trieda pre obsahové kroky
 abstract class TaskContentStep extends StatefulWidget {

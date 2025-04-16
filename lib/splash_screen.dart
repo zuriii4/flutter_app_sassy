@@ -34,7 +34,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sassy/screens/login_screen.dart';
+import 'package:sassy/screens/teacher/login_screen.dart';
 import 'package:sassy/screens/main_screen.dart';
 import 'package:sassy/services/socket_service.dart';
 import 'package:sassy/services/notification_service.dart';

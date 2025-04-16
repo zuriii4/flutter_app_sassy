@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/widgets/form_fields.dart';
-import 'package:sassy/screens/material_steps/previews/word_jumble_preview.dart';
+import 'package:sassy/screens/teacher/material_steps/previews/word_jumble_preview.dart';
 
 class WordJumbleContent extends StatefulWidget {
   final TaskModel taskModel;

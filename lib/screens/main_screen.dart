@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:sassy/screens/create_material_screen.dart';
-import 'package:sassy/screens/student_dashboard_screen.dart';
-import 'package:sassy/screens/student_notification_screen.dart';
+import 'package:sassy/screens/teacher/create_material_screen.dart';
+import 'package:sassy/screens/student/student_dashboard_screen.dart';
+import 'package:sassy/screens/student/student_notification_screen.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:sassy/widgets/sidebar.dart';
-import 'package:sassy/screens/dashboard_screen.dart';
-import 'package:sassy/screens/materials_screen.dart';
-import 'package:sassy/screens/students_screen.dart';
-import 'package:sassy/screens/settings_screen.dart';
-import 'package:sassy/screens/support_screen.dart';
+import 'package:sassy/screens/teacher/dashboard_screen.dart';
+import 'package:sassy/screens/teacher/materials_screen.dart';
+import 'package:sassy/screens/teacher/students_screen.dart';
+import 'package:sassy/screens/teacher/settings_screen.dart';
+import 'package:sassy/screens/teacher/support_screen.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

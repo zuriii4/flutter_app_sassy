@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/widgets/search_bar.dart';
-import 'package:sassy/screens/students/group_detail_screen.dart';
+import 'package:sassy/screens/teacher/students/group_detail_screen.dart';
 
 class GroupsScreen extends StatefulWidget {
   const GroupsScreen({Key? key}) : super(key: key);

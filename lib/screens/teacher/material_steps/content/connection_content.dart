@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sassy/models/material.dart';
 import 'package:sassy/widgets/form_fields.dart';
 import 'package:sassy/widgets/message_display.dart';
-import 'package:sassy/screens/material_steps/previews/connections_preview.dart';
+import 'package:sassy/screens/teacher/material_steps/previews/connections_preview.dart';
 
 class ConnectionContent extends StatefulWidget {
   final TaskModel taskModel;

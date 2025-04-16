@@ -39,12 +39,12 @@ class ApiService {
   }
 
   // ✅ Získanie materiálov pre študenta
-  Future<List<dynamic>> getMaterials(String studentId) async {
+  Future<List<dynamic>> getStudentMaterials(String studentId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/materials/$studentId'),
+      Uri.parse('$baseUrl/materials/student'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -66,7 +66,7 @@ class ApiService {
       Uri.parse('$baseUrl/materials/details/$materialId'),
       headers: {'Authorization': 'Bearer $token'},
     );
-    // print(response.body);
+    print(response.body);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -432,6 +432,8 @@ class ApiService {
       if (assignedTo != null && assignedTo.isNotEmpty) 'assignedTo': assignedTo,
       if (assignedGroups != null && assignedGroups.isNotEmpty) 'assignedGroups': assignedGroups,
     };
+
+    // print(body);
         
     final response = await http.post(
       Uri.parse('$baseUrl/materials/create'),
@@ -444,7 +446,7 @@ class ApiService {
     // print(response.body);
     return response.statusCode == 201;
   }
-  
+
   // 🟡 Aktualizácia materiálu s podporou obrázkov
   Future<bool> updateMaterial({
     required String materialId,
@@ -458,7 +460,7 @@ class ApiService {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    
+
     // Ak máme nový obrázok a content nie je null
     if (imageFile != null && content != null && type == 'puzzle') {
       final imagePath = await uploadImage(imageFile);
@@ -468,7 +470,7 @@ class ApiService {
         return false;
       }
     }
- 
+
     final body = {
       if (title != null) 'title': title,
       if (description != null) 'description': description,
@@ -477,20 +479,22 @@ class ApiService {
       if (assignedTo != null && assignedTo.isNotEmpty) 'assignedTo': assignedTo,
       if (assignedGroups != null && assignedGroups.isNotEmpty) 'assignedGroups': assignedGroups,
     };
- 
+    print(assignedTo);
+    print(assignedGroups);
     final response = await http.put(
-      Uri.parse('$baseUrl/materials/materials/$materialId'),
+      Uri.parse('$baseUrl/materials/$materialId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
       body: jsonEncode(body),
     );
- 
-    // print(response.body);
- 
+
+    // print('response: $response.body');
+
     return response.statusCode == 200;
   }
+
 
 
   // 🔴 Odstránenie materiálu
@@ -499,7 +503,7 @@ class ApiService {
     final token = prefs.getString('token');
 
     final response = await http.delete(
-      Uri.parse('$baseUrl/materials/materials/$materialId'),
+      Uri.parse('$baseUrl/materials/$materialId'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -930,7 +934,7 @@ class ApiService {
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
+    // print(response.body);
 
     if (response.statusCode == 200) {
       return true;

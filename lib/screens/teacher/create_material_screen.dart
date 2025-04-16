@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sassy/screens/material_steps/material_info_step.dart';
-import 'package:sassy/screens/material_steps/material_type_step.dart';
-import 'package:sassy/screens/material_steps/material_content_step.dart';
-import 'package:sassy/screens/material_steps/material_assignment_step.dart';
+import 'package:sassy/screens/teacher/material_steps/material_info_step.dart';
+import 'package:sassy/screens/teacher/material_steps/material_type_step.dart';
+import 'package:sassy/screens/teacher/material_steps/material_content_step.dart';
+import 'package:sassy/screens/teacher/material_steps/material_assignment_step.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/models/material.dart';
 

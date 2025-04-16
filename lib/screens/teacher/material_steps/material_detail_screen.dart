@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/widgets/form_fields.dart';
 import 'package:sassy/widgets/search_bar.dart';
-import 'package:sassy/screens/material_steps/material_edit_screen.dart';
-import 'package:sassy/screens/material_steps/previews/preview_builder.dart';
+import 'package:sassy/screens/teacher/material_steps/material_edit_screen.dart';
+import 'package:sassy/screens/teacher/material_steps/previews/preview_builder.dart';
 
 class MaterialDetailScreen extends StatefulWidget {
   final String materialId;
@@ -139,7 +139,7 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
       
       final List<String> groupIds = [];
       for (var group in result['groups']) {
-        final id = group['_id'] ?? '';
+        final id = group['id'] ?? '';
         if (id.isNotEmpty) {
           groupIds.add(id);
         }

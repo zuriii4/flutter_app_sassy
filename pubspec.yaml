@@ -81,8 +81,9 @@ flutter:
     - assets/img/avatar.png
     - assets/img/graph.png
     - assets/img/permance.png
-    - assets/img/Sassy copy.svg
     - assets/img/sample.jpg
+    - assets/img/Sassy.svg
+    - assets/img/Sassy.png
 
 
   fonts:

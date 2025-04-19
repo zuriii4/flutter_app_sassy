@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:sassy/services/notification_service.dart';
-
 import '../models/online_status.dart';
 
 class SocketService {
@@ -36,12 +35,12 @@ class SocketService {
     });
 
     socket.onDisconnect((_) {
-      print('Socket odpojený');
+      // print('Socket odpojený');
       isConnected = false;
     });
 
     socket.onConnectError((data) {
-      print('Chyba pripojenia socketu: $data');
+      // print('Chyba pripojenia socketu: $data');
       isConnected = false;
     });
 
@@ -49,7 +48,7 @@ class SocketService {
 
     // Notifikácie
     socket.on('notification', (data) {
-      print('Prijatá notifikácia: $data');
+      // print('Prijatá notifikácia: $data');
       _notificationService.addNotification(
         id: data['_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
         title: data['title'] ?? 'Nová notifikácia',
@@ -61,7 +60,7 @@ class SocketService {
 
     // Online stavy používateľov
     socket.on('userStatusChanged', (data) {
-      print('Zmena stavu používateľa: $data');
+      // print('Zmena stavu používateľa: $data');
       if (data != null && data['userId'] != null) {
         _onlineStatusModel.updateUserStatus(
             data['userId'],
@@ -73,7 +72,7 @@ class SocketService {
 
     // Zoznam online študentov
     socket.on('onlineUsers', (data) {
-      print('Zoznam online používateľov: $data');
+      // print('Zoznam online používateľov: $data');
       if (data is List) {
         final onlineUsers = data.map((user) => UserStatus.fromJson(user)).toList();
         _onlineStatusModel.updateOnlineStudents(onlineUsers);
@@ -82,7 +81,7 @@ class SocketService {
 
     // Nový materiál
     socket.on('materialAssigned', (data) {
-      print('Priradený nový materiál: $data');
+      // print('Priradený nový materiál: $data');
       _notificationService.addNotification(
         id: data['notificationId'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
         title: 'Nový materiál',
@@ -94,7 +93,7 @@ class SocketService {
 
     // Dokončený materiál
     socket.on('materialCompleted', (data) {
-      print('Dokončený materiál: $data');
+      // print('Dokončený materiál: $data');
       if (userRole == 'teacher') {
         _notificationService.addNotification(
           id: data['notificationId'] ?? DateTime.now().millisecondsSinceEpoch.toString(),

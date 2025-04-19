@@ -1,37 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:sassy/screens/login_screen.dart';
-// import 'package:sassy/screens/main_screen.dart';
-//
-// class SplashScreen extends StatelessWidget {
-//   const SplashScreen({super.key});
-//
-//   Future<bool> _checkToken() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     final token = prefs.getString('token');
-//     return token != null && token.isNotEmpty;
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return FutureBuilder<bool>(
-//       future: _checkToken(),
-//       builder: (context, snapshot) {
-//         if (snapshot.connectionState == ConnectionState.waiting) {
-//           return const Scaffold(
-//             body: Center(child: CircularProgressIndicator()),
-//           );
-//         } else if (snapshot.data == true) {
-//           return MainScreen();
-//         } else {
-//           return const LoginPage();
-//         }
-//       },
-//     );
-//   }
-// }
-
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sassy/screens/teacher/login_screen.dart';
@@ -46,14 +12,50 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   final SocketService _socketService = SocketService();
   final NotificationService _notificationService = NotificationService();
+
+  // Kontrolery animácie
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _initializeServices();
+
+    // Inicializácia animácie
+    _setupAnimation();
+
+    // Spustenie služieb a navigácie po dokončení animácie
+    _animationController.forward().then((_) {
+      _initializeServices();
+    });
+  }
+
+  void _setupAnimation() {
+    // Vytvorenie controllera pre animáciu s trvaním 2 sekundy
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    );
+
+    // Scale animácia - začíname od 0.5 (polovičná veľkosť) a končíme na 1.2 (120% veľkosť)
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.2).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(0.0, 0.7, curve: Curves.easeOutBack),
+      ),
+    );
+
+    // Fade animácia - na konci sa logo vytratí
+    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(0.7, 1.0, curve: Curves.easeOut),
+      ),
+    );
   }
 
   Future<void> _initializeServices() async {
@@ -97,10 +99,33 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white, // Alebo použite vašu vlastnú farbu pozadia
       body: Center(
-        child: CircularProgressIndicator(),
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return FadeTransition(
+              opacity: _fadeAnimation.value == 0.0 ? const AlwaysStoppedAnimation(1.0) : _fadeAnimation,
+              child: Transform.scale(
+                scale: _scaleAnimation.value,
+                child: child,
+              ),
+            );
+          },
+          child: Image.asset(
+            'assets/img/Sassy.png', // Cesta k vášmu logu - upravte podľa potreby
+            width: 150,
+            height: 150,
+          ),
+        ),
       ),
     );
   }

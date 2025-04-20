@@ -939,7 +939,183 @@ class ApiService {
     if (response.statusCode == 200) {
       return true;
     } else {
-      return false;
+      throw Exception('Nepodarilo sa Zaznamenanie aktivity používateľa');
+    }
+  }
+// Set student PIN
+  Future<Map<String, dynamic>> setStudentPin(String studentId, String pin) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/student/$studentId/pin'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'pin': pin}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to set student PIN: ${response.body}');
+    }
+  }
+
+  // Set student color code
+  Future<Map<String, dynamic>> setStudentColorCode(String studentId, List<String> colorCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/student/$studentId/colorcode'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'colorCode': colorCode}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to set student color code: ${response.body}');
+    }
+  }
+
+  // Generate random PIN for student
+  Future<Map<String, dynamic>> generateRandomPin(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/student/$studentId/generate-pin'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to generate random PIN: ${response.body}');
+    }
+  }
+
+  // Generate random color code for student
+  Future<Map<String, dynamic>> generateRandomColorCode(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/student/$studentId/generate-colorcode'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to generate random color code: ${response.body}');
+    }
+  }
+
+  // Check student authentication method
+  Future<Map<String, dynamic>> checkStudentAuthMethod(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/student/$studentId/auth-method'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to check student authentication method: ${response.body}');
+    }
+  }
+
+  // Student login with PIN
+  Future<Map<String, dynamic>> studentPinLogin(String studentId, String pin) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/student/login/pin'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'studentId': studentId,
+        'pin': pin
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+
+      // Save token if provided in response
+      if (responseData['token'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', responseData['token']);
+      }
+
+      return responseData;
+    } else {
+      throw Exception('Failed to login with PIN: ${response.body}');
+    }
+  }
+
+  // Student login with color code
+  Future<Map<String, dynamic>> studentColorCodeLogin(String studentId, List<String> colorCode) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/student/login/colorcode'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'studentId': studentId,
+        'colorCode': colorCode
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+
+      // Save token if provided in response
+      if (responseData['token'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', responseData['token']);
+      }
+
+      return responseData;
+    } else {
+      throw Exception('Failed to login with color code: ${response.body}');
     }
   }
 }

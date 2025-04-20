@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Login Demo',
+      title: 'Sassy',
       theme: ThemeData(primarySwatch: Colors.orange),
       home: const SplashScreen(),
     );

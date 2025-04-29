@@ -1,0 +1,20 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     '/Users/zuri/flutter_app_sassy/build/macos/Build/Products/Release/sassy.app/Contents/MacOS/sassy'
+relocations:
+  - { offset: 0xD1458, size: 0x8, addend: 0x0, symName: '_$s5sassy17MainFlutterWindowC12awakeFromNibyyFTo', symObjAddr: 0x0, symBinAddr: 0x100001550, symSize: 0x100 }
+  - { offset: 0xD1591, size: 0x8, addend: 0x0, symName: '_$s5sassy17MainFlutterWindowCMa', symObjAddr: 0x1B0, symBinAddr: 0x100001700, symSize: 0x20 }
+  - { offset: 0xD15A5, size: 0x8, addend: 0x0, symName: '_$s5sassy24RegisterGeneratedPlugins8registryySo21FlutterPluginRegistry_p_tFTf4e_nSo0F14ViewControllerC_Tg5', symObjAddr: 0x1D0, symBinAddr: 0x100001720, symSize: 0x20E }
+  - { offset: 0xD16D2, size: 0x8, addend: 0x0, symName: '_$s5sassy17MainFlutterWindowC12awakeFromNibyyFTo', symObjAddr: 0x0, symBinAddr: 0x100001550, symSize: 0x100 }
+  - { offset: 0xD180D, size: 0x8, addend: 0x0, symName: '_$s5sassy17MainFlutterWindowC11contentRect9styleMask7backing5deferACSo6CGRectV_So013NSWindowStyleH0VSo18NSBackingStoreTypeVSbtcfcTo', symObjAddr: 0x100, symBinAddr: 0x100001650, symSize: 0x80 }
+  - { offset: 0xD1867, size: 0x8, addend: 0x0, symName: '_$s5sassy17MainFlutterWindowCfD', symObjAddr: 0x180, symBinAddr: 0x1000016D0, symSize: 0x30 }
+  - { offset: 0xD1A58, size: 0x8, addend: 0x0, symName: '_$s5sassy11AppDelegateC47applicationShouldTerminateAfterLastWindowClosedySbSo13NSApplicationCFTo', symObjAddr: 0x0, symBinAddr: 0x100001930, symSize: 0x10 }
+  - { offset: 0xD1B05, size: 0x8, addend: 0x0, symName: '_$s5sassy11AppDelegateCMa', symObjAddr: 0xA0, symBinAddr: 0x1000019D0, symSize: 0x14 }
+  - { offset: 0xD1B53, size: 0x8, addend: 0x0, symName: '_$s5sassy11AppDelegateC47applicationShouldTerminateAfterLastWindowClosedySbSo13NSApplicationCFTo', symObjAddr: 0x0, symBinAddr: 0x100001930, symSize: 0x10 }
+  - { offset: 0xD1B80, size: 0x8, addend: 0x0, symName: '_$s5sassy11AppDelegateCACycfcTo', symObjAddr: 0x10, symBinAddr: 0x100001940, symSize: 0x30 }
+  - { offset: 0xD1BBC, size: 0x8, addend: 0x0, symName: '_$s5sassy11AppDelegateCfD', symObjAddr: 0x40, symBinAddr: 0x100001970, symSize: 0x30 }
+  - { offset: 0xD1C26, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x70, symBinAddr: 0x1000019A0, symSize: 0x30 }
+  - { offset: 0xD1E16, size: 0x8, addend: 0x0, symName: '_$s5sassy19ResourceBundleClass08_A2C0602E23A6C9989CE2A0966697DAA04LLCfD', symObjAddr: 0x0, symBinAddr: 0x1000019F0, symSize: 0x20 }
+  - { offset: 0xD1E58, size: 0x8, addend: 0x0, symName: '_$s5sassy19ResourceBundleClass08_A2C0602E23A6C9989CE2A0966697DAA04LLCMa', symObjAddr: 0x20, symBinAddr: 0x100001A10, symSize: 0x14 }
+  - { offset: 0xD1E74, size: 0x8, addend: 0x0, symName: '_$s5sassy19ResourceBundleClass08_A2C0602E23A6C9989CE2A0966697DAA04LLCfD', symObjAddr: 0x0, symBinAddr: 0x1000019F0, symSize: 0x20 }
+...

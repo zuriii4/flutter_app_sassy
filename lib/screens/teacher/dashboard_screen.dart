@@ -39,10 +39,16 @@ class _DashboardPageState extends State<DashboardPage> {
       final onlineStudentsResult = await _apiService.getOnlineStudents();
       final materialsResult = await _apiService.getAllMaterials();
       final notificationsResult = await _apiService.getNotifications(limit: 10);
+      // print(onlineStudentsResult);
+      // print(materialsResult);
+      // print(notificationsResult);
 
       List<Student> completeStudents = [];
       for (var onlineStudent in onlineStudentsResult) {
-        String studentId = onlineStudent['studentId'] ?? onlineStudent['_id'];
+        String? studentId = onlineStudent['studentId'] ?? onlineStudent['_id'];
+
+        // Ak stále null, preskoč
+        if (studentId == null) continue;
 
         try {
           final studentDetails = await _apiService.getStudentDetails(studentId);
@@ -154,7 +160,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: _materials.isEmpty
                               ? const Center(
                                   child: Text(
-                                    "Zatiaľ nemáte žiadne šablóny",
+                                    "Zatiaľ nemáte žiadne Materialy",
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.black54,
@@ -239,7 +245,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                             ),
                                             subtitle: Text(
                                               student.needsDescription.isEmpty
-                                                  ? "Aktívny" // Always show as active since they're online
+                                                  ? "Aktívny" 
                                                   : student.needsDescription,
                                               style: const TextStyle(fontSize: 12),
                                             ),
@@ -270,10 +276,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 ),
                                               ],
                                             ),
-                                            trailing: Text(
-                                              student.lastActive,
-                                              style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                            ),
                                             onTap: () {
                                               Navigator.push(
                                                 context,
@@ -294,7 +296,6 @@ class _DashboardPageState extends State<DashboardPage> {
                               const SizedBox(width: 20),
                               
                               // Announcements section
-                              // Announcements section
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,24 +311,26 @@ class _DashboardPageState extends State<DashboardPage> {
                                             color: Color(0xFF2E2E48),
                                           ),
                                         ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            try {
-                                              final success = await _apiService.markAllNotificationsAsRead();
-                                              if (success) {
+                                        Expanded(
+                                          child: TextButton(
+                                            onPressed: () async {
+                                              try {
+                                                final success = await _apiService.markAllNotificationsAsRead();
+                                                if (success) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Všetky oznámenia označené ako prečítané')),
+                                                  );
+                                                  _loadData(); // Reload to update UI
+                                                }
+                                              } catch (e) {
                                                 ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(content: Text('Všetky oznámenia označené ako prečítané')),
+                                                  SnackBar(content: Text('Chyba: ${e.toString()}')),
                                                 );
-                                                _loadData(); // Reload to update UI
                                               }
-                                            } catch (e) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text('Chyba: ${e.toString()}')),
-                                              );
-                                            }
-                                          },
-                                          child: const Text('Označiť všetky ako prečítané'),
-                                        ),
+                                            },
+                                            child: const Text('Označiť všetky ako prečítané'),
+                                          ),
+                                        )
                                       ],
                                     ),
                                     const SizedBox(height: 10),

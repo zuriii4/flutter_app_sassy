@@ -88,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Ak máme token, userId a userRole, inicializujeme socket
     if (token != null && userId != null && userRole != null) {
       _socketService.initialize(
-          'http://localhost:3000', // Nahraďte adresou vášho servera
+          'http://100.80.162.78:3000', // Nahraďte adresou vášho servera
           userId,
           userRole
       );

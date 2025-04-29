@@ -10,7 +10,7 @@
 		</data>
 		<key>Resources/Assets.car</key>
 		<data>
-		ZS8HKPeXeFNycbsKbgbrVaDY71Q=
+		PYVE3M0WspVjDdEDV/ksiK3q+2M=
 		</data>
 		<key>Resources/Base.lproj/MainMenu.nib</key>
 		<data>
@@ -23,10 +23,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			XSJw2flpglkhIX9lMVh9KlM/Qyc=
+			OHPpRkDJB6j79oj9mC2IeqLsEgA=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"5d2270d9f969825921217f6531587d2a533f4327"</string>
+			<string>cdhash H"3873e94640c907a8fbf688fd982d887aa2ec1200"</string>
 		</dict>
 		<key>Frameworks/FlutterMacOS.framework</key>
 		<dict>
@@ -41,28 +41,28 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			RTXE4fLqwvZ6JSxe7Yltc/BZjeU=
+			XsskCINrJPnAZnRbzxjaexqpA0Q=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"4535c4e1f2eac2f67a252c5eed896d73f0598de5"</string>
+			<string>cdhash H"5ecb2408836b24f9c066745bcf18da7b1aa90344"</string>
 		</dict>
 		<key>Frameworks/file_selector_macos.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			2EN+tI51iODuoThzKKXq6CL/yNs=
+			WndgLrfXaU7b3Cfre8rjMy0ylxI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"d8437eb48e7588e0eea1387328a5eae822ffc8db"</string>
+			<string>cdhash H"5a77602eb7d7694edbdc27eb7bcae3332d329712"</string>
 		</dict>
 		<key>Frameworks/flutter_local_notifications.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			ZMthxD/Dq8eLv/TnZsWeruySEeU=
+			hXosqaeIkiHdm5JbD1htj5bujuE=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"64cb61c43fc3abc78bbff4e766c59eaeec9211e5"</string>
+			<string>cdhash H"857a2ca9a7889221dd9b925b0f586d8f96ee8ee1"</string>
 		</dict>
 		<key>Frameworks/libswiftAppKit.dylib</key>
 		<dict>
@@ -230,19 +230,19 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Ei6T15gfBm4aedi+FP6v1H/80Ag=
+			SDLlWVB2014sJdcPNPAV6mPzaUk=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"122e93d7981f066e1a79d8be14feafd47ffcd008"</string>
+			<string>cdhash H"4832e5595076d35e2c25d70f34f015ea63f36949"</string>
 		</dict>
 		<key>Frameworks/shared_preferences_foundation.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Ff8ylz1PwM1R6LPUfhdm5m6GE0A=
+			Om8yViTVPbNfrHg+lNBQcpefvnY=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"15ff32973d4fc0cd51e8b3d47e1766e66e861340"</string>
+			<string>cdhash H"3a6f325624d53db35fac783e94d05072979fbe76"</string>
 		</dict>
 		<key>MacOS/__preview.dylib</key>
 		<dict>
@@ -273,7 +273,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			XdD3wQgh0kNpeQEpeS/+2HoE5qVfjUEd9KcxxaXqqkI=
+			ehC2KzEy0amcZt3TO/QxfzdnecZqRpdePxxDTPyGxK0=
 			</data>
 		</dict>
 		<key>Resources/Base.lproj/MainMenu.nib</key>

@@ -1,0 +1,6 @@
+version: "Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)"
+options: "0386af63e50166cc915f7d5eb33265707927511f0d719d0a33aad269dc2896f2"
+build_start_time: [1745872159, 903350000]
+build_end_time: [1745872171, 25649000]
+inputs:
+  "/Users/zuri/.pub-cache/hosted/pub.dev/file_picker-9.2.3/macos/file_picker/Sources/file_picker/FilePickerPlugin.swift": [1743345345, 928448484]

@@ -1,0 +1,10 @@
+version: "Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)"
+options: "b6129dd44cc4a289336538c8a0b007d83d7c80c381fa1a818e02e7d452a2a5dd"
+build_start_time: [1745937795, 381434000]
+build_end_time: [1745937797, 335384000]
+inputs:
+  ? "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Runner.build/Release/Runner.build/DerivedSources/GeneratedAssetSymbols.swift"
+  : [1745872196, 314665158]
+  "/Users/zuri/flutter_app_sassy/macos/Flutter/GeneratedPluginRegistrant.swift": [1745937767, 369981116]
+  "/Users/zuri/flutter_app_sassy/macos/Runner/AppDelegate.swift": [1734221659, 0]
+  "/Users/zuri/flutter_app_sassy/macos/Runner/MainFlutterWindow.swift": [1734221659, 0]

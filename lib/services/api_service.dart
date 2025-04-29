@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000/api';
+  static const String baseUrl = 'http://100.80.162.78:3000/api';
 
   // ✅ Prihlásenie používateľa
   Future<String?> login(String email, String password) async {
@@ -33,8 +33,7 @@ class ApiService {
         return null;
       }
     } catch (e) {
-      print('❌ Chyba pri prihlasovaní: $e');
-      return null;
+      throw('❌ Chyba pri prihlasovaní: $e');
     }
   }
 
@@ -66,7 +65,7 @@ class ApiService {
       Uri.parse('$baseUrl/materials/details/$materialId'),
       headers: {'Authorization': 'Bearer $token'},
     );
-    print(response.body);
+    // print(response.body);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -95,34 +94,33 @@ class ApiService {
         'answers': answers,
       }),
     );
-
+    // print(response.body);
     return response.statusCode == 201;
   }
 
-  // ✅ Registrácia používateľa
-  Future<bool> registerUser({
+  Future<bool> registerStudent({
     required String name,
     required String email,
     required String password,
-    required String role,
     required DateTime dateOfBirth,
-    String? specialization,
-    String? group,
+
   }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
     final response = await http.post(
-      Uri.parse('$baseUrl/users/register'),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse('$baseUrl/students/register'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+        },
       body: jsonEncode({
         'name': name,
         'email': email,
         'password': password,
-        'role': role,
         'dateOfBirth': dateOfBirth.toIso8601String(),
-        if (specialization != null) 'specialization': specialization,
-        if (group != null) 'group': group,
       }),
     );
-
+    // print(response.body);
     return response.statusCode == 201;
   }
 
@@ -372,8 +370,7 @@ class ApiService {
         return null;
       }
     } catch (e) {
-      print('❌ Výnimka pri nahrávaní obrázka: $e');
-      return null;
+      throw('❌ Výnimka pri nahrávaní obrázka: $e');
     }
   }
   
@@ -394,8 +391,7 @@ class ApiService {
     if (response.statusCode == 200) {
       return response.bodyBytes;
     } else {
-      print('❌ Chyba pri získavaní obrázka: ${response.statusCode}');
-      return null;
+      throw('❌ Chyba pri získavaní obrázka: ${response.statusCode}');
     }
   }
   
@@ -479,8 +475,8 @@ class ApiService {
       if (assignedTo != null && assignedTo.isNotEmpty) 'assignedTo': assignedTo,
       if (assignedGroups != null && assignedGroups.isNotEmpty) 'assignedGroups': assignedGroups,
     };
-    print(assignedTo);
-    print(assignedGroups);
+    // print(assignedTo);
+    // print(assignedGroups);
     final response = await http.put(
       Uri.parse('$baseUrl/materials/$materialId'),
       headers: {
@@ -489,8 +485,7 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
-
-    // print('response: $response.body');
+    print(response.body);
 
     return response.statusCode == 200;
   }
@@ -661,10 +656,9 @@ class ApiService {
       Uri.parse('$baseUrl/users/teacher'),
       headers: {'Authorization': 'Bearer $token'},
     );
-
+    // print(response.body);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // print(data);
       return data['teacher']; // Vraciaš konkrétny objekt učiteľa
     } else {
       throw Exception('Nepodarilo sa načítať učiteľa');
@@ -881,7 +875,6 @@ class ApiService {
       Uri.parse('$baseUrl/activity/status/$userId'),
       headers: {'Authorization': 'Bearer $token'},
     );
-
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -898,6 +891,7 @@ class ApiService {
       Uri.parse('$baseUrl/activity/online-students'),
       headers: {'Authorization': 'Bearer $token'},
     );
+    // print(response.body);
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -952,7 +946,7 @@ class ApiService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/student/$studentId/pin'),
+      Uri.parse('$baseUrl/auth/student/$studentId/pin'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -977,7 +971,7 @@ class ApiService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/student/$studentId/colorcode'),
+      Uri.parse('$baseUrl/auth/student/$studentId/colorcode'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -1002,7 +996,7 @@ class ApiService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/student/$studentId/generate-pin'),
+      Uri.parse('$baseUrl/auth/student/$studentId/generate-pin'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -1026,7 +1020,7 @@ class ApiService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/student/$studentId/generate-colorcode'),
+      Uri.parse('$baseUrl/auth/student/$studentId/generate-colorcode'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -1050,7 +1044,7 @@ class ApiService {
     }
 
     final response = await http.get(
-      Uri.parse('$baseUrl/student/$studentId/auth-method'),
+      Uri.parse('$baseUrl/auth/student/$studentId/auth-method'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -1066,7 +1060,7 @@ class ApiService {
   // Student login with PIN
   Future<Map<String, dynamic>> studentPinLogin(String studentId, String pin) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/student/login/pin'),
+      Uri.parse('$baseUrl/auth/student/login/pin'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1075,7 +1069,7 @@ class ApiService {
         'pin': pin
       }),
     );
-
+    
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
 
@@ -1094,7 +1088,7 @@ class ApiService {
   // Student login with color code
   Future<Map<String, dynamic>> studentColorCodeLogin(String studentId, List<String> colorCode) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/student/login/colorcode'),
+      Uri.parse('$baseUrl/auth/student/login/colorcode'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1116,6 +1110,151 @@ class ApiService {
       return responseData;
     } else {
       throw Exception('Failed to login with color code: ${response.body}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getStudentAuth(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+    final response = await http.get(
+      Uri.parse('$baseUrl/auth/student/$studentId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get student authentication method: ${response.body}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getStudentProgresses(String studentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/materials/progress/$studentId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get student Progrresses: ${response.body}');
+    }
+  }
+
+  Future<List<dynamic>> getStudentsNames() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/students/names'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get student Names: ${response.body}');
+    }
+  }
+
+    // Získaní zoznamu všetkých učiteľov
+  Future<List<dynamic>> getTeachers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+    final response = await http.get(
+      Uri.parse('$baseUrl/teachers'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa načítať učiteľov');
+    }
+  }
+
+  // Získanie detailov konkrétneho učiteľa
+  Future<Map<String, dynamic>> getTeacherDetails(String teacherId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+    final response = await http.get(
+      Uri.parse('$baseUrl/teachers/$teacherId'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa načítať detaily učiteľa');
+    }
+  }
+
+  // Registrácia nového učiteľa
+  Future<Map<String, dynamic>> registerTeacher(Map<String, dynamic> teacherData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+    final response = await http.post(
+      Uri.parse('$baseUrl/teachers/register'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(teacherData),
+    );
+    
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Nepodarilo sa zaregistrovať učiteľa: ${response.body}');
+    }
+  }
+
+  // Vymazanie učiteľa
+  Future<bool> deleteTeacher(String teacherId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Používateľ nie je prihlásený');
+    }
+    final response = await http.delete(
+      Uri.parse('$baseUrl/teachers/delete/$teacherId'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 400) {
+      // Když učitel má skupiny nebo materiály, server vrátí 400
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['message'] ?? 'Nepodarilo sa vymazať učiteľa');
+    } else {
+      throw Exception('Nepodarilo sa vymazať učiteľa');
     }
   }
 }

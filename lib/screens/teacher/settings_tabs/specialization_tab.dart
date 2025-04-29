@@ -118,8 +118,12 @@ class _SpecializationTabState extends State<SpecializationTab> {
                 ),
               )
             : const Icon(Icons.save),
-          label: Text(widget.isLoading ? "Aktualizácia..." : "Uložiť špecializáciu"),
+          label: Text(
+            widget.isLoading ? "Aktualizácia..." : "Uložiť špecializáciu",
+            style: TextStyle(color: Colors.white),
+            ),
           style: ElevatedButton.styleFrom(
+            iconColor: Colors.white,
             backgroundColor: const Color(0xFFF4A261),
             disabledBackgroundColor: const Color(0xFFF4A261).withOpacity(0.7),
             minimumSize: const Size(double.infinity, 50),

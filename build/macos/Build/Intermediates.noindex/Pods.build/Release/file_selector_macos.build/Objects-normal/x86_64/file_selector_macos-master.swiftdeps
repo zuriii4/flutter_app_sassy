@@ -1,0 +1,9 @@
+version: "Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)"
+options: "45de3416edcd8543cbb5630e0ef556308e55d509b1fdf29afe91361e2a3455e2"
+build_start_time: [1745872159, 891595000]
+build_end_time: [1745872170, 959249000]
+inputs:
+  ? "/Users/zuri/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.4+2/macos/file_selector_macos/Sources/file_selector_macos/FileSelectorPlugin.swift"
+  : [1742740885, 223555024]
+  ? "/Users/zuri/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.4+2/macos/file_selector_macos/Sources/file_selector_macos/messages.g.swift"
+  : [1742740885, 229842588]

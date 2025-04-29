@@ -9,7 +9,7 @@ import 'package:sassy/screens/teacher/dashboard_screen.dart';
 import 'package:sassy/screens/teacher/materials_screen.dart';
 import 'package:sassy/screens/teacher/students_screen.dart';
 import 'package:sassy/screens/teacher/settings_screen.dart';
-import 'package:sassy/screens/teacher/support_screen.dart';
+import 'package:sassy/screens/admin/teachers_screen.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -75,7 +75,7 @@ class _MainScreenState extends State<MainScreen> {
       TemplatesPage(),
       StudentsPage(),
       SettingsPage(),
-      SupportPage(),
+      TeachersPage(),
       CreateTaskScreen(onTaskSubmitted: _onTaskSubmitted),
       StudentDashboardScreen(),
       StudentNotificationPage(),
@@ -105,7 +105,7 @@ class _MainScreenState extends State<MainScreen> {
     _startTokenValidationLoop();
     _loadUserRole().then((_) {
       setState(() {
-        _selectedIndex = _userRole == 'teacher' ? 0 : 6;
+        _selectedIndex = _userRole == 'teacher' || _userRole == 'admin' ? 0 : 6;
         _controller.selectIndex(_selectedIndex);
       });
     });

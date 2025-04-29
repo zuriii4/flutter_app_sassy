@@ -191,7 +191,7 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MaterialEditScreen(material: _material!),
+                  builder: (context) => MaterialEditScreen(material: _material!, materialId: widget.materialId,),
                 ),
               );
               

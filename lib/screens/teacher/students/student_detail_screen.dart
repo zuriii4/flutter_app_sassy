@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/models/student.dart';
 import 'package:sassy/services/api_service.dart';
+import 'package:sassy/widgets/stat_card.dart';
 import 'package:sassy/screens/teacher/students/group_detail_screen.dart';
 import 'package:sassy/screens/teacher/students/edit_student_screen.dart';
+import 'package:intl/intl.dart';
 
 class StudentDetailScreen extends StatefulWidget {
   final Student student;
   
-
   const StudentDetailScreen({
     Key? key,
     required this.student,
@@ -21,19 +22,43 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   final ApiService _apiService = ApiService();
   late Student _student;
   bool _isLoading = false;
+  bool _isLoadingProgress = true;
   bool _isOnline = false;
+  Map<String, dynamic>? _progressData;
+  String? _progressErrorMessage;
 
   @override
   void initState() {
     super.initState();
     _student = widget.student;
     _checkOnlineStatus();
+    _loadStudentProgress();
+  }
+
+  Future<void> _loadStudentProgress() async {
+    setState(() {
+      _isLoadingProgress = true;
+      _progressErrorMessage = null;
+    });
+
+    try {
+      final progressData = await _apiService.getStudentProgresses(_student.id);
+      setState(() {
+        _progressData = progressData;
+        _isLoadingProgress = false;
+      });
+    } catch (e) {
+      setState(() {
+        _progressErrorMessage = e.toString();
+        _isLoadingProgress = false;
+      });
+      print('Error fetching student progress: $e');
+    }
   }
 
   Future<void> _checkOnlineStatus() async {
     try {
       final statusData = await _apiService.getStudentOnlineStatus(_student.id);
-      print(statusData);
       setState(() {
         _isOnline = statusData['isOnline'] ?? false;
       });
@@ -59,7 +84,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     }
   }
 
-  
   Future<void> _deleteStudent() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -69,12 +93,12 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Zrušiť'),
+            child: const Text('Zrušiť', style: TextStyle(color: Colors.black38)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Odstrániť'),
+            child: const Text('Odstrániť', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -87,7 +111,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     });
 
     try {
-    final success = await _apiService.deleteStudentById(_student.id);
+      final success = await _apiService.deleteStudentById(_student.id);
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -150,34 +174,34 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
             ],
           ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Hlavička s informáciami o študentovi
-                _buildStudentHeader(),
-                const SizedBox(height: 24),
-                
-                // Štatistiky
-                _buildStatistics(),
-                const SizedBox(height: 24),
-                
-                // Údaje o progrese
-                _buildProgressSection(),
-                const SizedBox(height: 24),
-                
-                // Skupiny, do ktorých študent patrí
-                _buildGroupsSection(),
-              ],
-            ),
-          ),
+          child: _isLoading 
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Hlavička s informáciami o študentovi
+                      _buildStudentHeader(),
+                      const SizedBox(height: 24),
+                      
+                      // Štatistiky
+                      _buildStatistics(),
+                      const SizedBox(height: 24),
+                      
+                      // Údaje o progrese
+                      _buildProgressSection(),
+                      const SizedBox(height: 24),
+                      
+                      // Skupiny, do ktorých študent patrí
+                      _buildGroupsSection(),
+                    ],
+                  ),
+                ),
         ),
       ),
     );
   }
-
-
 
   Widget _buildStudentHeader() {
     return Row(
@@ -281,7 +305,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ],
               const SizedBox(height: 8),
               Text(
-                'Poznamky: ${_student.notes}',
+                'Poznámky: ${_student.notes}',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey.shade600,
@@ -295,6 +319,102 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   }
   
   Widget _buildStatistics() {
+    if (_isLoadingProgress) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Štatistiky',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_progressErrorMessage != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Štatistiky',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.red.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Nepodarilo sa načítať štatistiky: $_progressErrorMessage',
+                    style: TextStyle(color: Colors.red.shade700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: _loadStudentProgress,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Skúsiť znova'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF4A261),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Získaj dáta z progress odpovede
+    final totalAssignments = _progressData?['totalAssignments'] ?? 0;
+    final completedAssignments = _progressData?['completedAssignments'] ?? 0;
+    
+    // Vypočítať priemernú úspešnosť
+    double averageScore = 0;
+    if (_progressData != null && _progressData!['progresses'] != null) {
+      final progresses = _progressData!['progresses'] as List;
+      if (progresses.isNotEmpty) {
+        int totalScores = 0;
+        int validProgressCount = 0;
+        
+        for (var progress in progresses) {
+          if (progress['score'] != null && progress['score'] is num) {
+            totalScores += (progress['score'] as num).toInt();
+            validProgressCount++;
+          }
+        }
+        
+        if (validProgressCount > 0) {
+          averageScore = totalScores / validProgressCount;
+        }
+      }
+    }
+
+    // Zaokrúhliť priemernú úspešnosť na celé číslo
+    final roundedAvgScore = averageScore.round();
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -309,46 +429,149 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildStatCard("20", "Celkové lekcie"),
-            _buildStatCard("15", "Dokončené"),
-            _buildStatCard("80%", "Úspešnosť"),
+            StatCard(
+              count: totalAssignments.toString(),
+              label: "Celkové lekcie",
+              countColor: Colors.blue,
+            ),
+            StatCard(
+              count: completedAssignments.toString(),
+              label: "Dokončené",
+              countColor: Colors.green,
+            ),
+            StatCard(
+              count: "$roundedAvgScore%",
+              label: "Úspešnosť",
+              countColor: _getScoreColor(roundedAvgScore),
+            ),
           ],
         ),
       ],
     );
   }
-  
-  Widget _buildStatCard(String count, String label) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 244, 211, 186),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Text(
-              count,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
+
+  Color _getScoreColor(int score) {
+    if (score >= 90) return Colors.green;
+    if (score >= 75) return Colors.lightGreen;
+    if (score >= 60) return Colors.orange;
+    return Colors.red;
   }
   
   Widget _buildProgressSection() {
+    if (_isLoadingProgress) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Progres študenta',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_progressErrorMessage != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Progres študenta',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.red.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Nepodarilo sa načítať progres: $_progressErrorMessage',
+                    style: TextStyle(color: Colors.red.shade700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Získanie progresu zo dát
+    final progresses = _progressData?['progresses'] as List? ?? [];
+
+    // Ak nemáme dáta o progrese
+    if (progresses.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Progres študenta',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.assignment_outlined,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Žiadne údaje o progrese',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Zoraďme progres podľa dátumu od najnovšieho
+    progresses.sort((a, b) {
+      final aDate = DateTime.parse(a['submittedAt'] ?? '2000-01-01');
+      final bDate = DateTime.parse(b['submittedAt'] ?? '2000-01-01');
+      return bDate.compareTo(aDate);
+    });
+
+    // Zobrazme najnovších 5 aktivít
+    final latestActivities = progresses.take(5).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -361,19 +584,29 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         ),
         const SizedBox(height: 12),
         Container(
-          height: 200,
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
+            color: Colors.blue.shade50,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Center(
-            child: Text(
-              "Graf progresu (placeholder)",
-              style: TextStyle(color: Colors.grey),
-            ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.blue.shade800),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Študent dokončil ${_progressData?['completedAssignments'] ?? 0} z ${_progressData?['totalAssignments'] ?? 0} aktivít.',
+                  style: TextStyle(
+                    color: Colors.blue.shade800,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),
+        
         // Tabuľka progresu
         const Text(
           "Posledné aktivity",
@@ -383,27 +616,153 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
           ),
         ),
         const SizedBox(height: 10),
-        DataTable(
-          columns: const [
-            DataColumn(label: Text("Lekcia")),
-            DataColumn(label: Text("Status")),
-            DataColumn(label: Text("Dátum")),
-            DataColumn(label: Text("Hodnotenie")),
-          ],
-          rows: List<DataRow>.generate(
-            3,
-            (index) => DataRow(
-              cells: [
-                DataCell(Text("Lekcia ${index + 1}")),
-                const DataCell(Text("Dokončené")),
-                DataCell(Text("2024-12-${index + 1}")),
-                DataCell(Text("${80 + index * 2}%")),
-              ],
-            ),
-          ),
+        
+        // Namiesto DataTable použijeme vlastné riešenie, ktoré sa lepšie prispôsobí
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: latestActivities.length,
+          itemBuilder: (context, index) {
+            final progress = latestActivities[index];
+            final materialId = progress['material'] ?? 'Neznámy materiál';
+            final submittedAt = progress['submittedAt'] != null
+                ? DateFormat('dd.MM.yyyy HH:mm').format(DateTime.parse(progress['submittedAt']))
+                : 'Neznámy dátum';
+            final score = progress['score'] ?? 0;
+            final timeSpent = progress['timeSpent'];
+            
+            // Určenie typu materiálu podľa typu odpovede
+            String materialType = 'Neznámy typ';
+            if (progress['answers'] != null && (progress['answers'] as List).isNotEmpty) {
+              final answer = (progress['answers'] as List).first;
+              if (answer.containsKey('question')) {
+                materialType = 'Kvíz';
+              } else if (answer.containsKey('solvedGrid')) {
+                materialType = 'Puzzle';
+              } else if (answer.containsKey('connections')) {
+                materialType = 'Spojovačka';
+              } else if (answer.containsKey('arrangedWords')) {
+                materialType = 'Slovná hádanka';
+              }
+            }
+            
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    // Ikona podľa typu materiálu
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: _getMaterialTypeColor(materialType).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        _getMaterialTypeIcon(materialType),
+                        color: _getMaterialTypeColor(materialType),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    
+                    // Informácie o aktivite
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Materiál $materialId',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$materialType • $submittedAt',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          if (timeSpent != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              'Čas: ${_formatTime(timeSpent)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    
+                    // Skóre
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: _getScoreColor(score as int).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$score%',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: _getScoreColor(score as int),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
+  }
+
+  String _formatTime(int milliseconds) {
+    final seconds = (milliseconds / 1000).floor();
+    final minutes = (seconds / 60).floor();
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  IconData _getMaterialTypeIcon(String type) {
+    switch (type) {
+      case 'Kvíz':
+        return Icons.quiz;
+      case 'Puzzle':
+        return Icons.extension;
+      case 'Spojovačka':
+        return Icons.compare_arrows;
+      case 'Slovná hádanka':
+        return Icons.sort_by_alpha;
+      default:
+        return Icons.description;
+    }
+  }
+
+  Color _getMaterialTypeColor(String type) {
+    switch (type) {
+      case 'Kvíz':
+        return Colors.blue;
+      case 'Puzzle':
+        return Colors.purple;
+      case 'Spojovačka':
+        return Colors.orange;
+      case 'Slovná hádanka':
+        return Colors.teal;
+      default:
+        return Colors.grey;
+    }
   }
   
   Widget _buildGroupsSection() {

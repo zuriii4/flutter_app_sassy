@@ -376,8 +376,12 @@ class EmptyStateWidget extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: onButtonPressed,
             icon: Icon(icon),
-            label: Text(buttonText),
+            label: Text(
+              buttonText,
+              style: TextStyle(color: Colors.white),
+              ),
             style: ElevatedButton.styleFrom(
+              iconColor: Colors.white,
               backgroundColor: Colors.orange,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),

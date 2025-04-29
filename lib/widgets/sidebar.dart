@@ -140,10 +140,6 @@ class Sidebar extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // const CircleAvatar(
-                //   radius: 20,
-                //   backgroundImage: AssetImage('assets/img/avatar.png'),
-                // ),
                 const SizedBox(width: 5,),
                 const CircleAvatar(
                   radius: 25,
@@ -152,7 +148,7 @@ class Sidebar extends StatelessWidget {
                 ),
                 if (extended) ...[
                   const SizedBox(width: 10),
-                  Expanded( // <- tu je tvoj Column
+                  Expanded(
                     child:Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -168,7 +164,7 @@ class Sidebar extends StatelessWidget {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          userRole == 'teacher' ? "UČITEĽ" : "ŠTUDENT",
+                          userRole == 'teacher' ||  userRole == 'admin' ? "UČITEĽ" : "ŠTUDENT",
                           style: const TextStyle(fontSize: 12, color: Colors.black54),
                         ),
                       ],
@@ -180,7 +176,7 @@ class Sidebar extends StatelessWidget {
           ),
         );
       },
-      items: userRole == 'teacher' ? [
+      items: userRole == 'teacher' || userRole == 'admin' ? [
         SidebarXItem(
           iconWidget: const Padding(
             padding: EdgeInsets.only(left: 2),
@@ -224,16 +220,17 @@ class Sidebar extends StatelessWidget {
             onItemSelected(3);
           },
         ),
-        SidebarXItem(
-          iconWidget: const Padding(
-            padding: EdgeInsets.only(left: 2),
-            child: Icon(Icons.help_outline),
+        if (userRole == 'admin')
+          SidebarXItem(
+            iconWidget: const Padding(
+              padding: EdgeInsets.only(left: 2),
+              child: Icon(Icons.accessibility_new),
+            ),
+            label: 'Učitelia',
+            onTap: () {
+              onItemSelected(4);
+            },
           ),
-          label: 'Podpora',
-          onTap: () {
-            onItemSelected(4);
-          },
-        ),
         SidebarXItem(
           iconWidget: const Padding(
             padding: EdgeInsets.only(left: 2),
@@ -301,13 +298,13 @@ class Sidebar extends StatelessWidget {
         ),
       ],
       footerBuilder: (context, extended) {
-        // V footerBuilder už máme paramater extended, ktorý odráža stav sidebaru
-        if (userRole == 'teacher' ) {
+        if (userRole == 'teacher' || userRole == 'admin') {
           if (extended) {
-            // Plne rozbalený stav
+            // Plne rozbalený stav - kompletne prepracovaný
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Container(
+                width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8EDE3),
                   borderRadius: BorderRadius.circular(20),
@@ -320,57 +317,68 @@ class Sidebar extends StatelessWidget {
                   ],
                 ),
                 padding: const EdgeInsets.all(16),
-                child: Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        "Začnime!",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      const Text(
-                        "Vytváranie alebo pridávanie nových úloh",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          onItemSelected(5);
-                        },
-                        icon: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          "Pridať novú úlohu",
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Začnime!",
                           style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 5),
+                        const Text(
+                          "Vytváranie alebo pridávanie nových úloh",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: constraints.maxWidth, // Použitie dostupnej šírky
+                          child: TextButton.icon(
+                            onPressed: () {
+                              onItemSelected(5);
+                            },
+                            icon: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 16, // Menšia ikona
+                            ),
+                            label: const Text(
+                              "Pridať novú úlohu",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            style: TextButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 229, 127, 37),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 229, 127, 37),
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  }
                 ),
               ),
             );
           } else {
-            // Zabalený stav - používame jednoduchšiu verziu tlačidla
+            // Zabalený stav - zostáva nezmenený
             return Align(
               alignment: Alignment.center,
               child: Padding(
@@ -391,7 +399,7 @@ class Sidebar extends StatelessWidget {
             );
           }
         } else {
-            return const SizedBox.shrink();
+          return const SizedBox.shrink();
         }
       }
     );

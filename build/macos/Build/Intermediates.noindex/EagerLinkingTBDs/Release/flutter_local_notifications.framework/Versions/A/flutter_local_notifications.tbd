@@ -1,0 +1,70 @@
+{
+  "main_library": {
+    "exported_symbols": [
+      {
+        "data": {
+          "global": [
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC19defaultPresentAlertSbvpfi",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC30launchNotificationResponseDictSDySSypSgGSgvpfi",
+            "_flutter_local_notificationsVersionString",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_11willPresent21withCompletionHandlerySo06UNUseriJ0C_So14UNNotificationCySo0Q19PresentationOptionsVctF",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginCN",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC19defaultPresentBadgeSbvpfi",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC6handle_6resultySo0D10MethodCallC_yypSgctFTq",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC11initializedSbvpfi",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginCACycfC",
+            "_flutter_local_notificationsVersionNumber",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_11didActivateySo06NSUseriJ0C_So0mI0CtF",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC19defaultPresentSoundSbvpfi",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_13shouldPresentSbSo06NSUseriJ0C_So0mI0CtFTq",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_13shouldPresentSbSo06NSUseriJ0C_So0mI0CtF",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginCfD",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginCMn",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC6handle_6resultySo0D10MethodCallC_yypSgctF",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_11willPresent21withCompletionHandlerySo06UNUseriJ0C_So14UNNotificationCySo0Q19PresentationOptionsVctFTq",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginCMa",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_10didReceive21withCompletionHandlerySo06UNUseriJ0C_So22UNNotificationResponseCyyctF",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_10didReceive21withCompletionHandlerySo06UNUseriJ0C_So22UNNotificationResponseCyyctFTq",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC8register4withySo0dG9Registrar_p_tFZ",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC28launchingAppFromNotificationSbvpfi",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginCACycfc",
+            "_$s27flutter_local_notifications31FlutterLocalNotificationsPluginC22userNotificationCenter_11didActivateySo06NSUseriJ0C_So0mI0CtFTq"
+          ],
+          "objc_class": [
+            "PodsDummy_flutter_local_notifications",
+            "Converters",
+            "_TtC27flutter_local_notifications31FlutterLocalNotificationsPlugin"
+          ]
+        }
+      }
+    ],
+    "flags": [
+      {
+        "attributes": [
+          "not_app_extension_safe"
+        ]
+      }
+    ],
+    "install_names": [
+      {
+        "name": "@rpath/flutter_local_notifications.framework/Versions/A/flutter_local_notifications"
+      }
+    ],
+    "swift_abi": [
+      {
+        "abi": 7
+      }
+    ],
+    "target_info": [
+      {
+        "min_deployment": "10.14",
+        "target": "x86_64-macos"
+      },
+      {
+        "min_deployment": "11",
+        "target": "arm64-macos"
+      }
+    ]
+  },
+  "tapi_tbd_version": 5
+}

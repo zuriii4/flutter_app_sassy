@@ -1,0 +1,6 @@
+version: "Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)"
+options: "6825d759a15972b090b4f7dc375594fec5377342961bc7b7e5b2dd28ac459ccb"
+build_start_time: [1745872159, 892073000]
+build_end_time: [1745872171, 197928000]
+inputs:
+  "/Users/zuri/.pub-cache/hosted/pub.dev/flutter_local_notifications-13.0.0/macos/Classes/FlutterLocalNotificationsPlugin.swift": [1744477084, 118556299]

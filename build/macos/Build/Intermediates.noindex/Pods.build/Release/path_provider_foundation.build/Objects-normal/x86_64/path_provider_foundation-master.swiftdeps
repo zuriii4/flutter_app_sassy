@@ -1,0 +1,9 @@
+version: "Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)"
+options: "235b8f6690c411403b5316ebdc8b8e4e9b69c059959c3c1c0347afc09fda3575"
+build_start_time: [1745872159, 891588000]
+build_end_time: [1745872170, 923991000]
+inputs:
+  ? "/Users/zuri/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1/darwin/path_provider_foundation/Sources/path_provider_foundation/PathProviderPlugin.swift"
+  : [1733764034, 336073309]
+  ? "/Users/zuri/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1/darwin/path_provider_foundation/Sources/path_provider_foundation/messages.g.swift"
+  : [1733764034, 336707307]

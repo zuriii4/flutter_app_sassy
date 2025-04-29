@@ -1,0 +1,50 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/zuri/flutter_app_sassy/build/macos/Build/Products/Release/file_picker/file_picker.framework/Versions/A/file_picker'
+relocations:
+  - { offset: 0xCD51A, size: 0x8, addend: 0x0, symName: _file_pickerVersionString, symObjAddr: 0x0, symBinAddr: 0x6E90, symSize: 0x0 }
+  - { offset: 0xCD54F, size: 0x8, addend: 0x0, symName: _file_pickerVersionNumber, symObjAddr: 0x30, symBinAddr: 0x6EC0, symSize: 0x0 }
+  - { offset: 0xCD5B4, size: 0x8, addend: 0x0, symName: '_$sSo11CFStringRefa11file_pickerE33securityFilesUserSelectedReadOnly33_DEE456215D708EB7E605136322A07E49LLABvpZ', symObjAddr: 0x13390, symBinAddr: 0x10E30, symSize: 0x0 }
+  - { offset: 0xCD5CE, size: 0x8, addend: 0x0, symName: '_$sSo11CFStringRefa11file_pickerE34securityFilesUserSelectedReadWrite33_DEE456215D708EB7E605136322A07E49LLABvpZ', symObjAddr: 0x133A0, symBinAddr: 0x10E40, symSize: 0x0 }
+  - { offset: 0xCD5DC, size: 0x8, addend: 0x0, symName: '_$sSo11CFStringRefa11file_pickerE33securityFilesUserSelectedReadOnly33_DEE456215D708EB7E605136322A07E49LL_WZ', symObjAddr: 0x0, symBinAddr: 0x13C0, symSize: 0x34 }
+  - { offset: 0xCD60C, size: 0x8, addend: 0x0, symName: '_$sSo11CFStringRefa11file_pickerE34securityFilesUserSelectedReadWrite33_DEE456215D708EB7E605136322A07E49LL_WZ', symObjAddr: 0x34, symBinAddr: 0x13F4, symSize: 0x34 }
+  - { offset: 0xCD957, size: 0x8, addend: 0x0, symName: '_$syXlSgIeyBy_ypSgIegn_TR', symObjAddr: 0x344, symBinAddr: 0x1704, symSize: 0xD0 }
+  - { offset: 0xCDA69, size: 0x8, addend: 0x0, symName: '_$sSo15NSModalResponseaIegy_ABIeyBy_TR', symObjAddr: 0xBD0, symBinAddr: 0x1F90, symSize: 0x3C }
+  - { offset: 0xCDA97, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginCfETo', symObjAddr: 0x1794, symBinAddr: 0x2B54, symSize: 0x10 }
+  - { offset: 0xCDAD1, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4findys10_HashTableV6BucketV6bucket_Sb5foundtxSHRzlFSS_Tg5', symObjAddr: 0x17A4, symBinAddr: 0x2B64, symSize: 0x64 }
+  - { offset: 0xCDB09, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4find_9hashValues10_HashTableV6BucketV6bucket_Sb5foundtx_SitSHRzlFSS_Tg5', symObjAddr: 0x1808, symBinAddr: 0x2BC8, symSize: 0xE0 }
+  - { offset: 0xCDB81, size: 0x8, addend: 0x0, symName: '_$ss15ContiguousArrayV16_createNewBuffer14bufferIsUnique15minimumCapacity13growForAppendySb_SiSbtFSS_Tg5', symObjAddr: 0x18E8, symBinAddr: 0x2CA8, symSize: 0x1C }
+  - { offset: 0xCDBDB, size: 0x8, addend: 0x0, symName: '_$ss22_ContiguousArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtFSS_Tg5', symObjAddr: 0x1904, symBinAddr: 0x2CC4, symSize: 0x100 }
+  - { offset: 0xCDD2A, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtF22UniformTypeIdentifiers6UTTypeV_Tg5', symObjAddr: 0x1A04, symBinAddr: 0x2DC4, symSize: 0x174 }
+  - { offset: 0xCDE44, size: 0x8, addend: 0x0, symName: ___swift_instantiateConcreteTypeFromMangledName, symObjAddr: 0x1C7C, symBinAddr: 0x303C, symSize: 0x44 }
+  - { offset: 0xCDE58, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginCMa', symObjAddr: 0x1CC0, symBinAddr: 0x3080, symSize: 0x20 }
+  - { offset: 0xCDF8B, size: 0x8, addend: 0x0, symName: '_$sypSgWOc', symObjAddr: 0x38B4, symBinAddr: 0x4C74, symSize: 0x48 }
+  - { offset: 0xCDF9F, size: 0x8, addend: 0x0, symName: ___swift_project_boxed_opaque_existential_0, symObjAddr: 0x38FC, symBinAddr: 0x4CBC, symSize: 0x24 }
+  - { offset: 0xCDFB3, size: 0x8, addend: 0x0, symName: ___swift_destroy_boxed_opaque_existential_0, symObjAddr: 0x3920, symBinAddr: 0x4CE0, symSize: 0x20 }
+  - { offset: 0xCDFC7, size: 0x8, addend: 0x0, symName: '_$syXlSgIeyBy_ypSgIegn_TRTA', symObjAddr: 0x3964, symBinAddr: 0x4D24, symSize: 0x8 }
+  - { offset: 0xCDFDB, size: 0x8, addend: 0x0, symName: '_$sypWOb', symObjAddr: 0x396C, symBinAddr: 0x4D2C, symSize: 0x10 }
+  - { offset: 0xCDFEF, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC06handleC9Selection33_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctFySo15NSModalResponseacfU_TA', symObjAddr: 0x397C, symBinAddr: 0x4D3C, symSize: 0x10 }
+  - { offset: 0xCE003, size: 0x8, addend: 0x0, symName: _block_copy_helper, symObjAddr: 0x398C, symBinAddr: 0x4D4C, symSize: 0x10 }
+  - { offset: 0xCE017, size: 0x8, addend: 0x0, symName: _block_destroy_helper, symObjAddr: 0x399C, symBinAddr: 0x4D5C, symSize: 0x8 }
+  - { offset: 0xCE02B, size: 0x8, addend: 0x0, symName: '_$sypWOc', symObjAddr: 0x39A4, symBinAddr: 0x4D64, symSize: 0x3C }
+  - { offset: 0xCE03F, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC010handleSaveC033_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctFySo15NSModalResponseacfU_TA', symObjAddr: 0x3A60, symBinAddr: 0x4E20, symSize: 0x1C }
+  - { offset: 0xCE2C2, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC8register4withySo07FlutterE9Registrar_p_tFZ', symObjAddr: 0x68, symBinAddr: 0x1428, symSize: 0x4 }
+  - { offset: 0xCE2E4, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC8register4withySo07FlutterE9Registrar_p_tFZTo', symObjAddr: 0x6C, symBinAddr: 0x142C, symSize: 0x30 }
+  - { offset: 0xCE31A, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC6handle_6resultySo17FlutterMethodCallC_yypSgctF', symObjAddr: 0x9C, symBinAddr: 0x145C, symSize: 0x22C }
+  - { offset: 0xCE400, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC6handle_6resultySo17FlutterMethodCallC_yypSgctFTo', symObjAddr: 0x2C8, symBinAddr: 0x1688, symSize: 0x7C }
+  - { offset: 0xCE529, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC06handleC9Selection33_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctF', symObjAddr: 0x414, symBinAddr: 0x17D4, symSize: 0x504 }
+  - { offset: 0xCE717, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC06handleC9Selection33_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctFySo15NSModalResponseacfU_', symObjAddr: 0x918, symBinAddr: 0x1CD8, symSize: 0x2B8 }
+  - { offset: 0xCE9F3, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC24handleDirectorySelection33_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctF', symObjAddr: 0xC0C, symBinAddr: 0x1FCC, symSize: 0x3D8 }
+  - { offset: 0xCEB3B, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC010handleSaveC033_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctF', symObjAddr: 0xFE4, symBinAddr: 0x23A4, symSize: 0x5E4 }
+  - { offset: 0xCED49, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginCACycfC', symObjAddr: 0x16EC, symBinAddr: 0x2AAC, symSize: 0x20 }
+  - { offset: 0xCED5D, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginCACycfc', symObjAddr: 0x170C, symBinAddr: 0x2ACC, symSize: 0x2C }
+  - { offset: 0xCEDB6, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginCACycfcTo', symObjAddr: 0x1738, symBinAddr: 0x2AF8, symSize: 0x2C }
+  - { offset: 0xCEE0B, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginCfD', symObjAddr: 0x1764, symBinAddr: 0x2B24, symSize: 0x30 }
+  - { offset: 0xCEE7D, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC8register4withySo07FlutterE9Registrar_p_tFZTf4nd_n', symObjAddr: 0x1B78, symBinAddr: 0x2F38, symSize: 0x104 }
+  - { offset: 0xCEF3F, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC16checkEntitlement33_DEE456215D708EB7E605136322A07E49LL12requiredModeSo12FlutterErrorCSgAA0gO0O_tFTf4nd_n', symObjAddr: 0x1CE0, symBinAddr: 0x30A0, symSize: 0x2E0 }
+  - { offset: 0xCF089, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC15applyExtensions33_DEE456215D708EB7E605136322A07E49LLyySo11NSSavePanelC_SaySSGtFTf4nnd_n', symObjAddr: 0x1FC0, symBinAddr: 0x3380, symSize: 0x2D8 }
+  - { offset: 0xCF2DD, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC06handleC9Selection33_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctF015$syXlSgIeyBy_ypT7Iegn_TRyXlSgIeyBy_Tf1ncn_nTf4nng_n', symObjAddr: 0x2298, symBinAddr: 0x3658, symSize: 0x678 }
+  - { offset: 0xCF4C8, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC24handleDirectorySelection33_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctF015$syXlSgIeyBy_ypU7Iegn_TRyXlSgIeyBy_Tf1ncn_nTf4nng_n', symObjAddr: 0x2910, symBinAddr: 0x3CD0, symSize: 0x54C }
+  - { offset: 0xCF617, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC010handleSaveC033_DEE456215D708EB7E605136322A07E49LL_6resultySo17FlutterMethodCallC_yypSgctF015$syXlSgIeyBy_ypT7Iegn_TRyXlSgIeyBy_Tf1ncn_nTf4nng_n', symObjAddr: 0x2E5C, symBinAddr: 0x421C, symSize: 0x758 }
+  - { offset: 0xCF856, size: 0x8, addend: 0x0, symName: '_$s11file_picker16FilePickerPluginC6handle_6resultySo17FlutterMethodCallC_yypSgctF015$syXlSgIeyBy_ypM7Iegn_TRyXlSgIeyBy_Tf1ncn_nTf4nng_n', symObjAddr: 0x35B4, symBinAddr: 0x4974, symSize: 0x300 }
+...

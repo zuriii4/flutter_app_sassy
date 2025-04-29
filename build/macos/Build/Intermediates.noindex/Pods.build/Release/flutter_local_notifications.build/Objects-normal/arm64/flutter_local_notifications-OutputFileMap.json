@@ -1,0 +1,15 @@
+{
+  "" : {
+    "const-values" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/flutter_local_notifications-master.swiftconstvalues",
+    "dependencies" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/flutter_local_notifications-master.d",
+    "diagnostics" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/flutter_local_notifications-master.dia",
+    "emit-module-dependencies" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/flutter_local_notifications-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/flutter_local_notifications-master-emit-module.dia",
+    "swift-dependencies" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/flutter_local_notifications-master.swiftdeps"
+  },
+  "/Users/zuri/.pub-cache/hosted/pub.dev/flutter_local_notifications-13.0.0/macos/Classes/FlutterLocalNotificationsPlugin.swift" : {
+    "index-unit-output-path" : "/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/FlutterLocalNotificationsPlugin.o",
+    "llvm-bc" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/FlutterLocalNotificationsPlugin.bc",
+    "object" : "/Users/zuri/flutter_app_sassy/build/macos/Build/Intermediates.noindex/Pods.build/Release/flutter_local_notifications.build/Objects-normal/arm64/FlutterLocalNotificationsPlugin.o"
+  }
+}

@@ -334,8 +334,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                           ElevatedButton.icon(
                             onPressed: _isActionInProgress ? null : _addStudentToGroup,
                             icon: const Icon(Icons.person_add),
-                            label: const Text('Pridať študenta'),
+                            label: const Text(
+                              'Pridať študenta',
+                              style: TextStyle(color: Colors.white),
+                              ),
                             style: ElevatedButton.styleFrom(
+                              iconColor: Colors.white,
                               backgroundColor: const Color(0xFFF4A261),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),

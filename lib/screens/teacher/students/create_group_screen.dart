@@ -175,7 +175,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 247, 230, 217),
       appBar: AppBar(
-        title: const Text('Vytvoriť novú skupinu'),
+        title: const Text(
+          'Vytvoriť novú skupinu',
+          ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -307,7 +309,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text(
                               'Vytvoriť skupinu',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 16, color: Colors.white),
                             ),
                     ),
                   ),

@@ -80,11 +80,10 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
       final year = int.parse(parts[2]);
       final dateOfBirth = DateTime(year, month, day);
       
-      final success = await _apiService.registerUser(
+      final success = await _apiService.registerStudent(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        role: 'student',
         dateOfBirth: dateOfBirth,
       );
       
@@ -199,7 +198,7 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             'Vytvoriť študenta',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                   ),
                 ),

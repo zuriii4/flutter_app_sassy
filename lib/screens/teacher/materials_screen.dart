@@ -33,9 +33,11 @@ class _TemplatesPageState extends State<TemplatesPage> {
       setState(() {
         _templates = templatesResult;
         _isLoading = false;
+        _errorMessage = null;
       });
     } catch (e) {
       setState(() {
+        _templates = [];
         _errorMessage = "Nepodarilo sa načítať šablóny: ${e.toString()}";
         _isLoading = false;
       });

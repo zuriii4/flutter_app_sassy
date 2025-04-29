@@ -161,13 +161,14 @@ class _StudentsPageState extends State<StudentsPage> {
     });
   }
   
-  void _navigateToGroupsScreen() {
-    Navigator.push(
+  void _navigateToGroupsScreen() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const GroupsScreen(),
       ),
     );
+    _loadStudents(); // Reload students after returning
   }
   
   void _createNewStudent() async {
@@ -182,8 +183,8 @@ class _StudentsPageState extends State<StudentsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Študent bol úspešne vytvorený')),
       );
-      _loadStudents(); // Obnovíme zoznam študentov
     }
+    _loadStudents(); // Always reload after returning
   }
 
   void _createNewGroup() async {
@@ -209,6 +210,7 @@ class _StudentsPageState extends State<StudentsPage> {
         _selectedStudentIds = [];
       });
     }
+    _loadStudents(); // Always reload after returning
   }
 
   @override
@@ -265,9 +267,13 @@ class _StudentsPageState extends State<StudentsPage> {
                             ElevatedButton.icon(
                               onPressed: _navigateToGroupsScreen,
                               icon: const Icon(Icons.group),
-                              label: const Text("Skupiny"),
+                              label: const Text(
+                                "Skupiny",
+                                style: TextStyle(color : Colors.white70),
+                                ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4A90E2),
+                                iconColor: Colors.white70,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -295,10 +301,14 @@ class _StudentsPageState extends State<StudentsPage> {
                                   ? _createNewGroup
                                   : null,
                               icon: const Icon(Icons.group_add),
-                              label: const Text("Vytvoriť skupinu"),
+                              label: const Text(
+                                "Vytvoriť skupinu",
+                                style: TextStyle( color: Colors.black54),
+                                ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color.fromARGB(255, 244, 211, 186),
                                 disabledBackgroundColor: Colors.grey.shade300,
+                                iconColor: Colors.black54,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -388,18 +398,20 @@ class _StudentsPageState extends State<StudentsPage> {
               DataCell(
                 Checkbox(
                   value: isSelected,
+                  activeColor: Colors.orange,
                   onChanged: (value) => _toggleStudentSelection(student.id, value ?? false),
                 ),
               ),
               DataCell(
                 InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => StudentDetailScreen(student: student),
                       ),
                     );
+                    _loadStudents();
                   },
                   child: Row(
                     children: [

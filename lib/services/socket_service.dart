@@ -27,7 +27,7 @@ class SocketService {
 
     // Udalosti pripojenia
     socket.onConnect((_) {
-      print('Socket pripojený: ${socket.id}');
+      // print('Socket pripojený: ${socket.id}');
       isConnected = true;
 
       // Autentifikácia používateľa

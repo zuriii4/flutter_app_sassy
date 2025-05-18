@@ -248,7 +248,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text('Začať učenie'),
+                  child: const Text('Začať učenie', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -305,186 +305,198 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   }
 
   Widget _buildMaterialsList() {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: _materials.length,
-      itemBuilder: (context, index) {
-        final material = _materials[index];
-        final String materialId = material['_id'] ?? '';
-        final String title = material['title'] ?? 'Bez názvu';
-        final String description = material['description'] ?? '';
-        final String type = material['type'] ?? 'unknown';
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Určíme počet materiálov v jednom rade podľa šírky
+        int crossAxisCount = constraints.maxWidth > 800 
+            ? 2  // Veľká obrazovka - 2 stĺpce
+            : 1; // Malá obrazovka - 1 stĺpec
+        
+        // Upravíme pomer strán karty podľa počtu stĺpcov
+        double childAspectRatio = crossAxisCount == 1 ? 1.3 : 2;
+        
+        return GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: childAspectRatio,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+          ),
+          itemCount: _materials.length,
+          itemBuilder: (context, index) {
+            final material = _materials[index];
+            final String materialId = material['_id'] ?? '';
+            final String title = material['title'] ?? 'Bez názvu';
+            final String description = material['description'] ?? '';
+            final String type = material['type'] ?? 'unknown';
 
-
-        return GestureDetector(
-          onTap: () {
-            // Otvorenie detailu materiálu
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MaterialCompletionScreen(
-                  material: material,
-                  materialId: materialId,
-                ),
-              ),
-            ).then((_) => _loadData());
-          },
-          child: Hero(
-            tag: 'material-$materialId',
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: this._random.nextDouble() * 10 + 4, // Náhodný rozmazaný efekt pre hravý vzhľad
-                    offset: Offset(0, this._random.nextDouble() * 4 + 1),
+            // Zachovaný pôvodný kód pre každú kartu
+            return GestureDetector(
+              onTap: () {
+                // Otvorenie detailu materiálu
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MaterialCompletionScreen(
+                      material: material,
+                      materialId: materialId,
+                    ),
                   ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Vrchná časť s obrazkom alebo ikonou
-                    Stack(
+                ).then((_) => _loadData());
+              },
+              child: Hero(
+                tag: 'material-$materialId',
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: _random.nextDouble() * 10 + 4, // Náhodný rozmazaný efekt pre hravý vzhľad
+                        offset: Offset(0, _random.nextDouble() * 4 + 1),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Obrázok alebo farebné pozadie
-                        Container(
-                          height: 100,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: _getColorForType(type),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              _getIconForType(type),
-                              size: 48,
-                              color: Colors.white,
-                            ),
-                          )
-                        ),
-
-                        // Štítok pre typ materiálu
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
+                        // Vrchná časť s obrazkom alebo ikonou
+                        Stack(
+                          children: [
+                            // Obrázok alebo farebné pozadie
+                            Container(
+                              height: 100,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: _getColorForType(type),
+                              ),
+                              child: Center(
+                                child: Icon(
                                   _getIconForType(type),
-                                  size: 12,
+                                  size: 48,
                                   color: Colors.white,
                                 ),
-                                const SizedBox(width: 4),
+                              )
+                            ),
+
+                            // Štítok pre typ materiálu
+                            Positioned(
+                              top: 8,
+                              left: 8,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.6),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      _getIconForType(type),
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      type.toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Informácie o materiáli
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Názov materiálu
                                 Text(
-                                  type.toUpperCase(),
+                                  title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2E2E48),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+
+                                // Popis materiálu
+                                if (description.isNotEmpty) ...[
+                                  Expanded(
+                                    child: Text(
+                                      description,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+
+                                // Dátum vytvorenia
+                                Text(
+                                  'Vytvorené: ${_formatDate(material['createdAt'] ?? DateTime.now().toIso8601String())}',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
+
+                        // Tlačidlo zobrazenia
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: _getColorForType(type).withOpacity(0.1),
+                            border: Border(
+                              top: BorderSide(
+                                color: _getColorForType(type).withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Center(
+                            child: Text(
+                              'ZOBRAZIŤ',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: _getColorForType(type),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-
-                    // Informácie o materiáli
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Názov materiálu
-                            Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2E2E48),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-
-                            // Popis materiálu
-                            if (description.isNotEmpty) ...[
-                              Expanded(
-                                child: Text(
-                                  description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ),
-                            ],
-
-                            // Dátum vytvorenia
-                            Text(
-                              'Vytvorené: ${_formatDate(material['createdAt'] ?? DateTime.now().toIso8601String())}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // Tlačidlo zobrazenia
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: _getColorForType(type).withOpacity(0.1),
-                        border: Border(
-                          top: BorderSide(
-                            color: _getColorForType(type).withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Center(
-                        child: Text(
-                          'ZOBRAZIŤ',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: _getColorForType(type),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
-      },
+      }
     );
   }
 

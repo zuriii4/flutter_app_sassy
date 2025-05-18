@@ -238,6 +238,7 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F2EA),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(title),
         backgroundColor: MaterialUtils.getTypeColor(materialType),
         foregroundColor: Colors.white,

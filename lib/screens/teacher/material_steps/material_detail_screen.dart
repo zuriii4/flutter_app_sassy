@@ -80,7 +80,12 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Zrušiť'),
+            child: const Text(
+              'Zrušiť',
+              style: TextStyle(
+                color: Colors.black54,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -221,7 +226,10 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _isLoading ? null : _showAssignDialog,
         backgroundColor: const Color(0xFFF67E4A),
-        child: const Icon(Icons.person_add),
+        child: const Icon(
+          Icons.person_add,
+          color: Colors.white,
+          ),
         tooltip: 'Prideliť používateľom/skupinám',
       ),
     );
@@ -770,7 +778,12 @@ class _UserAssignmentDialogState extends State<UserAssignmentDialog> with Single
                 children: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Zrušiť'),
+                    child: const Text(
+                      'Zrušiť',
+                      style: TextStyle(
+                        color: Colors.black54,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(

@@ -439,7 +439,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                                       ],
                                     ),
                                     child: Icon(
-                                      Icons.close,
+                                      connection.isCorrect ? Icons.check : Icons.close,
                                       size: 16,
                                       color: connection.isCorrect ? Colors.green : Colors.red,
                                     ),

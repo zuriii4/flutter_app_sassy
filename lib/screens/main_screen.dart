@@ -4,7 +4,7 @@ import 'package:sassy/screens/teacher/create_material_screen.dart';
 import 'package:sassy/screens/student/student_dashboard_screen.dart';
 import 'package:sassy/screens/student/student_notification_screen.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:sassy/widgets/sidebar.dart';
+import 'package:sassy/widgets/sidebar.dart'; 
 import 'package:sassy/screens/teacher/dashboard_screen.dart';
 import 'package:sassy/screens/teacher/materials_screen.dart';
 import 'package:sassy/screens/teacher/students_screen.dart';
@@ -24,6 +24,10 @@ class _MainScreenState extends State<MainScreen> {
   String? _userRole;
   String? _userName;
   Timer? _activityTimer;
+  late List<Widget> _pages;
+
+  // Pridanie kľúča pre scaffold
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void dispose() {
@@ -32,7 +36,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _startUserActivityLoop() {
-    _activityTimer = Timer.periodic(Duration(minutes: 3), (timer) async {
+    _activityTimer = Timer.periodic(const Duration(minutes: 1), (timer) async {
       final apiService = ApiService();
       await apiService.recordUserActivity();
     });
@@ -45,20 +49,95 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _userRole = userData['user']['role'];
         _userName = userData['user']['name'];
+        // Znovu inicializujte stránky a vybraný index po načítaní role
+        _initPagesBasedOnRole();
       });
     }
   }
 
-  void _onItemSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-      _loadUserRole();
-      if (index == 5) {
-        _controller.selectIndex(-1);
-      } else {
-        _controller.selectIndex(index);
+  void _initPagesBasedOnRole() {
+    // Inicializácia stránok na základe role používateľa
+    if (_userRole == 'student') {
+      _pages = [
+        StudentDashboardScreen(),
+        StudentNotificationPage(),
+      ];
+      // Uistite sa, že študent začne na študentskom dashboarde
+      _selectedIndex = 0;
+      _controller.selectIndex(0);
+    } else if (_userRole == 'teacher' || _userRole == 'admin') {
+      // Stránky pre učiteľa a admina
+      List<Widget> teacherPages = [
+        DashboardPage(),
+        TemplatesPage(),
+        StudentsPage(),
+        SettingsPage(),
+      ];
+
+      // Pridanie stránky pre admina
+      if (_userRole == 'admin') {
+        teacherPages.add(TeachersPage());
       }
-    });
+
+      // Vytvorenie úlohy na konci zoznamu
+      teacherPages.add(CreateTaskScreen(onTaskSubmitted: _onTaskSubmitted));
+
+      _pages = teacherPages;
+      // Uistite sa, že učiteľ/admin začne na dashboarde
+      _selectedIndex = 0;
+      _controller.selectIndex(0);
+    }
+  }
+
+  void _onItemSelected(int index) {
+    // Kontrola rozsahu indexov pre aktuálnu rolu
+    final int maxIndex = _pages.length - 1;
+
+    if (_userRole == 'student') {
+      // Študenti majú len 2 stránky
+      if (index <= 1) {
+        setState(() {
+          _selectedIndex = index;
+          _controller.selectIndex(index);
+        });
+      }
+    } else if (_userRole == 'teacher') {
+      // Učitelia nemajú prístup k správe učiteľov
+      if (index == 4) {
+        // Ak sa pokúšajú pristupovať k správe učiteľov, presmerujeme ich na dashboard
+        setState(() {
+          _selectedIndex = 0;
+          _controller.selectIndex(0);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nemáte oprávnenie pre zobrazenie tejto stránky')),
+        );
+      } else if (index == 5) {
+        // Vytvorenie úlohy je posledná stránka
+        setState(() {
+          _selectedIndex = maxIndex;
+          _controller.selectIndex(-1); // Žiadna vybraná položka v sidebar
+        });
+      } else if (index < maxIndex) {
+        setState(() {
+          _selectedIndex = index;
+          _controller.selectIndex(index);
+        });
+      }
+    } else if (_userRole == 'admin') {
+      if (index == 5) {
+        // Vytvorenie úlohy je posledná stránka
+        setState(() {
+          _selectedIndex = maxIndex;
+          _controller.selectIndex(-1); // Žiadna vybraná položka v sidebar
+        });
+      } else if (index <= maxIndex) {
+        setState(() {
+          _selectedIndex = index;
+          _controller.selectIndex(index);
+        });
+      }
+    }
   }
 
   void _onTaskSubmitted() {
@@ -68,23 +147,9 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  // We need to create pages within build to pass callback
-  List<Widget> _getPages() {
-    return [
-      DashboardPage(),
-      TemplatesPage(),
-      StudentsPage(),
-      SettingsPage(),
-      TeachersPage(),
-      CreateTaskScreen(onTaskSubmitted: _onTaskSubmitted),
-      StudentDashboardScreen(),
-      StudentNotificationPage(),
-    ];
-  }
-
   void _startTokenValidationLoop() {
     Future.doWhile(() async {
-      await Future.delayed(Duration(minutes: 1));
+      await Future.delayed(const Duration(minutes: 1));
       final apiService = ApiService();
       final isValid = await apiService.isTokenValid();
       if (!isValid) {
@@ -103,38 +168,62 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _startTokenValidationLoop();
-    _loadUserRole().then((_) {
-      setState(() {
-        _selectedIndex = _userRole == 'teacher' || _userRole == 'admin' ? 0 : 6;
-        _controller.selectIndex(_selectedIndex);
-      });
-    });
+
+    // Predbežne inicializujte stránky
+    _pages = [
+      // Predvolené prázdne widgety kým sa nenačíta rola používateľa
+      const Center(child: CircularProgressIndicator()),
+    ];
+
+    _loadUserRole();
     _startUserActivityLoop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = _getPages();
-    
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 230, 217),
-      body: Row(
-        children: [
-          Sidebar(
-            controller: _controller,
-            onItemSelected: _onItemSelected,
-            userRole: _userRole ?? 'student',
-            userName: _userName ?? 'Unknown',
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: IndexedStack(
-              index: _selectedIndex,
-              children: pages,
+    // Získanie šírky obrazovky pre responzívne rozloženie
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isDesktopMode = screenWidth > 768;
+
+    // Kontrola, či sú stránky inicializované
+    final contentWidget = _pages.isEmpty || _selectedIndex >= _pages.length
+        ? const Center(child: CircularProgressIndicator())
+        : _pages[_selectedIndex];
+
+    if (isDesktopMode) {
+      // Desktop rozloženie - side-by-side
+      return Scaffold(
+        backgroundColor: const Color.fromARGB(255, 247, 230, 217),
+        body: Row(
+          children: [
+            // Používame ResponsiveSidebar
+            ResponsiveSidebar(
+              controller: _controller,
+              onItemSelected: _onItemSelected,
+              userRole: _userRole ?? 'student',
+              userName: _userName ?? 'Unknown',
             ),
-          ),
-        ],
-      ),
-    );
+            const SizedBox(width: 16),
+            Expanded(
+              child: contentWidget,
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Mobilné rozloženie - obsah s hamburger menu
+      return Scaffold(
+        key: _scaffoldKey, // Predáme kľúč pre prístup k Scaffold v ResponsiveSidebar
+        backgroundColor: const Color.fromARGB(255, 247, 230, 217),
+        // ResponsiveSidebar sa postará o drawer a AppBar, a predávame mu aktuálnu stránku
+        body: ResponsiveSidebar(
+          controller: _controller,
+          onItemSelected: _onItemSelected,
+          userRole: _userRole ?? 'student',
+          userName: _userName ?? 'Unknown',
+          child: contentWidget, // Predáme obsah stránky do ResponsiveSidebar
+        ),
+      );
+    }
   }
 }

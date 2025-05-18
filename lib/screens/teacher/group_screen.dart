@@ -304,7 +304,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   ),
-                  child: const Text('Zobraziť'),
+                  child: const Text('Zobraziť', style: TextStyle(color: Colors.black54)),
                 ),
               ),
             ],

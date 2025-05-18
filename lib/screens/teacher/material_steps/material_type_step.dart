@@ -84,11 +84,14 @@ class TaskTypeStep extends StatelessWidget {
                 color: const Color(0xFFF67E4A),
               ),
               const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -100,6 +103,8 @@ class TaskTypeStep extends StatelessWidget {
                     fontSize: 12,
                     color: Colors.grey,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
                 ),
               ),
             ],

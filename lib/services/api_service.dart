@@ -5,9 +5,10 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://100.80.162.78:3000/api';
+  static String baseUrl = dotenv.env['API_URL'] as String;
 
   // ✅ Prihlásenie používateľa
   Future<String?> login(String email, String password) async {
@@ -921,7 +922,7 @@ class ApiService {
   Future<bool> recordUserActivity() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-
+    // print(token);
     final response = await http.post(
       Uri.parse('$baseUrl/activity/record'),
       headers: {

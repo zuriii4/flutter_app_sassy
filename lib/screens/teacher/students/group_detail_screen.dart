@@ -60,12 +60,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Zrušiť'),
+            child: const Text('Zrušiť', style: TextStyle(color: Colors.black54)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Odstrániť'),
+            child: const Text('Odstrániť', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -143,12 +143,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Zrušiť'),
+            child: const Text('Zrušiť', style: TextStyle(color: Colors.black54)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Odstrániť'),
+            child: const Text('Odstrániť', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

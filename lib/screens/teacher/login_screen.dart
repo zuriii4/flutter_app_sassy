@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sassy/screens/main_screen.dart';
 import 'package:sassy/services/api_service.dart';
@@ -571,7 +572,7 @@ class _LoginPageState extends State<LoginPage> {
           final pin = _pinController.text.trim();
 
           final loginResponse = await _apiService.studentPinLogin(studentId, pin);
-          print('PIN login response: $loginResponse'); // Debug print
+          // print('PIN login response: $loginResponse'); // Debug print
 
           // Použitie správnych kľúčov z odpovede
           userData = {
@@ -588,7 +589,7 @@ class _LoginPageState extends State<LoginPage> {
           final studentId = _selectedStudentId!;
 
           final loginResponse = await _apiService.studentColorCodeLogin(studentId, _selectedColors);
-          print('Color login response: $loginResponse'); // Debug print
+          // print('Color login response: $loginResponse'); // Debug print
 
           // Použitie správnych kľúčov z odpovede
           userData = {
@@ -610,7 +611,7 @@ class _LoginPageState extends State<LoginPage> {
 
         // Inicializujeme socket
         _socketService.initialize(
-            'http://100.80.162.78:3000',
+            dotenv.env['WEB_SOCKET_URL'] as String,
             userData['user']['_id'],
             userData['user']['role']
         );

@@ -20,31 +20,75 @@ class QuizWorkspace extends StatefulWidget {
 
 class _QuizWorkspaceState extends State<QuizWorkspace> {
   final ApiService _apiService = ApiService();
-  bool _isLoading = false;
+  bool _isLoading = true;
   String? _errorMessage;
-  
+
   // Stav kvízu
-  List<Map<String, dynamic>> _answers = [];
+  Map<String, Map<String, dynamic>> _userAnswers = {};
   bool _quizCompleted = false;
-  
+  int _currentQuestionIndex = 0;
+
   // Cache pre načítané obrázky
   final Map<String, Uint8List?> _imageCache = {};
-  
+
   // Pre sledovanie času
   final int _startTime = DateTime.now().millisecondsSinceEpoch;
   int _timeSpent = 0;
-  
+
+  // PageController pre navigáciu
+  late PageController _pageController;
+
   @override
   void initState() {
     super.initState();
-    _initializeAnswers();
     _preloadImages();
-    
+    _pageController = PageController(initialPage: 0);
+
+    // Inicializácia odpoveďového slovníka
+    _initializeAnswers();
+
     // Aktualizácia času každú sekundu
     _startTimer();
   }
-  
-  // Preload obrázkov na predchádzanie skákaniu layoutu
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  // Inicializácia štruktúry odpovedí
+  void _initializeAnswers() {
+    for (int i = 0; i < widget.questions.length; i++) {
+      final question = widget.questions[i];
+      final questionId = question['_id'] ?? 'q$i';
+
+      // Nájdeme správnu odpoveď
+      String? correctAnswerId;
+      final List<dynamic> answers = question['answers'] ?? [];
+      for (var answer in answers) {
+        if (answer['correct'] == true) {
+          correctAnswerId = answer['_id'] ?? answers.indexOf(answer).toString();
+          break;
+        }
+      }
+
+      _userAnswers[questionId] = {
+        'question': question['text'] ?? 'Otázka ${i + 1}',
+        'questionId': questionId,
+        'answerId': null,
+        'answer': null,
+        'correctAnswerId': correctAnswerId,
+        'isCorrect': false,
+      };
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  // Preload obrázkov
   Future<void> _preloadImages() async {
     for (var question in widget.questions) {
       // Načítanie obrázka otázky
@@ -57,7 +101,7 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
           print('Error preloading question image: $e');
         }
       }
-      
+
       // Načítanie obrázkov odpovedí
       final List<dynamic> answersData = question['answers'] ?? [];
       for (var answer in answersData) {
@@ -73,13 +117,66 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
       }
     }
   }
-  
+
   // Získanie obrázka z cache alebo z API
-  Future<Uint8List?> _getImage(String imagePath) async {
-    if (_imageCache.containsKey(imagePath)) {
-      return _imageCache[imagePath];
+  Widget buildImageWidget(String? imagePath, {double height = 150}) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return const SizedBox.shrink();
     }
-    
+
+    // Ak už máme obrázok v cache, použijeme ho priamo
+    if (_imageCache.containsKey(imagePath) && _imageCache[imagePath] != null) {
+      return Container(
+        height: height,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(
+            _imageCache[imagePath]!,
+            fit: BoxFit.contain,
+          ),
+        ),
+      );
+    }
+
+    // Inak zobrazíme placeholder a načítame obrázok
+    return Container(
+      height: height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: FutureBuilder<Uint8List?>(
+        future: _loadAndCacheImage(imagePath),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+            return const Center(
+              child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+            );
+          } else {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                snapshot.data!,
+                fit: BoxFit.contain,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  // Načítanie a uloženie obrázka do cache
+  Future<Uint8List?> _loadAndCacheImage(String imagePath) async {
     try {
       final bytes = await _apiService.getImageBytes(imagePath);
       _imageCache[imagePath] = bytes;
@@ -89,7 +186,7 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
       return null;
     }
   }
-  
+
   void _startTimer() {
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted && !_quizCompleted) {
@@ -100,7 +197,7 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
       }
     });
   }
-  
+
   // Formátovanie času do podoby mm:ss
   String _formatTime(int milliseconds) {
     final seconds = (milliseconds / 1000).floor();
@@ -109,67 +206,42 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  // Inicializácia odpovedí na základe otázok
-  void _initializeAnswers() {
-    _answers = List.generate(widget.questions.length, (index) {
-      final question = widget.questions[index];
-      
-      // Najdeme správnu odpověď
-      String? correctAnswerId;
-      final List<dynamic> answersData = question['answers'] ?? [];
-      for (var answer in answersData) {
-        if (answer['correct'] == true) {
-          // Uložíme ID odpovede, nielen text
-          correctAnswerId = answer['_id'] ?? answersData.indexOf(answer).toString();
-          break;
-        }
-      }
-      
-      return {
-        'questionId': question['_id'] ?? index.toString(),
-        'question': question['text'] ?? 'Otázka ${index + 1}',
-        'answerId': null,
-        'answer': null,
-        'correctAnswerId': correctAnswerId,
-        'isCorrect': false,
-      };
-    });
-  }
-  
   // Kontrola, či sú všetky otázky zodpovedané
   bool _areAllQuestionsAnswered() {
-    return _answers.every((answer) => answer['answer'] != null);
+    return _userAnswers.values.every((answer) => answer['answerId'] != null);
   }
-  
+
   // Počet správnych odpovedí
   int _getCorrectAnswersCount() {
-    return _answers.where((answer) => answer['isCorrect'] == true).length;
+    return _userAnswers.values.where((answer) => answer['isCorrect'] == true).length;
   }
-  
+
   // Odoslanie výsledkov kvízu
   void _submitQuiz() {
     setState(() {
       _quizCompleted = true;
       _timeSpent = DateTime.now().millisecondsSinceEpoch - _startTime;
     });
-    
-    // Pridanie časového údaju do odpovedí
-    for (var answer in _answers) {
+
+    // Konverzia Map na List pre výsledný formát
+    List<Map<String, dynamic>> answerList = _userAnswers.values.map((answer) {
+      // Pridanie časového údaju do odpovedí
       answer['timeSpent'] = _timeSpent;
       answer['completed'] = true;
-    }
-    
+      return Map<String, dynamic>.from(answer);
+    }).toList();
+
     // Zobrazenie dialogu s výsledkom
-    _showQuizResultDialog();
+    _showQuizResultDialog(answerList);
   }
-  
+
   // Zobrazenie dialogu s výsledkom kvízu
-  void _showQuizResultDialog() {
+  void _showQuizResultDialog(List<Map<String, dynamic>> answerList) {
     final correctCount = _getCorrectAnswersCount();
     final totalCount = widget.questions.length;
     final percentScore = (correctCount / totalCount * 100).round();
     final perfectScore = correctCount == totalCount;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -185,8 +257,8 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
             ),
             const SizedBox(height: 16),
             Text(
-              perfectScore 
-                  ? 'Úspešne si dokončil/a kvíz bez chyby!' 
+              perfectScore
+                  ? 'Úspešne si dokončil/a kvíz bez chyby!'
                   : 'Úspešne si dokončil/a kvíz!',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -205,9 +277,9 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context); // Zatvorenie dialógu
-                
+
                 // Odoslanie výsledkov naspäť do rodičovského komponentu
-                widget.onQuizCompleted(_answers, _timeSpent);
+                widget.onQuizCompleted(answerList, _timeSpent);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
@@ -220,441 +292,338 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
       ),
     );
   }
-  
-  // Zobrazenie dialógu s nápoveďou
-  void _showHelpDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ako riešiť kvíz?'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.check_circle, color: Colors.green),
-              title: Text('Správne odpovede sa označia zelenou farbou'),
-            ),
-            ListTile(
-              leading: Icon(Icons.cancel, color: Colors.red),
-              title: Text('Nesprávne odpovede sa označia červenou farbou'),
-            ),
-            ListTile(
-              leading: Icon(Icons.info_outline, color: Colors.blue),
-              title: Text('Po výbere odpovede už nie je možné ju zmeniť'),
-            ),
-            ListTile(
-              leading: Icon(Icons.done_all, color: Colors.orange),
-              title: Text('Pre dokončenie musíš odpovedať na všetky otázky'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Rozumiem'),
-          ),
-        ],
-      ),
-    );
+
+  // Prechod na ďalšiu otázku
+  void _goToNextQuestion() {
+    if (_currentQuestionIndex < widget.questions.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  // Prechod na predchádzajúcu otázku
+  void _goToPreviousQuestion() {
+    if (_currentQuestionIndex > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Načítavam kvíz...'),
-          ],
-        ),
+        child: CircularProgressIndicator(),
       );
     }
-    
+
     if (_errorMessage != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              _errorMessage!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _errorMessage = null;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
               ),
-              child: const Text('Skúsiť znova'),
-            ),
-          ],
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                },
+                child: const Text('Skúsiť znova'),
+              ),
+            ],
+          ),
         ),
       );
     }
-    
-    // Príprava pre kontrolu odpovedí
-    final allQuestionsAnswered = _areAllQuestionsAnswered();
-    final correctAnswers = _getCorrectAnswersCount();
-    
+
     return Column(
       children: [
         // Informačný panel
-        Container(
-          padding: const EdgeInsets.all(16),
-          margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blue.shade100, Colors.blue.shade50],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Kvíz',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Zodpovedané: $correctAnswers/${widget.questions.length}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    'Čas: ${_formatTime(_timeSpent)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ],
+              Text(
+                'Otázka ${_currentQuestionIndex + 1}/${widget.questions.length}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              Row(
-                children: [
-                  // Tlačidlo na zobrazenie nápovedy
-                  Tooltip(
-                    message: 'Nápoveda',
-                    child: InkWell(
-                      onTap: _showHelpDialog,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.help_outline,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              const Spacer(),
+              Text(
+                'Čas: ${_formatTime(_timeSpent)}',
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
         ),
-        
+
         // Progress bar
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: widget.questions.isNotEmpty ? correctAnswers / widget.questions.length : 0,
-              backgroundColor: Colors.grey.shade200,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-              minHeight: 8,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: LinearProgressIndicator(
+            value: (_currentQuestionIndex + 1) / widget.questions.length,
+            minHeight: 8,
+            backgroundColor: Colors.grey.shade200,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
-        
-        // Otázky
+
+        // Obsah kvízu
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+          child: PageView.builder(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(), // Zabráni swipovaniu
+            onPageChanged: (index) {
+              setState(() {
+                _currentQuestionIndex = index;
+              });
+            },
             itemCount: widget.questions.length,
             itemBuilder: (context, index) {
+              // Bezpečne získame otázku
+              if (index < 0 || index >= widget.questions.length) {
+                return const Center(child: Text('Chyba: Otázka nenájdená'));
+              }
+
               final question = widget.questions[index];
-              final questionId = question['_id'] ?? index.toString();
+              final questionId = question['_id'] ?? 'q$index';
               final questionImage = question['image'];
-              
-              // Zpracování struktury dat pro odpovědi
-              final List<dynamic> answersData = question['answers'] ?? [];
-              
-              // Nájdeme správnou odpověď a jej ID
-              String? correctAnswerId;
-              String? correctAnswerText;
-              for (var answer in answersData) {
-                if (answer['correct'] == true) {
-                  correctAnswerId = answer['_id'] ?? answersData.indexOf(answer).toString();
-                  correctAnswerText = answer['text'];
-                  break;
-                }
+              final answersData = question['answers'] ?? [];
+
+              // Kontrola či máme túto otázku v userAnswers
+              if (!_userAnswers.containsKey(questionId)) {
+                return const Center(child: Text('Chyba pri načítaní otázky'));
               }
-              
-              // Nájdeme odpoveď pre túto otázku
-              final answerIndex = _answers.indexWhere((a) => a['questionId'] == questionId);
-              if (answerIndex == -1) return const SizedBox(); // Nemalo by sa stať
-              
-              // Aktualizujeme correctAnswer v _answers listu
-              if (_answers[answerIndex]['correctAnswerId'] == null && correctAnswerId != null) {
-                _answers[answerIndex]['correctAnswerId'] = correctAnswerId;
-              }
-              
-              final selectedAnswerId = _answers[answerIndex]['answerId'];
-              final selectedAnswer = _answers[answerIndex]['answer'];
-              final isAnswered = selectedAnswer != null;
-              // Porovnávame ID, nie texty (kvôli možným duplicitám)
-              final isCorrect = isAnswered && selectedAnswerId == correctAnswerId;
-              
-              return Card(
-                margin: const EdgeInsets.only(bottom: 16),
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Číslo a text otázky
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: isAnswered 
-                                  ? (isCorrect ? Colors.green.shade100 : Colors.red.shade100)
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'Otázka ${index + 1}',
-                              style: TextStyle(
-                                fontSize: 12,
+
+              // Získame aktuálnu odpoveď používateľa
+              final userAnswer = _userAnswers[questionId]!;
+              final answeredId = userAnswer['answerId'];
+              final isAnswered = answeredId != null;
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Text otázky
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              question['text'] ?? 'Otázka ${index + 1}',
+                              style: const TextStyle(
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: isAnswered 
-                                    ? (isCorrect ? Colors.green.shade800 : Colors.red.shade800)
-                                    : Colors.grey[700],
                               ),
+                              textAlign: TextAlign.center,
                             ),
-                          ),
-                          const Spacer(),
-                          if (isAnswered)
-                            Icon(
-                              isCorrect ? Icons.check_circle : Icons.cancel,
-                              color: isCorrect ? Colors.green : Colors.red,
-                              size: 20,
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        question['text'] ?? 'Neznáma otázka',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      
-                      // Obrázok k otázke (ak existuje)
-                      if (questionImage != null && questionImage.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        // Rezervované miesto pre obrázok s fixnou výškou
-                        Container(
-                          height: 150,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: FutureBuilder<Uint8List?>(
-                            future: _getImage(questionImage),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-                                return const Center(
-                                  child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                                );
-                              } else {
-                                return ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.memory(
-                                    snapshot.data!,
-                                    fit: BoxFit.contain,
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Možnosti odpovede
-                      ...answersData.asMap().entries.map((entry) {
-                        final answerIndex = entry.key;
-                        final answer = entry.value;
-                        final answerId = answer['_id'] ?? answerIndex.toString();
-                        final answerText = answer['text'] as String;
-                        final answerImage = answer['image'];
-                        final isCorrectOption = answerId == correctAnswerId;
-                        final isSelected = selectedAnswerId == answerId;
-                        
-                        // Určenie farby pozadia pre možnosť
-                        Color? tileColor;
-                        if (isAnswered) {
-                          if (isSelected && isCorrect) {
-                            tileColor = Colors.green.withOpacity(0.1);
-                          } else if (isSelected && !isCorrect) {
-                            tileColor = Colors.red.withOpacity(0.1);
-                          } else if (isCorrectOption) {
-                            tileColor = Colors.green.withOpacity(0.05);
-                          }
-                        } else if (isSelected) {
-                          tileColor = Colors.orange.withOpacity(0.1);
-                        }
-                        
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            color: tileColor,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isAnswered && isCorrectOption
-                                  ? Colors.green.withOpacity(0.5)
-                                  : Colors.transparent,
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              RadioListTile<String>(
-                                title: Text(answerText),
-                                value: answerId,
-                                groupValue: selectedAnswerId,
-                                onChanged: isAnswered // Zabránime zmene, ak už otázka bola zodpovedaná
-                                    ? null
-                                    : (value) {
-                                        setState(() {
-                                          _answers[answerIndex]['answerId'] = value;
-                                          _answers[answerIndex]['answer'] = answerText;
-                                          _answers[answerIndex]['isCorrect'] = value == correctAnswerId;
-                                        });
-                                      },
-                                activeColor: Colors.orange,
-                                contentPadding: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              
-                              // Obrázok k odpovedi (ak existuje)
-                              if (answerImage != null && answerImage.isNotEmpty) ...[
-                                // Rezervované miesto pre obrázok s fixnou výškou
-                                Container(
-                                  height: 120,
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.only(left: 32, bottom: 12, right: 16),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: FutureBuilder<Uint8List?>(
-                                      future: _getImage(answerImage),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        } else if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-                                          return const Center(
-                                            child: Icon(Icons.broken_image, size: 32, color: Colors.grey),
-                                          );
-                                        } else {
-                                          return ClipRRect(
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: Image.memory(
-                                              snapshot.data!,
-                                              fit: BoxFit.contain,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
+
+                            if (questionImage != null && questionImage.isNotEmpty) ...[
+                              const SizedBox(height: 16),
+                              buildImageWidget(questionImage, height: 200),
                             ],
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Text o výbere odpovede
+                    Text(
+                      isAnswered ? 'Vaša odpoveď:' : 'Vyberte správnu odpoveď:',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Možnosti odpovedí
+                    ...List.generate(answersData.length, (answerIndex) {
+                      final answer = answersData[answerIndex];
+                      final answerId = answer['_id'] ?? answerIndex.toString();
+                      final answerText = answer['text'] ?? 'Odpoveď ${answerIndex + 1}';
+                      final answerImage = answer['image'];
+                      final isCorrect = answerId == userAnswer['correctAnswerId'];
+                      final isSelected = answerId == answeredId;
+
+                      // Určenie farby pozadia pre možnosť
+                      Color? cardColor;
+                      if (isAnswered) {
+                        if (isSelected && isCorrect) {
+                          cardColor = Colors.green.shade100;
+                        } else if (isSelected && !isCorrect) {
+                          cardColor = Colors.red.shade100;
+                        } else if (isCorrect) {
+                          cardColor = Colors.green.shade50;
+                        }
+                      } else if (isSelected) {
+                        cardColor = Colors.blue.shade100;
+                      }
+
+                      return Card(
+                        color: cardColor,
+                        margin: const EdgeInsets.only(bottom: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: isSelected
+                              ? BorderSide(color: isCorrect ? Colors.green : Colors.red, width: 2)
+                              : BorderSide.none,
+                        ),
+                        child: InkWell(
+                          onTap: isAnswered
+                              ? null
+                              : () {
+                            // Aktualizácia odpovedi
+                            setState(() {
+                              _userAnswers[questionId]!['answerId'] = answerId;
+                              _userAnswers[questionId]!['answer'] = answerText;
+                              _userAnswers[questionId]!['isCorrect'] = isCorrect;
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    // Indikátor výberu
+                                    Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? (isCorrect ? Colors.green : Colors.red)
+                                              : Colors.grey,
+                                          width: 2,
+                                        ),
+                                        color: isSelected ? Colors.white : null,
+                                      ),
+                                      child: isSelected
+                                          ? Icon(
+                                        isAnswered
+                                            ? (isCorrect ? Icons.check : Icons.close)
+                                            : Icons.circle,
+                                        size: 16,
+                                        color: isAnswered
+                                            ? (isCorrect ? Colors.green : Colors.red)
+                                            : Colors.blue,
+                                      )
+                                          : null,
+                                    ),
+
+                                    const SizedBox(width: 12),
+
+                                    // Text odpovede
+                                    Expanded(
+                                      child: Text(
+                                        answerText,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                // Obrázok odpovede (ak existuje)
+                                if (answerImage != null && answerImage.isNotEmpty) ...[
+                                  const SizedBox(height: 12),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 36.0),
+                                    child: buildImageWidget(answerImage, height: 120),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               );
             },
           ),
         ),
-        
-        // Tlačidlo na dokončenie kvízu
-        if (!_quizCompleted)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: allQuestionsAnswered ? _submitQuiz : null,
+
+        // Navigačné tlačidlá
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Tlačidlo Predchádzajúca
+              ElevatedButton.icon(
+                onPressed: _currentQuestionIndex > 0
+                    ? _goToPreviousQuestion
+                    : null,
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Späť'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  backgroundColor: Colors.grey.shade700,
+                  foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey.shade300,
                 ),
-                child: Text(
-                  allQuestionsAnswered ? 'Dokončiť kvíz' : 'Zodpovedaj všetky otázky',
-                  style: const TextStyle(fontSize: 16),
-                ),
               ),
-            ),
+
+              // Tlačidlo Ďalej alebo Dokončiť
+              if (_currentQuestionIndex < widget.questions.length - 1)
+                ElevatedButton.icon(
+                  onPressed: _goToNextQuestion,
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text('Ďalej'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                )
+              else
+                ElevatedButton.icon(
+                  onPressed: _areAllQuestionsAnswered() ? _submitQuiz : null,
+                  icon: const Icon(Icons.check_circle),
+                  label: const Text('Dokončiť'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey.shade300,
+                  ),
+                ),
+            ],
           ),
+        ),
       ],
     );
   }

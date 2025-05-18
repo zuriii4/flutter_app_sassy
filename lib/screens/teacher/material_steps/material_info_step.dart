@@ -22,7 +22,6 @@ class _TaskInfoStepState extends State<TaskInfoStep> {
     _titleController = TextEditingController(text: widget.taskModel.title ?? '');
     _descriptionController = TextEditingController(text: widget.taskModel.description ?? '');
     
-    // Pridanie listenerov na aktualizáciu modelu pri zmene textu
     _titleController.addListener(() {
       setState(() {
         _isTitleValid = _titleController.text.isNotEmpty;
@@ -60,7 +59,6 @@ class _TaskInfoStepState extends State<TaskInfoStep> {
             ),
             const SizedBox(height: 30),
             
-            // Použitie FormTextField s onChanged pre validáciu
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -100,7 +98,6 @@ class _TaskInfoStepState extends State<TaskInfoStep> {
             
             const SizedBox(height: 20),
             
-            // Použitie FormTextField pre viacriadkový vstup
             FormTextField(
               label: 'Popis úlohy',
               placeholder: 'Zadajte popis úlohy',

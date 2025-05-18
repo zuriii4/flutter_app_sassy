@@ -25,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
   String? _selectedStudentId;
   String? _selectedStudentName;
 
-  // Aktuálny mód prihlásenia
   LoginMode _currentMode = LoginMode.teacher;
 
   // Pre farebný kód
@@ -51,8 +50,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final studentsData = await _apiService.getStudentsNames();
       setState(() {
-        // studentsData už je List, takže musíme zpracovat jen jeho položky
-        _students = (studentsData as List).map<Map<String, dynamic>>((item) => 
+        _students = (studentsData as List).map<Map<String, dynamic>>((item) =>
           Map<String, dynamic>.from(item)
         ).toList();
         _isLoadingStudents = false;
@@ -186,12 +184,10 @@ class _LoginPageState extends State<LoginPage> {
       onTap: () {
         setState(() {
           _currentMode = mode;
-          // Reset vybraných farieb pri zmene módu
           if (mode != LoginMode.studentColor) {
             _selectedColors = [];
           }
           
-          // Načítaj študentov ak je vybratý študentský mód
           if (mode != LoginMode.teacher) {
             _loadStudents();
           }
@@ -402,7 +398,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Zobrazenie vybraných farieb
                   Container(
                     height: 50,
                     decoration: BoxDecoration(
@@ -460,7 +455,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 15),
 
-                  // Farebné tlačidlá na výber
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
@@ -530,7 +524,6 @@ class _LoginPageState extends State<LoginPage> {
 
   // Spracovanie prihlásenia na základe zvoleného módu
   Future<void> _handleLogin() async {
-    // Kontrola vstupu
     if (_currentMode == LoginMode.teacher) {
       if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
         _showError('Vyplňte email a heslo');
@@ -567,36 +560,30 @@ class _LoginPageState extends State<LoginPage> {
           break;
 
         case LoginMode.studentPin:
-          // Prihlásenie študenta cez PIN
           final studentId = _selectedStudentId!;
           final pin = _pinController.text.trim();
 
           final loginResponse = await _apiService.studentPinLogin(studentId, pin);
-          // print('PIN login response: $loginResponse'); // Debug print
 
-          // Použitie správnych kľúčov z odpovede
           userData = {
             'user': {
               '_id': loginResponse['studentId'],
               'name': loginResponse['name'],
-              'role': 'student' // Predpokladáme rolu študenta
+              'role': 'student'
             }
           };
           break;
 
         case LoginMode.studentColor:
-          // Prihlásenie študenta cez farebný kód
           final studentId = _selectedStudentId!;
 
           final loginResponse = await _apiService.studentColorCodeLogin(studentId, _selectedColors);
-          // print('Color login response: $loginResponse'); // Debug print
 
-          // Použitie správnych kľúčov z odpovede
           userData = {
             'user': {
               '_id': loginResponse['studentId'],
               'name': loginResponse['name'],
-              'role': 'student' // Predpokladáme rolu študenta
+              'role': 'student'
             }
           };
           break;
@@ -605,18 +592,15 @@ class _LoginPageState extends State<LoginPage> {
       if (userData != null) {
         final prefs = await SharedPreferences.getInstance();
 
-        // Uložíme userId a userRole do SharedPreferences
         await prefs.setString('userId', userData['user']['_id']);
         await prefs.setString('userRole', userData['user']['role']);
 
-        // Inicializujeme socket
         _socketService.initialize(
             dotenv.env['WEB_SOCKET_URL'] as String,
             userData['user']['_id'],
             userData['user']['role']
         );
 
-        // Navigácia na hlavnú obrazovku
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -627,7 +611,7 @@ class _LoginPageState extends State<LoginPage> {
         _showError('Neplatné prihlasovacie údaje');
       }
     } catch (e) {
-      print('❌ Chyba pri prihlasovaní: $e');
+      print('Chyba pri prihlasovaní: $e');
       _showError('Chyba pri prihlasovaní');
     } finally {
       if (mounted) {
@@ -638,7 +622,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Pomocná metóda na získanie farby z názvu
   Color _getColorFromString(String colorName) {
     switch (colorName.toLowerCase()) {
       case 'red': return Colors.red;
@@ -658,9 +641,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// Enum pre režimy prihlásenia
 enum LoginMode {
-  teacher,       // Prihlásenie učiteľa
-  studentPin,    // Prihlásenie študenta cez PIN
-  studentColor,  // Prihlásenie študenta cez farebný kód
+  teacher,
+  studentPin,
+  studentColor,
 }

@@ -42,7 +42,6 @@ class _GroupsScreenState extends State<GroupsScreen> {
     });
     
     try {
-      // Volanie API funkcie na získanie všetkých skupín s detailami
       final groups = await _apiService.getAllGroupsWithDetails();
       
       setState(() {
@@ -80,7 +79,6 @@ class _GroupsScreenState extends State<GroupsScreen> {
         ),
       ),
     ).then((result) {
-      // Ak sa vrátime z obrazovky s výsledkom true, obnovíme zoznam skupín
       if (result == true) {
         _loadGroups();
       }
@@ -217,18 +215,15 @@ class _GroupsScreenState extends State<GroupsScreen> {
   }
   
   Widget _buildGroupCard(Map<String, dynamic> group) {
-    // Extrahujeme údaje z odpovede API
     final String groupName = group['name'] ?? 'Neznáma skupina';
     final int studentCount = (group['students'] as List?)?.length ?? 0;
     
-    // Ak API nevracia createdAt, môžeme použiť aktuálny dátum alebo ho vynechať
     String formattedDate = 'Nedávno';
     if (group.containsKey('createdAt')) {
       try {
         final DateTime createdDate = DateTime.parse(group['createdAt']);
         formattedDate = "${createdDate.day}.${createdDate.month}.${createdDate.year}";
       } catch (e) {
-        // Ignorujeme chybu a ponecháme predvolený text
       }
     }
     

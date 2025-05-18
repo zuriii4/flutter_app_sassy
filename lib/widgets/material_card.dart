@@ -80,7 +80,6 @@ class TemplateCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Colored header with icon
             Container(
               decoration: BoxDecoration(
                 color: typeColor.withOpacity(0.9),
@@ -177,18 +176,18 @@ class TemplateCard extends StatelessWidget {
                       minimumSize: Size.zero,
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: onUseTemplate,
-                    icon: const Icon(Icons.content_copy, size: 16, color: Colors.blue),
-                    label: const Text(
-                      'Použiť',
-                      style: TextStyle(fontSize: 12, color: Colors.blue),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      minimumSize: Size.zero,
-                    ),
-                  ),
+                  // TextButton.icon(
+                  //   onPressed: onUseTemplate,
+                  //   icon: const Icon(Icons.content_copy, size: 16, color: Colors.blue),
+                  //   label: const Text(
+                  //     'Použiť',
+                  //     style: TextStyle(fontSize: 12, color: Colors.blue),
+                  //   ),
+                  //   style: TextButton.styleFrom(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 8),
+                  //     minimumSize: Size.zero,
+                  //   ),
+                  // ),
                 ],
               ),
             ),

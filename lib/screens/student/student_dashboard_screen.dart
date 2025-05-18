@@ -21,17 +21,14 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   late AnimationController _animationController;
   final Random _random = math.Random();
 
-  // Pre animovaný pozaďový efekt
   late Animation<double> _animation;
 
-  // Použijeme MaterialUtils namiesto vlastných máp
 
   @override
   void initState() {
     super.initState();
     _loadData();
 
-    // Inicializácia animácie
     _animationController = AnimationController(
       duration: const Duration(seconds: 10),
       vsync: this,
@@ -53,7 +50,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
     });
 
     try {
-      // Načítanie materiálov pre študenta
       final materialsResult = await _apiService.getStudentMaterials('');
 
       setState(() {
@@ -68,24 +64,20 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
     }
   }
 
-  // Náhodná farba pre karty, ktoré nemajú priradený typ
   Color _getRandomPastelColor() {
     final hue = _random.nextInt(360);
     return HSLColor.fromAHSL(1.0, hue.toDouble(), 0.7, 0.8).toColor();
   }
 
-  // Získanie farby na základe typu materiálu pomocou MaterialUtils
   Color _getColorForType(String type) {
     final color = MaterialUtils.getTypeColor(type);
     return color != Colors.grey ? color : _getRandomPastelColor();
   }
 
-  // Získanie ikony na základe typu materiálu pomocou MaterialUtils
   IconData _getIconForType(String type) {
     return MaterialUtils.getMaterialIcon(type);
   }
 
-  // Formátovanie dátumu
   String _formatDate(String dateString) {
     final date = DateTime.parse(dateString);
     final now = DateTime.now();
@@ -223,12 +215,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    // Prejsť na prvý materiál, ak existuje
                     if (_materials.isNotEmpty) {
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   const SnackBar(content: Text('Otváranie materiálu...')),
-                      // );
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -307,12 +294,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
   Widget _buildMaterialsList() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Určíme počet materiálov v jednom rade podľa šírky
-        int crossAxisCount = constraints.maxWidth > 800 
-            ? 2  // Veľká obrazovka - 2 stĺpce
-            : 1; // Malá obrazovka - 1 stĺpec
-        
-        // Upravíme pomer strán karty podľa počtu stĺpcov
+        int crossAxisCount = constraints.maxWidth > 800
+            ? 2
+            : 1;
+
         double childAspectRatio = crossAxisCount == 1 ? 1.3 : 2;
         
         return GridView.builder(
@@ -330,10 +315,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
             final String description = material['description'] ?? '';
             final String type = material['type'] ?? 'unknown';
 
-            // Zachovaný pôvodný kód pre každú kartu
             return GestureDetector(
               onTap: () {
-                // Otvorenie detailu materiálu
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -353,7 +336,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
-                        blurRadius: _random.nextDouble() * 10 + 4, // Náhodný rozmazaný efekt pre hravý vzhľad
+                        blurRadius: _random.nextDouble() * 10 + 4,
                         offset: Offset(0, _random.nextDouble() * 4 + 1),
                       ),
                     ],
@@ -363,10 +346,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Vrchná časť s obrazkom alebo ikonou
                         Stack(
                           children: [
-                            // Obrázok alebo farebné pozadie
                             Container(
                               height: 100,
                               width: double.infinity,
@@ -451,7 +432,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> with Si
                                   ),
                                 ],
 
-                                // Dátum vytvorenia
                                 Text(
                                   'Vytvorené: ${_formatDate(material['createdAt'] ?? DateTime.now().toIso8601String())}',
                                   style: TextStyle(
@@ -523,7 +503,6 @@ class BackgroundPainter extends CustomPainter {
       ..color = Colors.blue.withOpacity(0.04)
       ..style = PaintingStyle.fill;
 
-    // Vykreslenie niekoľkých vlnoviek
     for (int i = 0; i < 5; i++) {
       final path = Path();
       final offset = i * 0.5;

@@ -1,10 +1,10 @@
 class TaskModel {
   String title;
   String description;
-  String type; // 'puzzle', 'word-jumble', 'quiz', 'connection'
+  String type;
   Map<String, dynamic> content;
-  List<String> assignedTo; // Zoznam ID študentov
-  List<String> assignedGroups; // Zoznam ID skupín
+  List<String> assignedTo;
+  List<String> assignedGroups;
 
   TaskModel({
     required this.title,
@@ -15,9 +15,7 @@ class TaskModel {
     required this.assignedGroups,
   });
 
-  // Helper metódy pre konkrétne typy úloh
-  
-  // Pre typ quiz
+
   void addQuizQuestion(String text, List<Map<String, dynamic>> answers, {String? image}) {
     if (type != 'quiz') return;
     
@@ -37,7 +35,6 @@ class TaskModel {
     content['questions'].add(question);
   }
   
-  // Pre typ puzzle
   void setPuzzleContent(String image, int columns, int rows) {
     if (type != 'puzzle') return;
     
@@ -50,7 +47,6 @@ class TaskModel {
     };
   }
   
-  // Pre typ word-jumble
   void setWordJumbleContent(List<String> words, List<String> correctOrder) {
     if (type != 'word-jumble') return;
     
@@ -60,7 +56,6 @@ class TaskModel {
     };
   }
   
-  // Pre typ connection
   void setConnectionContent(List<Map<String, String>> pairs) {
     if (type != 'connection') return;
     
@@ -69,7 +64,6 @@ class TaskModel {
     };
   }
   
-  // Validácia obsahu podľa typu
   bool isContentValid() {
     switch (type) {
       case 'quiz':

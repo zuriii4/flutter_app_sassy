@@ -37,7 +37,7 @@ class PuzzlePreview extends StatelessWidget {
         const SizedBox(height: 16),
         // Náhľad puzzle s obrázkom a mriežkou
         AspectRatio(
-          aspectRatio: 1.0, // Štvorcový pomer strán
+          aspectRatio: 1.0,
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
@@ -49,7 +49,6 @@ class PuzzlePreview extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Podkladový obrázok
                   NetworkImageFromBytes(
                     imagePath: imagePath!,
                     apiService: apiService,
@@ -99,14 +98,11 @@ class PuzzlePreview extends StatelessWidget {
     );
   }
   
-  // Tento widget by bol implementovaný v interaktívnej verzii
   Widget _buildInteractivePuzzlePieces() {
-    // Tu by išla implementácia interaktívnych častí puzzle pre hranie
     return Container(); // Placeholder
   }
 }
 
-// Painter pre štvorcovú mriežku
 class GridPainter extends CustomPainter {
   final int size;
   

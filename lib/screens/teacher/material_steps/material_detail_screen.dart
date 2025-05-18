@@ -133,7 +133,6 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
     );
     
     if (result != null) {
-      // Získame zoznamy ID študentov a skupín
       final List<String> studentIds = [];
       for (var student in result['students']) {
         final id = student['id'] ?? student['_id'] ?? '';
@@ -150,7 +149,6 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
         }
       }
       
-      // Aktualizácia na serveri
       try {
         setState(() => _isLoading = true);
         
@@ -201,7 +199,6 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
               );
               
               if (result == true) {
-                // Refresh data if changes were made
                 _loadMaterialData();
               }
             },
@@ -241,28 +238,23 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Náhľad obrázka materiálu
           if (_material?['content']?['image'] != null)
             _buildImagePreview(),
 
           const SizedBox(height: 24),
           
-          // Základné informácie
           _buildInfoCard(),
 
           const SizedBox(height: 24),
           
-          // Detaily obsahu
           _buildContentCard(),
 
           const SizedBox(height: 24),
           
-          // Pridelení študenti
           _buildStudentsCard(),
           
           const SizedBox(height: 24),
           
-          // Pridelené skupiny
           _buildGroupsCard(),
         ],
       ),
@@ -344,12 +336,11 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
                   'Náhľad materiálu',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                // Toggle pre interaktívny režim
                 Row(
                   children: [
                     const Text('Interaktívny režim'),
                     Switch(
-                      value: _isInteractivePreview, // Add this state variable to your class
+                      value: _isInteractivePreview,
                       onChanged: (value) {
                         setState(() {
                           _isInteractivePreview = value;
@@ -363,7 +354,6 @@ class _MaterialDetailScreenState extends State<MaterialDetailScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Použitie MaterialPreviewBuilder pre zobrazenie náhľadu
             MaterialPreviewBuilder.buildPreview(
               _material?['type'] ?? '', 
               _material?['content'] ?? {}, 

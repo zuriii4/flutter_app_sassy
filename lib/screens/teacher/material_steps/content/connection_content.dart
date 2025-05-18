@@ -22,8 +22,7 @@ class _ConnectionContentState extends State<ConnectionContent> {
   @override
   void initState() {
     super.initState();
-    // Načítanie existujúcich hodnôt, ak existujú
-    if (widget.taskModel.content.isNotEmpty && 
+    if (widget.taskModel.content.isNotEmpty &&
         widget.taskModel.content.containsKey('pairs')) {
       final List<dynamic> rawPairs = widget.taskModel.content['pairs'];
       _pairs = rawPairs
@@ -274,10 +273,9 @@ class _ConnectionContentState extends State<ConnectionContent> {
   }
 
   Widget _buildConnectionPreview() {
-    // Using the ConnectionsPreview widget instead of custom implementation
     return ConnectionsPreview(
       pairs: _pairs,
-      isInteractive: false, // We're in edit mode, so we use non-interactive preview
+      isInteractive: false,
     );
   }
 }

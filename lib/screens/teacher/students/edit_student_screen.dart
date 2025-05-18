@@ -32,13 +32,11 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
   bool _hasSpecialNeeds = false;
   late TextEditingController _needsDescriptionController;
 
-  // Údaje o metóde autentifikácie
   bool _hasPinAuth = false;
   bool _hasColorCodeAuth = false;
   List<String> _currentColorCode = [];
   String? _currentPin;
 
-  // Stav pre zobrazenie dialógu farebného kódu
   bool _showColorCodePicker = false;
   List<String> _availableColors = [
     'red', 'blue', 'green', 'yellow', 'purple', 'orange'
@@ -55,9 +53,7 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     _needsDescriptionController = TextEditingController(text: widget.student.needsDescription);
     _pinController = TextEditingController();
 
-    // Inicializácia dátumu narodenia
     if (widget.student.dateOfBirth != null) {
-      // Formátovanie dátumu do DD/MM/RRRR
       final date = widget.student.dateOfBirth!;
       _dateOfBirthController = TextEditingController(
           text: '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}'
@@ -66,7 +62,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
       _dateOfBirthController = TextEditingController();
     }
 
-    // Načítanie existujúcej autentifikačnej metódy
     _loadStudentAuth();
   }
 
@@ -88,15 +83,12 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     });
 
     try {
-      // Použitie novej metódy getStudentAuth namiesto checkStudentAuthMethod
       final result = await _apiService.getStudentAuth(widget.student.id);
 
       setState(() {
-        // Spracovanie PIN kódu
         if (result.containsKey('pinSet') && result['pinSet'] != null) {
           _hasPinAuth = true;
           _currentPin = result['pinSet'];
-          // Zobrazenie aktuálneho PIN kódu
           _pinController.text = _currentPin ?? '';
         } else {
           _hasPinAuth = false;
@@ -247,7 +239,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
     });
 
     try {
-      // Parsovanie dátumu narodenia
       DateTime? birthDate;
       if (_dateOfBirthController.text.isNotEmpty) {
         try {
@@ -261,7 +252,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
         }
       }
 
-      // Použite novú metódu updateUserById
       final success = await _apiService.updateUserById(
         userId: widget.student.id,
         name: _nameController.text,
@@ -277,7 +267,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
           const SnackBar(content: Text('Údaje boli úspešne aktualizované')),
         );
 
-        // Vráťte aktualizované údaje študenta na predchádzajúcu obrazovku
         Navigator.pop(
           context,
           Student(
@@ -308,7 +297,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
   // Pomocná metóda na parsovanie dátumu
   DateTime _parseDateOfBirth(String date) {
-    // Kontrola, či je dátum v správnom formáte (DD/MM/YYYY alebo DD.MM.YYYY)
     final separator = date.contains('/') ? '/' : '.';
     final parts = date.split(separator);
 
@@ -534,7 +522,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Name field
                       FormTextField(
                         label: 'Meno a priezvisko',
                         placeholder: 'Zadajte meno a priezvisko',
@@ -559,7 +546,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Special needs checkbox
                       Row(
                         children: [
                           Checkbox(
@@ -574,7 +560,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                         ],
                       ),
 
-                      // Special needs description (conditional)
                       if (_hasSpecialNeeds) ...[
                         const SizedBox(height: 16),
                         FormTextField(
@@ -585,7 +570,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       ],
                       const SizedBox(height: 16),
 
-                      // Notes field
                       FormTextField(
                         label: 'Poznámky',
                         placeholder: 'Zadajte poznámky',
@@ -596,7 +580,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       const Divider(),
                       const SizedBox(height: 16),
 
-                      // Autentifikačná sekcia
                       const Text(
                         'Metódy prihlásenia',
                         style: TextStyle(
@@ -606,7 +589,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // PIN sekcia
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -644,7 +626,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                             if (_hasPinAuth) ...[
                               const SizedBox(height: 8),
 
-                              // Ak máme existujúci PIN, zobrazíme informáciu o ňom
                               if (_currentPin != null && _currentPin!.isNotEmpty) ...[
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 8.0),
@@ -700,7 +681,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Farebný kód sekcia
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -738,7 +718,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
                             if (_hasColorCodeAuth) ...[
                               const SizedBox(height: 8),
 
-                              // Zobrazenie aktuálneho farebného kódu
                               if (_currentColorCode.isNotEmpty) ...[
                                 const Text(
                                   'Aktuálny farebný kód:',
@@ -815,7 +794,6 @@ class _EditStudentScreenState extends State<EditStudentScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Submit button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

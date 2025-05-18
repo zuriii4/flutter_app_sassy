@@ -19,7 +19,6 @@ class _PuzzleContentState extends State<PuzzleContent> {
   int _gridSize = 3;
   final ApiService _apiService = ApiService();
   
-  // Kontrolér pre veľkosť mriežky
   final TextEditingController _gridColumnsController = TextEditingController();
   final TextEditingController _gridRowsController = TextEditingController();
 
@@ -27,26 +26,21 @@ class _PuzzleContentState extends State<PuzzleContent> {
   void initState() {
     super.initState();
     
-    // Načítanie existujúcich hodnôt, ak existujú
     if (widget.taskModel.content.isNotEmpty) {
       if (widget.taskModel.content.containsKey('image')) {
         _serverImagePath = widget.taskModel.content['image'];
       }
       
       if (widget.taskModel.content.containsKey('grid')) {
-        // Použijeme hodnotu stĺpcov ako našu veľkosť mriežky (štvorcová)
         _gridSize = widget.taskModel.content['grid']['columns'] ?? 3;
-        // Aktualizujeme aj riadky, aby bola mriežka štvorcová
         widget.taskModel.content['grid']['rows'] = _gridSize;
       } else {
-        // Inicializácia mriežky, ak neexistuje
         widget.taskModel.content['grid'] = {
           'columns': _gridSize,
           'rows': _gridSize
         };
       }
     } else {
-      // Inicializácia prázdneho obsahu
       widget.taskModel.content = {
         'grid': {
           'columns': _gridSize,
@@ -55,26 +49,20 @@ class _PuzzleContentState extends State<PuzzleContent> {
       };
     }
     
-    // Nastavenie kontroléru
     _gridColumnsController.text = _gridSize.toString();
     _gridRowsController.text = _gridSize.toString();
     
-    // Pridanie listenerov na kontroléry
     _gridColumnsController.addListener(_syncColumnRowValues);
     _gridRowsController.addListener(_syncRowColumnValues);
   }
   
-  // Synchronizácia hodnôt - keď sa zmenia stĺpce, zmenia sa aj riadky
   void _syncColumnRowValues() {
-    // Zabránime nekonečnému cyklu aktualizácií
     if (_gridColumnsController.text != _gridRowsController.text) {
       _gridRowsController.text = _gridColumnsController.text;
     }
   }
   
-  // Synchronizácia hodnôt - keď sa zmenia riadky, zmenia sa aj stĺpce
   void _syncRowColumnValues() {
-    // Zabránime nekonečnému cyklu aktualizácií
     if (_gridRowsController.text != _gridColumnsController.text) {
       _gridColumnsController.text = _gridRowsController.text;
     }
@@ -82,7 +70,6 @@ class _PuzzleContentState extends State<PuzzleContent> {
   
   @override
   void dispose() {
-    // Odstránenie listenerov
     _gridColumnsController.removeListener(_syncColumnRowValues);
     _gridRowsController.removeListener(_syncRowColumnValues);
     
@@ -99,7 +86,6 @@ class _PuzzleContentState extends State<PuzzleContent> {
         setState(() {
           _gridSize = newSize;
           
-          // Aktualizácia modelu
           widget.taskModel.content['grid'] = {
             'columns': _gridSize,
             'rows': _gridSize
@@ -154,7 +140,6 @@ class _PuzzleContentState extends State<PuzzleContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Použitie FormImagePicker pre výber obrázka
                     FormImagePicker(
                       label: 'Vyberte obrázok pre puzzle',
                       onImagePathSelected: _onImagePathSelected,
@@ -171,7 +156,6 @@ class _PuzzleContentState extends State<PuzzleContent> {
                     ),
                     const SizedBox(height: 16),
                     
-                    // Dve polia pre stĺpce a riadky - ale hodnoty sú vzájomne prepojené
                     Row(
                       children: [
                         Expanded(
@@ -220,12 +204,11 @@ class _PuzzleContentState extends State<PuzzleContent> {
   }
 
   Widget _buildPuzzlePreview() {
-    // Now using the PuzzlePreview widget instead of custom implementation
     return PuzzlePreview(
       imagePath: _serverImagePath,
       gridSize: _gridSize,
       apiService: _apiService,
-      isInteractive: false, // We're in edit mode, so we don't need interactivity
+      isInteractive: false,
     );
   }
 }

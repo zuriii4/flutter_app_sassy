@@ -22,7 +22,6 @@ class _QuizContentState extends State<QuizContent> {
   @override
   void initState() {
     super.initState();
-    // Načítame existujúce otázky, ak existujú
     if (widget.taskModel.content.containsKey('questions')) {
       _questions.addAll(List<Map<String, dynamic>>.from(widget.taskModel.content['questions']));
     } else {
@@ -56,8 +55,8 @@ class _QuizContentState extends State<QuizContent> {
     
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
-      builder: (dialogContext) => StatefulBuilder( // Note: Using dialogContext instead of context
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setDialogState) {
           final double screenWidth = MediaQuery.of(dialogContext).size.width;
           final double dialogWidth = screenWidth > 600 ? 500 : screenWidth * 0.8;
@@ -91,10 +90,9 @@ class _QuizContentState extends State<QuizContent> {
                     ),
                     const SizedBox(height: 16),
                     
-                    // Ensure FormImagePicker has proper constraints
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: dialogWidth - 32, // Subtract padding
+                        maxWidth: dialogWidth - 32,
                       ),
                       child: FormImagePicker(
                         label: 'Obrázok odpovede',
@@ -112,13 +110,13 @@ class _QuizContentState extends State<QuizContent> {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(), // Use dialogContext
+                onPressed: () => Navigator.of(dialogContext).pop(),
                 child: const Text('Zrušiť'),
               ),
               TextButton(
                 onPressed: () {
                   if (answerController.text.isNotEmpty) {
-                    // Create the answer object
+
                     final Map<String, dynamic> answer = {
                       'text': answerController.text,
                       'correct': isCorrect,
@@ -128,21 +126,20 @@ class _QuizContentState extends State<QuizContent> {
                       answer['image'] = answerImagePath;
                     }
                     
-                    // First close the dialog
+
                     Navigator.of(dialogContext).pop();
                     
-                    // Then update the parent widget's state
+
                     setState(() {
                       if (_questions[questionIndex]['answers'] == null) {
                         _questions[questionIndex]['answers'] = [];
                       }
                       _questions[questionIndex]['answers'].add(answer);
                       
-                      // Make sure to update the task model content
+
                       widget.taskModel.content['questions'] = _questions;
                     });
                   } else {
-                    // Show error if answer text is empty
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Prosím, zadajte text odpovede')),
                     );
@@ -211,7 +208,6 @@ class _QuizContentState extends State<QuizContent> {
                     ),
                     const SizedBox(height: 16),
                     
-                    // Použitie FormImagePicker pre výber obrázka otázky
                     FormImagePicker(
                       label: 'Obrázok otázky',
                       onImagePathSelected: _onQuestionImageSelected,
@@ -237,7 +233,6 @@ class _QuizContentState extends State<QuizContent> {
             
             const SizedBox(height: 20),
             
-            // Použitie QuizPreview pre náhľad existujúcich otázok
             if (_questions.isNotEmpty) ...[
               _buildQuestionList(),
             ] else
@@ -256,7 +251,6 @@ class _QuizContentState extends State<QuizContent> {
     );
   }
   
-  // Nová metóda pre zobrazenie zoznamu otázok s možnosťou úpravy
   Widget _buildQuestionList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +264,6 @@ class _QuizContentState extends State<QuizContent> {
         ),
         const SizedBox(height: 16),
         
-        // Zoznam otázok s možnosťou úpravy
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -283,7 +276,6 @@ class _QuizContentState extends State<QuizContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hlavička otázky s tlačidlami pre správu
                   ListTile(
                     title: Text(
                       'Otázka ${index + 1}: ${question['text']}',
@@ -308,11 +300,10 @@ class _QuizContentState extends State<QuizContent> {
                     ),
                   ),
                   
-                  // Použitie QuizPreview pre zobrazenie náhľadu otázky a jej odpovedí
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: QuizPreview(
-                      questions: [question], // Posielame len jednu otázku ako zoznam
+                      questions: [question],
                       apiService: _apiService,
                       isInteractive: false,
                     ),
@@ -323,7 +314,6 @@ class _QuizContentState extends State<QuizContent> {
           },
         ),
         
-        // Náhľad celého kvízu
         const SizedBox(height: 32),
         const Text(
           'Náhľad celého kvízu',

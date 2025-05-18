@@ -26,7 +26,7 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
   List<String> _selectedGroupIds = [];
   
   bool _isLoading = true;
-  bool _showStudentTab = true; // Pre prepínanie medzi študentmi a skupinami
+  bool _showStudentTab = true;
   String? _errorMessage;
 
   @override
@@ -34,7 +34,6 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
     super.initState();
     _loadData();
     
-    // Predvyplnenie zvolených študentov a skupín z taskModel
     if (widget.taskModel.assignedTo.isNotEmpty) {
       _selectedStudentIds = List<String>.from(widget.taskModel.assignedTo);
     }
@@ -57,10 +56,8 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
     });
     
     try {
-      // Načítanie študentov
       final students = await _apiService.getStudents();
       
-      // Načítanie skupín
       final groups = await _apiService.getAllGroupsWithDetails();
       
       setState(() {
@@ -156,14 +153,12 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
               ),
               const SizedBox(height: 16),
               
-              // Zobrazenie chybovej správy, ak je nejaká
               if (_errorMessage != null)
                 MessageDisplay(
                   message: _errorMessage!,
                   type: MessageType.error,
                 ),
               
-              // Tabs pre prepínanie medzi študentmi a skupinami
               Row(
                 children: [
                   Expanded(
@@ -217,7 +212,6 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
               
               const SizedBox(height: 16),
               
-              // Vyhľadávanie s použitím CustomSearchBar
               CustomSearchBar(
                 controller: _searchController,
                 hintText: _showStudentTab 
@@ -237,7 +231,6 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
               
               const SizedBox(height: 16),
               
-              // Zoznam študentov alebo skupín
               Expanded(
                 child: _showStudentTab
                     ? _buildStudentsList()
@@ -265,7 +258,6 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
         final studentName = student['name'] as String? ?? 'Neznámy študent';
         final isSelected = _selectedStudentIds.contains(studentId);
         
-        // Bezpečný prístup k prvému znaku mena
         String firstLetter = 'N';
         if (studentName.isNotEmpty) {
           firstLetter = studentName[0].toUpperCase();
@@ -316,7 +308,6 @@ class _TaskAssignmentStepState extends State<TaskAssignmentStep> {
         final isSelected = _selectedGroupIds.contains(groupId);
         final studentCount = (group['students'] as List?)?.length ?? 0;
         
-        // Bezpečný prístup k prvému znaku názvu
         String firstLetter = 'S';
         if (groupName.isNotEmpty) {
           firstLetter = groupName[0].toUpperCase();

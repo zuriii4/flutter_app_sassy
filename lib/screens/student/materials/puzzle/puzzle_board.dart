@@ -29,13 +29,11 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
   bool _isLoading = true;
   String? _errorMessage;
   
-  // Stav puzzle
   List<PuzzleTile>? _tiles;
   List<int>? _currentArrangement;
   List<int>? _correctArrangement;
   bool _puzzleSolved = false;
   
-  // Pre sledovanie času
   final int _startTime = DateTime.now().millisecondsSinceEpoch;
   int _timeSpent = 0;
   
@@ -44,7 +42,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     super.initState();
     _loadImage();
     
-    // Aktualizácia času každú sekundu
     _startTimer();
   }
   
@@ -59,7 +56,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     });
   }
   
-  // Formátovanie času do podoby mm:ss
   String _formatTime(int milliseconds) {
     final seconds = (milliseconds / 1000).floor();
     final minutes = (seconds / 60).floor();
@@ -74,7 +70,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     });
 
     try {
-      // Použitie API služby na získanie obrázka
       final imageData = await _apiService.getImageBytes(widget.imagePath);
       
       if (imageData == null) {
@@ -86,7 +81,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
         _isLoading = false;
       });
       
-      // Spracovanie obrázka do puzzle dielov
       _processImage(imageData);
     } catch (e) {
       setState(() {
@@ -98,11 +92,9 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
   
   Future<void> _processImage(Uint8List imageBytes) async {
     try {
-      // Dekódovanie obrázka
       final decoded = img.decodeImage(imageBytes);
       if (decoded == null) throw Exception("Nepodarilo sa dekódovať obrázok");
       
-      // Rozdelenie obrázka na dieliky
       await _sliceImage(decoded);
     } catch (e) {
       setState(() {
@@ -131,7 +123,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
       pieces.add(PuzzleTile(id: i, imageBytes: Uint8List.fromList(encoded)));
     }
 
-    // Generovanie zamiešaného poradia
     final shuffledIndices = List<int>.generate(pieces.length, (i) => i)..shuffle();
 
     setState(() {
@@ -165,14 +156,11 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     if (solved && !_puzzleSolved) {
       setState(() {
         _puzzleSolved = true;
-        // Zastavenie časovača
         _timeSpent = DateTime.now().millisecondsSinceEpoch - _startTime;
       });
       
-      // Zobrazenie dialógu s gratulácou
       _showCongratulationsDialog();
       
-      // Poznámka: onPuzzleSolved je už volaný z dialógu, nie je potrebné volať ho tu
     }
   }
   
@@ -204,9 +192,8 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Zatvorenie dialógu
+                Navigator.pop(context);
                 
-                // Priamo volať callback pre automatické dokončenie
                 widget.onPuzzleSolved(_currentArrangement!, _timeSpent);
               },
               style: ElevatedButton.styleFrom(
@@ -278,11 +265,9 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Prispôsobíme layout na základe dostupných rozmerov
         final bool isLandscape = constraints.maxWidth > constraints.maxHeight;
         final bool isLargeScreen = constraints.maxWidth > 900;
         
-        // Na základe orientácie a veľkosti obrazovky zvolíme vhodné rozloženie
         return isLargeScreen
             ? _buildLargeScreenLayout(constraints)
             : isLandscape 
@@ -292,7 +277,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     );
   }
   
-  // Rozloženie pre veľkú obrazovku (tablet, desktop)
   Widget _buildLargeScreenLayout(BoxConstraints constraints) {
     final maxGridSize = constraints.maxHeight * 0.75;
     
@@ -367,7 +351,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     );
   }
   
-  // Rozloženie pre landscape zobrazenie (telefón na šírku)
   Widget _buildLandscapeLayout(BoxConstraints constraints) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -410,7 +393,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     );
   }
   
-  // Rozloženie pre portrait zobrazenie (telefón na výšku)
   Widget _buildPortraitLayout(BoxConstraints constraints) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -438,7 +420,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
             ),
           ),
           
-          // Informácie pre používateľa a nápoveda
           _puzzleSolved
               ? _buildCompletionMessage()
               : _buildInstructionsPanel(),
@@ -664,7 +645,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     );
   }
   
-  // Panel s inštrukciami
   Widget _buildInstructionsPanel() {
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -689,7 +669,6 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
     );
   }
   
-  // Panel s informáciou o dokončení
   Widget _buildCompletionMessage() {
     return Container(
       margin: const EdgeInsets.only(top: 16),

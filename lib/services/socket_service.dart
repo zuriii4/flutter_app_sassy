@@ -123,7 +123,7 @@ class SocketService {
     }
   }
 
-  // Požiadanie o zoznam online študentov (pre učiteľov)
+  // Požiadanie o zoznam online študentov
   void requestOnlineStudents() {
     if (isConnected) {
       socket.emit('getOnlineStudents');

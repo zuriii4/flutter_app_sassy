@@ -8,7 +8,7 @@ class WordJumbleWorkspace extends StatefulWidget {
   final Color primaryColor;
   final Color secondaryColor;
   final String instruction;
-  final Function(bool, int)? onCompleted; // Upraveno pro předání času
+  final Function(bool, int)? onCompleted;
 
   const WordJumbleWorkspace({
     Key? key,
@@ -260,7 +260,6 @@ class _WordJumbleWorkspaceState extends State<WordJumbleWorkspace> with SingleTi
             
             const SizedBox(height: 30),
             
-            // Selected words - your answer
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -382,7 +381,6 @@ class _WordJumbleWorkspaceState extends State<WordJumbleWorkspace> with SingleTi
             
             const SizedBox(height: 20),
             
-            // Result animation
             if (_isCorrect)
               AnimatedBuilder(
                 animation: _animation,
@@ -440,17 +438,14 @@ class _WordJumbleWorkspaceState extends State<WordJumbleWorkspace> with SingleTi
   }
 }
 
-// Pomocná metoda pro konverzi barvy z řetězce
 Color _getColorFromString(dynamic colorStr, Color defaultColor) {
   if (colorStr == null) return defaultColor;
   
-  // Pokud je barva ve formátu '#RRGGBB' nebo 'RRGGBB'
   String hexColor = colorStr.toString().replaceAll('#', '');
   if (hexColor.length == 6) {
-    hexColor = 'FF$hexColor'; // Přidáme plnou neprůhlednost
+    hexColor = 'FF$hexColor';
   }
   
-  // Pokusíme se převést na int hodnotu
   try {
     return Color(int.parse(hexColor, radix: 16));
   } catch (e) {

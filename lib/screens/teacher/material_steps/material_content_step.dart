@@ -24,7 +24,6 @@ class _TaskContentQuizStepState extends State<TaskContentQuizStep> {
   @override
   void initState() {
     super.initState();
-    // Inicializácia štruktúry pre quiz, ak ešte neexistuje
     if (!widget.taskModel.content.containsKey('questions')) {
       widget.taskModel.content['questions'] = [];
     }
@@ -36,7 +35,6 @@ class _TaskContentQuizStepState extends State<TaskContentQuizStep> {
   }
 }
 
-// Konkrétna implementácia pre typ Puzzle
 class TaskContentPuzzleStep extends TaskContentStep {
   const TaskContentPuzzleStep({Key? key, required TaskModel taskModel})
       : super(key: key, taskModel: taskModel);
@@ -65,7 +63,6 @@ class _TaskContentPuzzleStepState extends State<TaskContentPuzzleStep> {
       _content['image'] = null;
     }
 
-    // Ak treba aktualizovať model neskôr, môžeš použiť:
     widget.taskModel.content = _content;
   }
   
@@ -75,7 +72,6 @@ class _TaskContentPuzzleStepState extends State<TaskContentPuzzleStep> {
   }
 }
 
-// Konkrétna implementácia pre typ Word Jumble
 class TaskContentWordJumbleStep extends TaskContentStep {
   const TaskContentWordJumbleStep({Key? key, required TaskModel taskModel})
       : super(key: key, taskModel: taskModel);
@@ -88,14 +84,12 @@ class _TaskContentWordJumbleStepState extends State<TaskContentWordJumbleStep> {
   @override
   void initState() {
     super.initState();
-    // Inicializácia štruktúry pre word jumble
     if (widget.taskModel.content.isEmpty) {
       widget.taskModel.content = {
         'words': [],
         'correct_order': []
       };
     } else {
-      // Kontrola existencie potrebných kľúčov
       if (!widget.taskModel.content.containsKey('words')) {
         widget.taskModel.content['words'] = [];
       }
@@ -111,7 +105,6 @@ class _TaskContentWordJumbleStepState extends State<TaskContentWordJumbleStep> {
   }
 }
 
-// Konkrétna implementácia pre typ Connection
 class TaskContentConnectionStep extends TaskContentStep {
   const TaskContentConnectionStep({Key? key, required TaskModel taskModel})
       : super(key: key, taskModel: taskModel);
@@ -124,7 +117,6 @@ class _TaskContentConnectionStepState extends State<TaskContentConnectionStep> {
   @override
   void initState() {
     super.initState();
-    // Inicializácia štruktúry pre connection
     if (widget.taskModel.content.isEmpty) {
       widget.taskModel.content = {
         'pairs': []
@@ -133,8 +125,7 @@ class _TaskContentConnectionStepState extends State<TaskContentConnectionStep> {
       widget.taskModel.content['pairs'] = [];
     }
     
-    // Zabezpečenie správnej štruktúry pre každý pár
-    if (widget.taskModel.content.containsKey('pairs') && 
+    if (widget.taskModel.content.containsKey('pairs') &&
         widget.taskModel.content['pairs'] is List) {
       
       final List pairs = widget.taskModel.content['pairs'];
@@ -151,7 +142,6 @@ class _TaskContentConnectionStepState extends State<TaskContentConnectionStep> {
           pairs[i]['right'] = '';
         }
         
-        // Podpora pre obrázky v pároch
         if (!pairs[i].containsKey('leftImage')) {
           pairs[i]['leftImage'] = null;
         }

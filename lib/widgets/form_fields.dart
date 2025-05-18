@@ -474,51 +474,48 @@ class _NetworkImageFromBytesState extends State<NetworkImageFromBytes> {
   }
 }
 
-// Výsledok cropovacieho procesu
 class CropResult {
   final File? croppedFile;
-  
+
   CropResult({this.croppedFile});
 }
 
-// Widget pre interaktívne cropovanie
+// Interaktívny orezávač obrázkov
 class InteractiveCropper extends StatefulWidget {
   final File imageFile;
   final double aspectRatio;
   final Color primaryColor;
-  
+
   const InteractiveCropper({
     Key? key,
     required this.imageFile,
     required this.aspectRatio,
     required this.primaryColor,
   }) : super(key: key);
-  
+
   @override
   State<InteractiveCropper> createState() => _InteractiveCropperState();
 }
 
 class _InteractiveCropperState extends State<InteractiveCropper> {
-  // Stav pre manipuláciu s výrezom
   Rect _cropRect = Rect.zero;
   Size _imageSize = Size.zero;
   late ui.Image _uiImage;
   bool _isImageLoaded = false;
   bool _isDragging = false;
   Offset _lastPosition = Offset.zero;
-  
+
   @override
   void initState() {
     super.initState();
     _loadImage();
   }
-  
-  // Načítanie obrázka a inicializácia výrezu
+
   Future<void> _loadImage() async {
     try {
       final bytes = await widget.imageFile.readAsBytes();
       final image = await decodeImageFromList(bytes);
-      
+
       setState(() {
         _uiImage = image;
         _imageSize = Size(image.width.toDouble(), image.height.toDouble());
@@ -529,26 +526,20 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
       print('Error loading image: $e');
     }
   }
-  
-  // Inicializácia výrezového štvorca
+
   void _initializeCropRect() {
-    // Kratšia strana určuje veľkosť štvorca
     final minSide = math.min(_imageSize.width, _imageSize.height);
-    
-    // Výpočet pozície štvorca (v strede obrázka)
     final left = (_imageSize.width - minSide) / 2;
     final top = (_imageSize.height - minSide) / 2;
-    
+
     _cropRect = Rect.fromLTWH(left, top, minSide, minSide);
   }
-  
-  // Presun výrezu na novú pozíciu
+
   void _moveCropRect(Offset delta) {
     setState(() {
       final newLeft = _cropRect.left + delta.dx;
       final newTop = _cropRect.top + delta.dy;
-      
-      // Kontrola, či nevychádzame z hraníc obrázka
+
       if (newLeft >= 0 && newLeft + _cropRect.width <= _imageSize.width &&
           newTop >= 0 && newTop + _cropRect.height <= _imageSize.height) {
         _cropRect = Rect.fromLTWH(
@@ -560,32 +551,28 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
       }
     });
   }
-  
-  // Cropovanie obrázka podľa aktuálneho výrezu
+
+  // Orezanie obrázka podľa aktuálneho výrezu
   Future<File?> _cropImage() async {
     try {
-      // Načítanie originálu
       final bytes = await widget.imageFile.readAsBytes();
       final originalImage = img.decodeImage(bytes);
-      
+
       if (originalImage == null) return null;
-      
-      // Prepočet výrezu na reálne rozmery obrázka
+
       final scaleX = originalImage.width / _imageSize.width;
       final scaleY = originalImage.height / _imageSize.height;
-      
+
       final int cropX = (_cropRect.left * scaleX).toInt();
       final int cropY = (_cropRect.top * scaleY).toInt();
       final int cropWidth = (_cropRect.width * scaleX).toInt();
       final int cropHeight = (_cropRect.height * scaleY).toInt();
-      
-      // Kontrola hodnôt pre predchádzanie chýb
+
       final safeX = math.max(0, math.min(cropX, originalImage.width - 1));
       final safeY = math.max(0, math.min(cropY, originalImage.height - 1));
       final safeWidth = math.max(1, math.min(cropWidth, originalImage.width - safeX));
       final safeHeight = math.max(1, math.min(cropHeight, originalImage.height - safeY));
-      
-      // Vykonanie samotného cropu
+
       final croppedImage = img.copyCrop(
         originalImage,
         x: safeX,
@@ -593,21 +580,20 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
         width: safeWidth,
         height: safeHeight,
       );
-      
-      // Uloženie cropnutého obrázka do dočasného súboru
+
       final tempDir = await getTemporaryDirectory();
       final tempPath = '${tempDir.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      
+
       final croppedFile = File(tempPath);
       await croppedFile.writeAsBytes(img.encodeJpg(croppedImage));
-      
+
       return croppedFile;
     } catch (e) {
       print('Error cropping image: $e');
       return null;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -629,12 +615,11 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
               ),
             ),
           ),
-          
+
           Flexible(
-            child: _isImageLoaded 
+            child: _isImageLoaded
               ? Stack(
                   children: [
-                    // Obrázok s CustomPaint pre overlay
                     Center(
                       child: FittedBox(
                         child: SizedBox(
@@ -658,23 +643,19 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
                         ),
                       ),
                     ),
-                    
-                    // GestureDetector pre manipuláciu s výrezom
+
                     Positioned.fill(
                       child: GestureDetector(
                         onPanStart: (details) {
-                          // Prepočítanie pozície kliknutia vzhľadom na obrázok
                           final RenderBox box = context.findRenderObject() as RenderBox;
                           final Offset localPosition = box.globalToLocal(details.globalPosition);
-                          
+
                           final imageRect = _getImageRect();
                           if (imageRect == null) return;
-                          
-                          // Prepočet na súradnice obrázka
+
                           final imageX = (localPosition.dx - imageRect.left) / imageRect.width * _imageSize.width;
                           final imageY = (localPosition.dy - imageRect.top) / imageRect.height * _imageSize.height;
-                          
-                          // Kontrola, či sme klikli do oblasti výrezu
+
                           if (_cropRect.contains(Offset(imageX, imageY))) {
                             setState(() {
                               _isDragging = true;
@@ -684,17 +665,16 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
                         },
                         onPanUpdate: (details) {
                           if (!_isDragging) return;
-                          
+
                           final RenderBox box = context.findRenderObject() as RenderBox;
                           final Offset localPosition = box.globalToLocal(details.globalPosition);
-                          
+
                           final imageRect = _getImageRect();
                           if (imageRect == null) return;
-                          
-                          // Výpočet delta pohybu v súradniciach obrázka
+
                           final dx = (localPosition.dx - _lastPosition.dx) / imageRect.width * _imageSize.width;
                           final dy = (localPosition.dy - _lastPosition.dy) / imageRect.height * _imageSize.height;
-                          
+
                           _moveCropRect(Offset(dx, dy));
                           _lastPosition = localPosition;
                         },
@@ -709,7 +689,7 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
                 )
               : const Center(child: CircularProgressIndicator()),
           ),
-          
+
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -742,32 +722,28 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
       ),
     );
   }
-  
-  // Pomocná metóda na získanie aktuálnych súradníc vykresleného obrázka
+
   Rect? _getImageRect() {
     try {
       final RenderBox box = context.findRenderObject() as RenderBox;
       final size = box.size;
-      
-      // Výpočet pomeru strán
+
       final imageAspect = _imageSize.width / _imageSize.height;
       final screenAspect = size.width / size.height;
-      
+
       double renderWidth, renderHeight;
       double offsetX = 0, offsetY = 0;
-      
+
       if (imageAspect > screenAspect) {
-        // Obrázok je širší než obrazovka - prispôsobíme šírku
         renderWidth = size.width;
         renderHeight = renderWidth / imageAspect;
         offsetY = (size.height - renderHeight) / 2;
       } else {
-        // Obrázok je vyšší než obrazovka - prispôsobíme výšku
         renderHeight = size.height;
         renderWidth = renderHeight * imageAspect;
         offsetX = (size.width - renderWidth) / 2;
       }
-      
+
       return Rect.fromLTWH(offsetX, offsetY, renderWidth, renderHeight);
     } catch (e) {
       return null;
@@ -775,46 +751,41 @@ class _InteractiveCropperState extends State<InteractiveCropper> {
   }
 }
 
-// Painter pre vykreslenie overlaya a výrezového obdĺžnika
+// Vlastný painter pre overlay
 class CropOverlayPainter extends CustomPainter {
   final Rect cropRect;
   final Color color;
-  
+
   CropOverlayPainter({
     required this.cropRect,
     required this.color,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
-    // Vykreslíme priesvitný overlay s výrezom
     final paint = Paint()
       ..color = Colors.black.withOpacity(0.5)
       ..style = PaintingStyle.fill;
-    
-    // Vytvoríme cestu s "dirou" pre výrez
+
     final path = Path()
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
       ..addRect(cropRect)
       ..fillType = PathFillType.evenOdd;
-    
+
     canvas.drawPath(path, paint);
-    
-    // Vykreslíme rám okolo výrezu
+
     final borderPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
-    
+
     canvas.drawRect(cropRect, borderPaint);
-    
-    // Vykreslíme mriežku podľa pravidla tretín
+
     final gridPaint = Paint()
       ..color = Colors.white.withOpacity(0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
-    
-    // Horizontálne čiary
+
     final stepY = cropRect.height / 3;
     for (int i = 1; i < 3; i++) {
       final y = cropRect.top + stepY * i;
@@ -824,8 +795,7 @@ class CropOverlayPainter extends CustomPainter {
         gridPaint,
       );
     }
-    
-    // Vertikálne čiary
+
     final stepX = cropRect.width / 3;
     for (int i = 1; i < 3; i++) {
       final x = cropRect.left + stepX * i;

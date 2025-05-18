@@ -24,7 +24,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
   String? _errorMessage;
-  String _teacherId = ""; // Budeme potrebovať ID prihláseného učiteľa
+  String _teacherId = "";
   
   @override
   void initState() {
@@ -39,7 +39,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     super.dispose();
   }
   
-  // Funkcia na získanie ID prihláseného učiteľa
   Future<void> _loadTeacherId() async {
     setState(() {
       _isLoading = true;
@@ -68,7 +67,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
   }
   
-  // Upravená funkcia na načítanie študentov z API
   Future<void> _loadSelectedStudents() async {
     setState(() {
       _isLoading = true;
@@ -78,12 +76,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     try {
       _selectedStudents = [];
       
-      // Pre každé ID študenta získame jeho detaily
       for (String id in widget.selectedStudentIds) {
         try {
           final studentData = await _apiService.getStudentDetails(id);
           
-          // Vytvorenie objektu Student z dát API
           final student = Student(
             id: studentData['id'],
             name: studentData['name'],
@@ -122,7 +118,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
   }
   
-  // Upravená funkcia na vytvorenie skupiny cez API
   Future<void> _createGroup() async {
     if (_groupNameController.text.trim().isEmpty) {
       setState(() {
@@ -144,7 +139,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     });
     
     try {
-      // Volanie API na vytvorenie skupiny
       final success = await _apiService.createGroup(
         name: _groupNameController.text.trim(),
         teacherId: _teacherId,
@@ -152,7 +146,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       );
       
       if (success) {
-        // Ak bolo vytvorenie úspešné, vrátime sa späť
         Navigator.pop(context, true);
       } else {
         setState(() {

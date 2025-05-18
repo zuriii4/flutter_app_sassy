@@ -79,7 +79,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
     if (updatedStudent != null) {
       setState(() {
-        _student = updatedStudent; // prepíš údaje
+        _student = updatedStudent;
       });
     }
   }
@@ -214,7 +214,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               backgroundColor: _student.hasSpecialNeeds ? Colors.orange : Colors.blue,
               child: const Icon(Icons.person, size: 40, color: Colors.white),
             ),
-            // Online status indicator
             if (_isOnline)
               Positioned(
                 right: 0,
@@ -387,7 +386,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       );
     }
 
-    // Získaj dáta z progress odpovede
     final totalAssignments = _progressData?['totalAssignments'] ?? 0;
     final completedAssignments = _progressData?['completedAssignments'] ?? 0;
     
@@ -411,8 +409,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         }
       }
     }
-
-    // Zaokrúhliť priemernú úspešnosť na celé číslo
     final roundedAvgScore = averageScore.round();
     
     return Column(
@@ -515,7 +511,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       );
     }
 
-    // Získanie progresu zo dát
     final progresses = _progressData?['progresses'] as List? ?? [];
 
     // Ak nemáme dáta o progrese
@@ -617,7 +612,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         ),
         const SizedBox(height: 10),
         
-        // Namiesto DataTable použijeme vlastné riešenie, ktoré sa lepšie prispôsobí
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -631,7 +625,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             final score = progress['score'] ?? 0;
             final timeSpent = progress['timeSpent'];
             
-            // Určenie typu materiálu podľa typu odpovede
             String materialType = 'Neznámy typ';
             if (progress['answers'] != null && (progress['answers'] as List).isNotEmpty) {
               final answer = (progress['answers'] as List).first;
@@ -655,7 +648,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    // Ikona podľa typu materiálu
                     Container(
                       width: 40,
                       height: 40,
@@ -769,7 +761,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _apiService.getStudentGroups(_student.id),
       builder: (context, snapshot) {
-        // Zobrazenie loadingu počas načítavania dát
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -842,7 +833,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
           );
         }
 
-        // Získanie dát
         final groups = snapshot.data ?? [];
 
         // Zobrazenie prázdneho stavu
@@ -910,7 +900,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
-                  // Navigácia na obrazovku skupiny
                   Navigator.push(
                     context,
                     MaterialPageRoute(

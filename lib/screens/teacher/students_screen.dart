@@ -48,11 +48,11 @@ class _StudentsPageState extends State<StudentsPage> {
     });
 
     try {
-      // Najprv načítame všetkých študentov
+      // načítame všetkých študentov
       final data = await _apiService.getStudents();
       _allStudents = data.map((json) => Student.fromJson(json)).toList();
 
-      // Potom získame online statusy všetkých študentov
+      // získame online statusy všetkých študentov
       await _updateStudentsOnlineStatus();
 
       // Aktualizujeme filtrovaný zoznam
@@ -75,7 +75,7 @@ class _StudentsPageState extends State<StudentsPage> {
       final onlineStudents = await _apiService.getOnlineStudents();
       final offlineStudents = await _apiService.getOfflineStudents();
 
-      // Najprv označíme všetkých študentov ako offline
+      // označíme všetkých študentov ako offline
       for (var i = 0; i < _allStudents.length; i++) {
         _allStudents[i] = Student.fromJson({
           ..._allStudents[i].toJson(),
@@ -99,7 +99,7 @@ class _StudentsPageState extends State<StudentsPage> {
             ...student.toJson(),
             'lastActive': 'Online',
           });
-          continue; // Preskoč ďalší krok, keďže študent je už označený ako online
+          continue;
         }
 
         // Hľadáme zhodu v offline študentoch
@@ -129,7 +129,6 @@ class _StudentsPageState extends State<StudentsPage> {
               'lastActive': formattedTime,
             });
           } catch (e) {
-            // Ponechajme "Offline" ak je neplatný dátum
           }
         }
       }
@@ -168,7 +167,7 @@ class _StudentsPageState extends State<StudentsPage> {
         builder: (context) => const GroupsScreen(),
       ),
     );
-    _loadStudents(); // Reload students after returning
+    _loadStudents();
   }
   
   void _createNewStudent() async {
@@ -184,7 +183,7 @@ class _StudentsPageState extends State<StudentsPage> {
         const SnackBar(content: Text('Študent bol úspešne vytvorený')),
       );
     }
-    _loadStudents(); // Always reload after returning
+    _loadStudents();
   }
 
   void _createNewGroup() async {
@@ -210,7 +209,7 @@ class _StudentsPageState extends State<StudentsPage> {
         _selectedStudentIds = [];
       });
     }
-    _loadStudents(); // Always reload after returning
+    _loadStudents();
   }
 
   @override

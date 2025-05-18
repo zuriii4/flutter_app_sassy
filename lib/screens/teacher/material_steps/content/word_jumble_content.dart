@@ -21,7 +21,6 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
   @override
   void initState() {
     super.initState();
-    // Načítanie existujúcich hodnôt, ak existujú
     if (widget.taskModel.content.isNotEmpty) {
       if (widget.taskModel.content.containsKey('words')) {
         _words = List<String>.from(widget.taskModel.content['words']);
@@ -64,7 +63,6 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
       final removedWord = _words[index];
       _words.removeAt(index);
       
-      // Odstránenie slova aj zo správneho poradia
       _correctOrder.remove(removedWord);
       _shuffledWords.remove(removedWord);
       
@@ -77,7 +75,6 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
       _shuffledWords = List<String>.from(_words);
       _shuffledWords.shuffle();
       
-      // Uloženie zamešaného poradia
       _correctOrder = List<String>.from(_words);
       _updateModel();
     });
@@ -94,7 +91,6 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
     });
   }
 
-  // Handler for the WordJumblePreview reordering callback
   void _handleReorder(List<String> newOrder) {
     setState(() {
       _correctOrder = List<String>.from(newOrder);
@@ -209,7 +205,6 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // Použitie WordJumblePreview pre nastavenie správneho poradia
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[50],
@@ -220,7 +215,7 @@ class _WordJumbleContentState extends State<WordJumbleContent> {
                         child: WordJumblePreview(
                           words: _words,
                           correctOrder: _correctOrder,
-                          isInteractive: true, // V režime úprav chceme interaktívny náhľad
+                          isInteractive: true,
                           onReordered: _handleReorder,
                         ),
                       ),

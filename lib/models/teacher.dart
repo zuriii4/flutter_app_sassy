@@ -29,7 +29,6 @@ class Teacher {
     };
   }
   
-  // Create a copy of the teacher with updated values
   Teacher copyWith({
     String? name,
     String? email,

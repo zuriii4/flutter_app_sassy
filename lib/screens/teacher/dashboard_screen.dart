@@ -33,19 +33,15 @@ class _DashboardPageState extends State<DashboardPage> {
     });
 
     try {
-      // Load online students, materials, and notifications simultaneously
       final onlineStudentsResult = await _apiService.getOnlineStudents();
       final materialsResult = await _apiService.getAllMaterials();
       final notificationsResult = await _apiService.getNotifications(limit: 10);
-      // print(onlineStudentsResult);
-      // print(materialsResult);
-      // print(notificationsResult);
+
 
       List<Student> completeStudents = [];
       for (var onlineStudent in onlineStudentsResult) {
         String? studentId = onlineStudent['studentId'] ?? onlineStudent['_id'];
 
-        // Ak stále null, preskoč
         if (studentId == null) continue;
 
         try {
@@ -89,7 +85,6 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  // Metóda pre sekciu študentov
   Widget _buildStudentsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +174,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // Metóda pre sekciu oznámení
   Widget _buildNotificationsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +198,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Všetky oznámenia označené ako prečítané')),
                       );
-                      _loadData(); // Reload to update UI
+                      _loadData();
                     }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +230,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     IconData iconData;
                     Color iconColor;
 
-                    // Choose icon based on notification type
                     switch (type) {
                       case 'material_assigned':
                         iconData = Icons.assignment;
@@ -288,7 +281,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   try {
                                     final success = await _apiService.markNotificationAsRead(notification['_id']);
                                     if (success) {
-                                      _loadData(); // Reload to update UI
+                                      _loadData();
                                     }
                                   } catch (e) {
                                     print('Error marking notification as read: $e');
@@ -297,16 +290,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                 tooltip: 'Označiť ako prečítané',
                               ),
                         onTap: () {
-                          // Handle notification tap, e.g., navigate to related content
                           if (!isRead) {
                             _apiService.markNotificationAsRead(notification['_id']).then((_) {
-                              _loadData(); // Reload to update UI
+                              _loadData();
                             });
                           }
 
-                          // If there's a related ID, navigate to the appropriate screen
                           if (notification['relatedId'] != null) {
-                            // Handle navigation based on type
                             if (type == 'material_assigned' || type == 'material_completed') {
                               Navigator.push(
                                 context,
@@ -339,7 +329,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   errorMessage: _errorMessage!, 
                   onRetry: _loadData
                 )
-              : SingleChildScrollView( // Pridanie scrollovania
+              : SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Container(
@@ -393,9 +383,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           const SizedBox(height: 10),
                           
-                          // Materiály - responzívny grid
                           SizedBox(
-                            height: 300, // Height for materials
+                            height: 300,
                             child: _materials.isEmpty
                                 ? const Center(
                                     child: Text(
@@ -408,12 +397,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                   )
                                 : LayoutBuilder(
                                     builder: (context, constraints) {
-                                      // Určíme počet materiálov v jednom rade podľa šírky
-                                      int crossAxisCount = constraints.maxWidth > 1000 
-                                          ? 3  // Veľká obrazovka
+                                      int crossAxisCount = constraints.maxWidth > 1000
+                                          ? 3
                                           : constraints.maxWidth > 600 
-                                            ? 2  // Stredná obrazovka
-                                            : 1; // Malá obrazovka
+                                            ? 2
+                                            : 1;
 
                                       return GridView.builder(
                                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -448,22 +436,18 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           const SizedBox(height: 20),
                           
-                          // Študenti a Oznámenia - responzívne rozloženie s pevnými výškami namiesto Expanded
                           LayoutBuilder(
                             builder: (context, constraints) {
-                              // Na menšej obrazovke (mobil) - zobraziť stĺpcovo
                               return constraints.maxWidth > 700
                                   ? SizedBox(
-                                      height: 400, // Nastavíme výšku pre desktop
+                                      height: 400,
                                       child: Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          // Študenti - polovica šírky na veľkej obrazovke
                                           Expanded(
                                             child: _buildStudentsSection(),
                                           ),
                                           const SizedBox(width: 20),
-                                          // Oznámenia - polovica šírky na veľkej obrazovke
                                           Expanded(
                                             child: _buildNotificationsSection(),
                                           ),
@@ -471,15 +455,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                       ),
                                     )
                                   : Column(
-                                      mainAxisSize: MainAxisSize.min, // Dôležité pre správne rozloženie
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        // Študenti - plná šírka na malej obrazovke
                                         SizedBox(
                                           height: 300,
                                           child: _buildStudentsSection(),
                                         ),
                                         const SizedBox(height: 20),
-                                        // Oznámenia - plná šírka na malej obrazovke
                                         SizedBox(
                                           height: 300,
                                           child: _buildNotificationsSection(),
@@ -488,7 +470,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                     );
                             },
                           ),
-                          // Dodatočný priestor na konci, aby scrollovanie bolo ľahšie
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -521,7 +502,6 @@ String _formatDate(String? dateString) {
   }
 }
 
-// Tento widget by mal existovať vo vašom projekte - ak nie, môžete ho pridať
 class ErrorStateWidget extends StatelessWidget {
   final String errorMessage;
   final VoidCallback onRetry;

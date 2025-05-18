@@ -20,16 +20,13 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   int _currentStep = 0;
   final ApiService _apiService = ApiService();
   
-  // Použitie existujúceho TaskModel
   late TaskModel taskModel;
   
-  // Referencia na obsah aktuálnej úlohy, ktorý sa mení podľa typu
   Widget _contentStep = Container();
 
   @override
   void initState() {
     super.initState();
-    // Inicializácia TaskModel
     taskModel = TaskModel(
       title: '',
       description: '',
@@ -60,12 +57,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     }
   }
 
-  // Metóda pre výber typu úlohy
   void _selectTaskType(String type) {
     setState(() {
       taskModel.type = type;
       
-      // Zmena obsahu kroku podľa vybraného typu úlohy
       switch (type) {
         case 'quiz':
           _contentStep = TaskContentQuizStep(taskModel: taskModel);
@@ -84,14 +79,12 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
       }
     });
     
-    // Automatický presun na ďalší krok po výbere typu
     _nextStep();
   }
 
   // Metóda pre odosielanie dát na server
   Future<void> _submitTask() async {
     try {
-      // Kontrola či obsah je validný pred odoslaním
       if (!taskModel.isContentValid()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Obsah úlohy nie je správne vyplnený')),
@@ -113,12 +106,10 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
           const SnackBar(content: Text('Úloha bola úspešne vytvorená')),
         );
         
-        // Použitie callback funkcie pre návrat na predošlú obrazovku
         if (widget.onTaskSubmitted != null) {
           widget.onTaskSubmitted!();
         }
         
-        // Reset formulára
         setState(() {
           _currentStep = 0;
           taskModel = TaskModel(
@@ -171,7 +162,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   ),
                   child: Column(
                     children: [
-                      // Čísla a indikátor krokov
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Column(
@@ -214,16 +204,12 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                           controller: _pageController,
                           physics: const NeverScrollableScrollPhysics(),
                           children: [
-                            // Krok 1: Základné informácie o úlohe
                             TaskInfoStep(taskModel: taskModel),
                             
-                            // Krok 2: Výber typu úlohy
                             TaskTypeStep(onSelectType: _selectTaskType),
                             
-                            // Krok 3: Dynamický obsah podľa typu úlohy
                             _contentStep,
                             
-                            // Krok 4: Priradenie študentov/skupín
                             TaskAssignmentStep(taskModel: taskModel),
                           ],
                         ),
@@ -253,7 +239,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                               //   } else if (_currentStep != 1) { // Ak nie je na kroku výberu typu
                               //     _nextStep();
                               //   }
-                              //   // Pre krok 1 (výber typu) sa posun riadi funkciou _selectTaskType
                               // },
                               onPressed: () {
                                 if (_currentStep == 3) {

@@ -4,13 +4,10 @@ class OnlineStatusModel extends ChangeNotifier {
   final Map<String, UserStatus> _userStatuses = {};
   final List<UserStatus> _onlineStudents = [];
 
-  // Getter pre všetky online stavy
   Map<String, UserStatus> get userStatuses => _userStatuses;
 
-  // Getter pre online študentov
   List<UserStatus> get onlineStudents => _onlineStudents;
 
-  // Aktualizácia stavu používateľa
   void updateUserStatus(String userId, bool isOnline, DateTime? lastActive) {
     _userStatuses[userId] = UserStatus(
       userId: userId,
@@ -20,7 +17,6 @@ class OnlineStatusModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Nastavenie online stavu pre konkrétneho používateľa
   void setUserOnline(String userId) {
     final now = DateTime.now();
     _userStatuses[userId] = UserStatus(
@@ -31,7 +27,6 @@ class OnlineStatusModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Nastavenie offline stavu pre konkrétneho používateľa
   void setUserOffline(String userId) {
     final status = _userStatuses[userId];
     if (status != null) {
@@ -44,12 +39,10 @@ class OnlineStatusModel extends ChangeNotifier {
     }
   }
 
-  // Aktualizácia zoznamu online študentov
   void updateOnlineStudents(List<UserStatus> students) {
     _onlineStudents.clear();
     _onlineStudents.addAll(students);
 
-    // Aktualizácia mapy stavov
     for (final student in students) {
       _userStatuses[student.userId] = student;
     }
@@ -57,18 +50,15 @@ class OnlineStatusModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Získanie stavu používateľa
   UserStatus? getUserStatus(String userId) {
     return _userStatuses[userId];
   }
 
-  // Skrátená forma pre zistenie, či je používateľ online
   bool isUserOnline(String userId) {
     final status = _userStatuses[userId];
     return status?.isOnline ?? false;
   }
 
-  // Formát zobrazenia poslednej aktivity
   String getLastActiveText(String userId) {
     final status = _userStatuses[userId];
 

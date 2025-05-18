@@ -86,12 +86,11 @@ class _TeachersPageState extends State<TeachersPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Učiteľ bol úspešne vytvorený')),
       );
-      _loadTeachers(); // Obnovíme zoznam učiteľov
+      _loadTeachers();
     }
   }
 
   Future<void> _deleteTeacher(Teacher teacher) async {
-    // Zobraziť dialóg na potvrdenie
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -119,7 +118,6 @@ class _TeachersPageState extends State<TeachersPage> {
     try {
       await _apiService.deleteTeacher(teacher.id);
       
-      // Obnoviť zoznam učiteľov
       _loadTeachers();
       
       ScaffoldMessenger.of(context).showSnackBar(
@@ -148,7 +146,6 @@ class _TeachersPageState extends State<TeachersPage> {
     );
     
     if (updatedTeacher != null) {
-      // Našli a aktualizovali sme učiteľa v zozname
       setState(() {
         final index = _allTeachers.indexWhere((t) => t.id == updatedTeacher.id);
         if (index != -1) {

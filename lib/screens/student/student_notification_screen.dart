@@ -81,7 +81,6 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
         backgroundColor: const Color(0xFF5D69BE),
         elevation: 2,
         actions: [
-          // Filter button
           IconButton(
             icon: Icon(
               _showUnreadOnly ? Icons.filter_alt : Icons.filter_alt_outlined,
@@ -95,7 +94,6 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
             },
             tooltip: _showUnreadOnly ? 'Zobraziť všetky' : 'Len neprečítané',
           ),
-          // Mark all as read button
           IconButton(
             icon: const Icon(Icons.done_all, color: Colors.white),
             onPressed: () async {
@@ -220,7 +218,6 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
           final String type = notification['type'] ?? 'system';
           final content = notification['message'] ?? '';
           
-          // Choose icon based on notification type
           IconData iconData;
           Color iconColor;
           Color cardColor = isRead ? Colors.white : const Color(0xFFE3F2FD);
@@ -273,13 +270,8 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
                     }
                   }
                   
-                  // Handle navigation based on notification type
                   if (notification['relatedId'] != null) {
-                    // Implement navigation to specific screens based on type
-                    // For example:
-                    // if (type == 'material_assigned') {
-                    //   Navigator.push(...);
-                    // }
+
                   }
                 },
                 child: Padding(
@@ -303,7 +295,6 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
                       ),
                       const SizedBox(width: 16),
                       
-                      // Content section
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,7 +339,6 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
                         ),
                       ),
                       
-                      // Action buttons
                       if (!isRead)
                         IconButton(
                           icon: const Icon(Icons.check_circle_outline),

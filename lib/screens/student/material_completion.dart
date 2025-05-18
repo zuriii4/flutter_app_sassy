@@ -29,10 +29,8 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
   String? _errorMessage;
   String? _successMessage;
   
-  // Dynamické odpovede študenta
   List<Map<String, dynamic>> _answers = [];
   
-  // Stav dokončenia
   bool _isCompleted = false;
 
   @override
@@ -41,7 +39,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     _initializeAnswers();
   }
 
-  // Inicializácia štruktúry odpovedí na základe typu materiálu
   void _initializeAnswers() {
     final materialType = widget.material['type']?.toLowerCase() ?? 'unknown';
     
@@ -57,22 +54,20 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
         break;
         
       case 'puzzle':
-        // Pre puzzle inicializujeme prázdne riešenie
         _answers = [
           {
-            'solvedGrid': [], // Pozície puzzle dielov budú zaznamenané tu
-            'timeSpent': 0,   // Čas strávený riešením
+            'solvedGrid': [],
+            'timeSpent': 0,
             'completed': false,
           }
         ];
         break;
         
       case 'connection':
-        // Pre spojovačku/čiarky inicializujeme odpovede
         final items = widget.material['content']?['items'] ?? [];
         _answers = [
           {
-            'connections': [], // Pole spojení [id1, id2]
+            'connections': [],
             'timeSpent': 0,
             'completed': false,
           }
@@ -83,7 +78,7 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
         // Pre slovné hádanky
         _answers = [
           {
-            'arrangedWords': [], // Usporiadané slová
+            'arrangedWords': [],
             'timeSpent': 0,
             'completed': false,
           }
@@ -91,7 +86,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
         break;
         
       default:
-        // Obecný formát pre akýkoľvek typ
         _answers = [
           {
             'response': null,
@@ -102,7 +96,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     }
   }
 
-  // Update the _submitMaterial method to properly format the submission data
   Future<void> _submitMaterial() async {
     setState(() {
       _isSubmitting = true;
@@ -110,7 +103,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     });
 
     try {
-      // Získanie userId zo SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final studentId = prefs.getString('userId');
       
@@ -118,33 +110,22 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
         throw Exception('Používateľ nie je prihlásený');
       }
 
-      // // Debug výstup před odesláním
-      // print('ODESÍLANÁ DATA:');
-      // print('studentId: $studentId');
-      // print('materialId: ${widget.materialId}');
-      // print('answers:');
-      // print(jsonEncode(_answers));
 
-      // Zajistíme, že každý záznam v _answers má požadovaná metadata (_id, timeSpent, completed, completedAt)
       final formattedAnswers = _answers.map((answer) {
         final Map<String, dynamic> updatedAnswer = Map.from(answer);
 
-        // Ensure material ID or questionId is present
         if (!updatedAnswer.containsKey('_id') && !updatedAnswer.containsKey('questionId')) {
           updatedAnswer['_id'] = widget.materialId;
         }
 
-        // Add default timeSpent if missing
         if (!updatedAnswer.containsKey('timeSpent') || updatedAnswer['timeSpent'] == 0) {
           updatedAnswer['timeSpent'] = DateTime.now().millisecondsSinceEpoch - _startTime;
         }
 
-        // Add completed if missing
         if (!updatedAnswer.containsKey('completed')) {
           updatedAnswer['completed'] = true;
         }
 
-        // Add timestamp if missing
         if (!updatedAnswer.containsKey('completedAt')) {
           updatedAnswer['completedAt'] = DateTime.now().toIso8601String();
         }
@@ -152,11 +133,7 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
         return updatedAnswer;
       }).toList();
 
-      // // Debug výstup po formátování
-      // print('FORMÁTOVANÁ DATA PRO ODESLÁNÍ:');
-      // print(jsonEncode(formattedAnswers));
 
-      // Odoslanie odpovedí pomocou API služby
       final success = await _apiService.submitMaterial(
         studentId: studentId,
         materialId: widget.materialId,
@@ -176,11 +153,10 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
       });
       
       if (success) {
-        // Zobrazíme dialóg s úspechom
         _showCompletionDialog();
       }
     } catch (e) {
-      print('❌ Chyba pri odosielaní materiálu: $e');
+      print('Chyba pri odosielaní materiálu: $e');
       setState(() {
         _isSubmitting = false;
         _errorMessage = 'Chyba: ${e.toString()}';
@@ -188,7 +164,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     }
   }
 
-  // Dialóg po úspešnom dokončení
   void _showCompletionDialog() {
     showDialog(
       context: context,
@@ -212,8 +187,8 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Zatvorí dialóg
-                Navigator.of(context).pop(true); // Vráti sa na predchádzajúcu obrazovku s úspechom
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
@@ -227,7 +202,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     );
   }
 
-  // Čas začiatku práce na materiále
   final int _startTime = DateTime.now().millisecondsSinceEpoch;
 
   @override
@@ -270,9 +244,8 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     );
   }
 
-  // Hlavný obsah na základe typu materiálu
+  // Hlavný obsah
   Widget _buildMaterialContent(String materialType) {
-    // Zobrazenie správy o chybe
     if (_errorMessage != null) {
       return Center(
         child: Padding(
@@ -356,7 +329,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
 
   
   // Rozhranie pre kvíz
-  // Updated implementation of _buildQuizInterface using the QuizWorkspace component
   Widget _buildQuizInterface() {
   final questions = widget.material['content']?['questions'] ?? [];
   
@@ -392,11 +364,9 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     questions: questions,
     materialId: widget.materialId,
     onQuizCompleted: (answers, timeSpent) {
-      // Aktualizácia odpovedí po dokončení kvízu
       setState(() {
         _answers = answers;
         
-        // Nastavenie správy o úspechu
         final correctAnswers = answers.where((a) => a['isCorrect'] == true).length;
         final totalQuestions = questions.length;
         final percentCorrect = (correctAnswers / totalQuestions * 100).round();
@@ -404,13 +374,11 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
         _successMessage = 'Výborne! Kvíz si úspešne dokončil/a so skóre $correctAnswers/$totalQuestions ($percentCorrect%) za ${_formatTime(timeSpent)}.';
       });
       
-      // Automatické odoslanie odpovede na server
       _submitMaterial();
     },
   );
 }
 
- // Add this method to your _MaterialCompletionScreenState class
   Widget _buildPuzzleInterface() {
     final grid = widget.material['content']?['grid'] ?? {};
     final int columns = grid['columns'] ?? 3;
@@ -451,14 +419,12 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
       columns: columns,
       materialId: widget.materialId,
       onPuzzleSolved: (arrangement, timeSpent) {
-        // Převedení hodnot na string array
         final solvedGridStringArray = arrangement.map((index) => index.toString()).toList();
         
-        // DŮLEŽITÁ OPRAVA: Přidáno ID materiálu a konzistentní struktura
         setState(() {
           _answers = [
             {
-              "_id": widget.materialId,  // Přidáno ID materiálu - klíčové pro správné zpracování
+              "_id": widget.materialId,
               "solvedGrid": solvedGridStringArray,
               "timeSpent": timeSpent,
               "completed": true,
@@ -468,7 +434,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
           
           _successMessage = 'Výborne! Puzzle si úspešne vyriešil/a za ${_formatTime(timeSpent)}';
         });
-        // Automatické odeslání dat na server
         _submitMaterial();
       },
     );
@@ -487,7 +452,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
     final Map<String, dynamic> content = widget.material['content'] ?? {};
     final List<dynamic> items = content['pairs'] ?? [];
     
-    // Pokud nejsou žádná data, zobrazíme zprávu
     if (items.isEmpty) {
       return Center(
         child: Column(
@@ -516,12 +480,9 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
       );
     }
     
-    // Zpracování dat pro ConnectionWorkspace
     List<ConnectionPair> pairs = [];
     
-    // Analýza formátu dat
     if (items.isNotEmpty) {
-      // Formát 1: Seznam objektů s left a right vlastnostmi
       if (items[0] is Map && items[0].containsKey('left') && items[0].containsKey('right')) {
         for (var item in items) {
           pairs.add(ConnectionPair(
@@ -530,12 +491,10 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
           ));
         }
       }
-      // Formát 2: Seznam objektů ve tvaru [{"terms": [...], "definitions": [...]}, ...]
       else if (items[0] is Map && items[0].containsKey('terms') && items[0].containsKey('definitions')) {
         final terms = List<String>.from(items[0]['terms'] ?? []);
         final definitions = List<String>.from(items[0]['definitions'] ?? []);
         
-        // Vytvoříme páry, pokud máme stejný počet pojmů a definic
         int count = terms.length < definitions.length ? terms.length : definitions.length;
         for (int i = 0; i < count; i++) {
           pairs.add(ConnectionPair(
@@ -546,7 +505,6 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
       }
     }
     
-    // Získáme další nastavení
     final String instruction = content['instruction'] ?? 'Spoj k sebe zodpovedajúce položky:';
     final Color primaryColor = _getColorFromString(content['primaryColor'], const Color(0xFF5D69BE));
     final Color secondaryColor = _getColorFromString(content['secondaryColor'], const Color(0xFF42A5F5));
@@ -557,11 +515,10 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
       primaryColor: primaryColor,
       secondaryColor: secondaryColor,
       onCompleted: (isCorrect, timeSpent) {
-        // DŮLEŽITÁ OPRAVA: Aktualizace _answers se správnými daty
         setState(() {
           _answers = [
             {
-              "_id": widget.materialId, // Přidáme ID materiálu
+              "_id": widget.materialId,
               "connections": pairs.map((pair) => {
                 "left": pair.left,
                 "right": pair.right,
@@ -572,22 +529,18 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
             }
           ];
           
-          // Nastavíme zprávu o úspěšném dokončení
           _successMessage = 'Výborne! Spojovačku si dokončil/a za ${_formatTime(timeSpent)}.';
         });
         
-        // Odešleme aktualizovaná data
         _submitMaterial();
       },
     );
   }
 
-// Opravená část pro WordJumbleWorkspace
   Widget _buildWordJumbleInterface() {
     final Map<String, dynamic> content = widget.material['content'] ?? {};
     final List<dynamic> wordsData = content['words'] ?? [];
     
-    // Pokud nejsou žádná data, zobrazíme zprávu
     if (wordsData.isEmpty) {
       return Center(
         child: Column(
@@ -616,35 +569,26 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
       );
     }
     
-    // Zkonvertujeme dynamic data na String listy
     List<String> words = [];
     List<String> correctOrder = [];
     
-    // Zjistíme, jaký formát dat máme
-    // Formát 1: Seznam slov jako stringy
     if (wordsData.isNotEmpty && wordsData[0] is String) {
       words = wordsData.map<String>((word) => word.toString()).toList();
-      // Pro tento formát je správné pořadí stejné jako původní pořadí
       correctOrder = List.from(words);
     }
-    // Formát 2: Seznam objektů s textem a pořadím
     else if (wordsData.isNotEmpty && wordsData[0] is Map) {
-      // Uspořádáme slova podle pořadí (pokud je k dispozici)
       final List<Map<String, dynamic>> wordObjects = wordsData
           .map<Map<String, dynamic>>((item) => Map<String, dynamic>.from(item))
           .toList();
       
-      // Seřadíme podle 'order' atributu, pokud existuje
       if (wordObjects.isNotEmpty && wordObjects[0].containsKey('order')) {
         wordObjects.sort((a, b) => (a['order'] ?? 0).compareTo(b['order'] ?? 0));
       }
       
-      // Extrahujeme texty
       words = wordObjects.map<String>((item) => item['text']?.toString() ?? '').toList();
       correctOrder = List.from(words);
     }
     
-    // Získáme další nastavení
     final String instruction = content['instruction'] ?? 'Poskladaj vetu:';
     final Color primaryColor = _getColorFromString(content['primaryColor'], const Color(0xFF5D69BE));
     final Color secondaryColor = _getColorFromString(content['secondaryColor'], const Color(0xFF42A5F5));
@@ -655,41 +599,36 @@ class _MaterialCompletionScreenState extends State<MaterialCompletionScreen> {
       instruction: instruction,
       primaryColor: primaryColor,
       secondaryColor: secondaryColor,
-      onCompleted: (isCorrect, timeSpent) {  // Upravený callback s přidaným timeSpent parametrem
+      onCompleted: (isCorrect, timeSpent) {
         if (isCorrect) {
-          // DŮLEŽITÁ OPRAVA: Aktualizace _answers se správnými daty
           setState(() {
             _answers = [
               {
-                "_id": widget.materialId, // Přidáme ID materiálu
+                "_id": widget.materialId,
                 "arrangedWords": correctOrder,
                 "timeSpent": timeSpent,
                 "completed": true
               }
             ];
-            
-            // Nastavíme zprávu o úspěšném dokončení
+
             _successMessage = 'Výborne! Slovnú hádanku si dokončil/a za ${_formatTime(timeSpent)}.';
           });
           
-          // Odešleme aktualizovaná data
+
           _submitMaterial();
         }
       },
     );
   }
 
-  // Pomocná metoda pro konverzi barvy z řetězce
   Color _getColorFromString(dynamic colorStr, Color defaultColor) {
     if (colorStr == null) return defaultColor;
     
-    // Pokud je barva ve formátu '#RRGGBB' nebo 'RRGGBB'
     String hexColor = colorStr.toString().replaceAll('#', '');
     if (hexColor.length == 6) {
-      hexColor = 'FF$hexColor'; // Přidáme plnou neprůhlednost
+      hexColor = 'FF$hexColor';
     }
     
-    // Pokusíme se převést na int hodnotu
     try {
       return Color(int.parse(hexColor, radix: 16));
     } catch (e) {

@@ -6,9 +6,7 @@ import 'package:sassy/screens/teacher/material_steps/previews/word_jumble_previe
 import 'package:sassy/screens/teacher/material_steps/previews/connections_preview.dart';
 
 class MaterialPreviewBuilder {
-  // Build a preview based on material type
   static Widget buildPreview(String type, Map<String, dynamic> content, ApiService apiService, {bool isInteractive = false}) {
-    // Normalize the type string
     String normalizedType = type.toLowerCase().trim();
     
     switch (normalizedType) {
@@ -27,7 +25,6 @@ class MaterialPreviewBuilder {
     }
   }
   
-  // Puzzle preview builder
   static Widget _buildPuzzlePreview(Map<String, dynamic> content, ApiService apiService, bool isInteractive) {
     final String? imagePath = content['image'];
     final gridData = content['grid'] ?? {};
@@ -45,7 +42,6 @@ class MaterialPreviewBuilder {
     );
   }
   
-  // Quiz preview builder
   static Widget _buildQuizPreview(Map<String, dynamic> content, ApiService apiService, bool isInteractive) {
     final List<Map<String, dynamic>> questions = 
         List<Map<String, dynamic>>.from(content['questions'] ?? []);
@@ -61,7 +57,6 @@ class MaterialPreviewBuilder {
     );
   }
   
-  // Word Jumble preview builder
   static Widget _buildWordJumblePreview(Map<String, dynamic> content, bool isInteractive) {
     final List<String> words = List<String>.from(content['words'] ?? []);
     final List<String> correctOrder = List<String>.from(content['correct_order'] ?? words);
@@ -77,7 +72,6 @@ class MaterialPreviewBuilder {
     );
   }
   
-  // Connections preview builder
   static Widget _buildConnectionsPreview(Map<String, dynamic> content, bool isInteractive) {
     final List<dynamic> rawPairs = content['pairs'] ?? [];
     final List<Map<String, String>> pairs = rawPairs

@@ -49,7 +49,6 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _userRole = userData['user']['role'];
         _userName = userData['user']['name'];
-        // Znovu inicializujte stránky a vybraný index po načítaní role
         _initPagesBasedOnRole();
       });
     }
@@ -62,7 +61,6 @@ class _MainScreenState extends State<MainScreen> {
         StudentDashboardScreen(),
         StudentNotificationPage(),
       ];
-      // Uistite sa, že študent začne na študentskom dashboarde
       _selectedIndex = 0;
       _controller.selectIndex(0);
     } else if (_userRole == 'teacher' || _userRole == 'admin') {
@@ -83,18 +81,15 @@ class _MainScreenState extends State<MainScreen> {
       teacherPages.add(CreateTaskScreen(onTaskSubmitted: _onTaskSubmitted));
 
       _pages = teacherPages;
-      // Uistite sa, že učiteľ/admin začne na dashboarde
       _selectedIndex = 0;
       _controller.selectIndex(0);
     }
   }
 
   void _onItemSelected(int index) {
-    // Kontrola rozsahu indexov pre aktuálnu rolu
     final int maxIndex = _pages.length - 1;
 
     if (_userRole == 'student') {
-      // Študenti majú len 2 stránky
       if (index <= 1) {
         setState(() {
           _selectedIndex = index;
@@ -116,7 +111,7 @@ class _MainScreenState extends State<MainScreen> {
         // Vytvorenie úlohy je posledná stránka
         setState(() {
           _selectedIndex = maxIndex;
-          _controller.selectIndex(-1); // Žiadna vybraná položka v sidebar
+          _controller.selectIndex(-1);
         });
       } else if (index < maxIndex) {
         setState(() {
@@ -129,7 +124,7 @@ class _MainScreenState extends State<MainScreen> {
         // Vytvorenie úlohy je posledná stránka
         setState(() {
           _selectedIndex = maxIndex;
-          _controller.selectIndex(-1); // Žiadna vybraná položka v sidebar
+          _controller.selectIndex(-1);
         });
       } else if (index <= maxIndex) {
         setState(() {
@@ -158,9 +153,9 @@ class _MainScreenState extends State<MainScreen> {
         if (mounted) {
           Navigator.of(context).pushReplacementNamed('/login');
         }
-        return false; // stop the loop
+        return false;
       }
-      return true; // continue the loop
+      return true;
     });
   }
 
@@ -169,9 +164,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _startTokenValidationLoop();
 
-    // Predbežne inicializujte stránky
     _pages = [
-      // Predvolené prázdne widgety kým sa nenačíta rola používateľa
       const Center(child: CircularProgressIndicator()),
     ];
 
@@ -213,15 +206,14 @@ class _MainScreenState extends State<MainScreen> {
     } else {
       // Mobilné rozloženie - obsah s hamburger menu
       return Scaffold(
-        key: _scaffoldKey, // Predáme kľúč pre prístup k Scaffold v ResponsiveSidebar
+        key: _scaffoldKey,
         backgroundColor: const Color.fromARGB(255, 247, 230, 217),
-        // ResponsiveSidebar sa postará o drawer a AppBar, a predávame mu aktuálnu stránku
         body: ResponsiveSidebar(
           controller: _controller,
           onItemSelected: _onItemSelected,
           userRole: _userRole ?? 'student',
           userName: _userName ?? 'Unknown',
-          child: contentWidget, // Predáme obsah stránky do ResponsiveSidebar
+          child: contentWidget,
         ),
       );
     }

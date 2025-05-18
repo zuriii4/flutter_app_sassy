@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'package:sassy/widgets/search_bar.dart';   // Importujeme vlastný search bar
-import 'package:sassy/widgets/message_display.dart';  // Importujeme message display
+import 'package:sassy/widgets/message_display.dart';
 
 class AddStudentScreen extends StatefulWidget {
   final String groupId;
@@ -36,7 +36,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     super.dispose();
   }
 
-  // Load students who are not in the group
   Future<void> _loadAvailableStudents() async {
     setState(() {
       _isLoading = true;
@@ -44,23 +43,18 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     });
     
     try {
-      // First, get all students
       final allStudents = await _apiService.getStudents();
       
-      // Then, get group details to know which students are already in the group
       final groupDetails = await _apiService.getGroupDetails(widget.groupId);
       final groupStudents = List<Map<String, dynamic>>.from(groupDetails['students'] ?? []);
       
-      // Get the IDs of students already in the group
       final groupStudentIds = groupStudents.map((student) => student['id'] as String).toSet();
       
-      // Filter to get only students not in the group
       final availableStudents = allStudents
           .where((student) => !groupStudentIds.contains(student['id']))
           .toList();
       
       setState(() {
-        // Convert to required format
         _availableStudents = List<Map<String, dynamic>>.from(availableStudents);
         _isLoading = false;
       });
@@ -72,7 +66,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     }
   }
   
-  // Filter students based on search query
   List<Map<String, dynamic>> get _filteredStudents {
     if (_searchQuery.isEmpty) {
       return _availableStudents;
@@ -87,7 +80,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
     }).toList();
   }
   
-  // Add a student to the group
   Future<void> _addStudentToGroup(String studentId, String studentName) async {
     setState(() {
       _isAdding = true;
@@ -103,7 +95,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Študent $studentName bol pridaný do skupiny')),
         );
-        // Return to previous screen with result indicating success
         Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -138,7 +129,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
       ),
       body: Column(
         children: [
-          // Search bar - používame vlastný CustomSearchBar
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: CustomSearchBar(
@@ -152,7 +142,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
             ),
           ),
           
-          // Loading indicator or error message
           if (_isLoading)
             const Expanded(
               child: Center(child: CircularProgressIndicator()),
@@ -192,7 +181,6 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                       icon: const Icon(Icons.refresh),
                       label: const Text('Skúsiť znova'),
                     ),
-                    // Použitie MessageDisplay pre chybovú správu
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: MessageDisplay(

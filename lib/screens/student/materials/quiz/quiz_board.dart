@@ -23,19 +23,15 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
   bool _isLoading = true;
   String? _errorMessage;
 
-  // Stav kvízu
   Map<String, Map<String, dynamic>> _userAnswers = {};
   bool _quizCompleted = false;
   int _currentQuestionIndex = 0;
 
-  // Cache pre načítané obrázky
   final Map<String, Uint8List?> _imageCache = {};
 
-  // Pre sledovanie času
   final int _startTime = DateTime.now().millisecondsSinceEpoch;
   int _timeSpent = 0;
 
-  // PageController pre navigáciu
   late PageController _pageController;
 
   @override
@@ -44,10 +40,8 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     _preloadImages();
     _pageController = PageController(initialPage: 0);
 
-    // Inicializácia odpoveďového slovníka
     _initializeAnswers();
 
-    // Aktualizácia času každú sekundu
     _startTimer();
   }
 
@@ -57,13 +51,11 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     super.dispose();
   }
 
-  // Inicializácia štruktúry odpovedí
   void _initializeAnswers() {
     for (int i = 0; i < widget.questions.length; i++) {
       final question = widget.questions[i];
       final questionId = question['_id'] ?? 'q$i';
 
-      // Nájdeme správnu odpoveď
       String? correctAnswerId;
       final List<dynamic> answers = question['answers'] ?? [];
       for (var answer in answers) {
@@ -88,10 +80,8 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     });
   }
 
-  // Preload obrázkov
   Future<void> _preloadImages() async {
     for (var question in widget.questions) {
-      // Načítanie obrázka otázky
       final questionImage = question['image'];
       if (questionImage != null && questionImage.isNotEmpty) {
         try {
@@ -102,7 +92,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
         }
       }
 
-      // Načítanie obrázkov odpovedí
       final List<dynamic> answersData = question['answers'] ?? [];
       for (var answer in answersData) {
         final answerImage = answer['image'];
@@ -118,13 +107,11 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     }
   }
 
-  // Získanie obrázka z cache alebo z API
   Widget buildImageWidget(String? imagePath, {double height = 150}) {
     if (imagePath == null || imagePath.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    // Ak už máme obrázok v cache, použijeme ho priamo
     if (_imageCache.containsKey(imagePath) && _imageCache[imagePath] != null) {
       return Container(
         height: height,
@@ -142,7 +129,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
       );
     }
 
-    // Inak zobrazíme placeholder a načítame obrázok
     return Container(
       height: height,
       width: double.infinity,
@@ -175,7 +161,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     );
   }
 
-  // Načítanie a uloženie obrázka do cache
   Future<Uint8List?> _loadAndCacheImage(String imagePath) async {
     try {
       final bytes = await _apiService.getImageBytes(imagePath);
@@ -198,7 +183,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     });
   }
 
-  // Formátovanie času do podoby mm:ss
   String _formatTime(int milliseconds) {
     final seconds = (milliseconds / 1000).floor();
     final minutes = (seconds / 60).floor();
@@ -206,36 +190,29 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  // Kontrola, či sú všetky otázky zodpovedané
   bool _areAllQuestionsAnswered() {
     return _userAnswers.values.every((answer) => answer['answerId'] != null);
   }
 
-  // Počet správnych odpovedí
   int _getCorrectAnswersCount() {
     return _userAnswers.values.where((answer) => answer['isCorrect'] == true).length;
   }
 
-  // Odoslanie výsledkov kvízu
   void _submitQuiz() {
     setState(() {
       _quizCompleted = true;
       _timeSpent = DateTime.now().millisecondsSinceEpoch - _startTime;
     });
 
-    // Konverzia Map na List pre výsledný formát
     List<Map<String, dynamic>> answerList = _userAnswers.values.map((answer) {
-      // Pridanie časového údaju do odpovedí
       answer['timeSpent'] = _timeSpent;
       answer['completed'] = true;
       return Map<String, dynamic>.from(answer);
     }).toList();
 
-    // Zobrazenie dialogu s výsledkom
     _showQuizResultDialog(answerList);
   }
 
-  // Zobrazenie dialogu s výsledkom kvízu
   void _showQuizResultDialog(List<Map<String, dynamic>> answerList) {
     final correctCount = _getCorrectAnswersCount();
     final totalCount = widget.questions.length;
@@ -276,9 +253,8 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Zatvorenie dialógu
+                Navigator.pop(context);
 
-                // Odoslanie výsledkov naspäť do rodičovského komponentu
                 widget.onQuizCompleted(answerList, _timeSpent);
               },
               style: ElevatedButton.styleFrom(
@@ -293,7 +269,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     );
   }
 
-  // Prechod na ďalšiu otázku
   void _goToNextQuestion() {
     if (_currentQuestionIndex < widget.questions.length - 1) {
       _pageController.nextPage(
@@ -303,7 +278,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
     }
   }
 
-  // Prechod na predchádzajúcu otázku
   void _goToPreviousQuestion() {
     if (_currentQuestionIndex > 0) {
       _pageController.previousPage(
@@ -399,7 +373,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
             },
             itemCount: widget.questions.length,
             itemBuilder: (context, index) {
-              // Bezpečne získame otázku
               if (index < 0 || index >= widget.questions.length) {
                 return const Center(child: Text('Chyba: Otázka nenájdená'));
               }
@@ -409,12 +382,10 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
               final questionImage = question['image'];
               final answersData = question['answers'] ?? [];
 
-              // Kontrola či máme túto otázku v userAnswers
               if (!_userAnswers.containsKey(questionId)) {
                 return const Center(child: Text('Chyba pri načítaní otázky'));
               }
 
-              // Získame aktuálnu odpoveď používateľa
               final userAnswer = _userAnswers[questionId]!;
               final answeredId = userAnswer['answerId'];
               final isAnswered = answeredId != null;
@@ -474,7 +445,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
                       final isCorrect = answerId == userAnswer['correctAnswerId'];
                       final isSelected = answerId == answeredId;
 
-                      // Určenie farby pozadia pre možnosť
                       Color? cardColor;
                       if (isAnswered) {
                         if (isSelected && isCorrect) {
@@ -501,7 +471,6 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
                           onTap: isAnswered
                               ? null
                               : () {
-                            // Aktualizácia odpovedi
                             setState(() {
                               _userAnswers[questionId]!['answerId'] = answerId;
                               _userAnswers[questionId]!['answer'] = answerText;

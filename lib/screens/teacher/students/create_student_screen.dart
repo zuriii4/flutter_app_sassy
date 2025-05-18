@@ -38,7 +38,6 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
   }
   
   Future<void> _registerStudent() async {
-    // Jednoduchá validácia
     if (_nameController.text.trim().isEmpty) {
       setState(() {
         _errorMessage = "Zadajte meno študenta";
@@ -73,7 +72,6 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
     });
     
     try {
-      // Parsovanie dátumu narodenia z formátu DD/MM/YYYY
       final parts = _dateOfBirthController.text.split('/');
       final day = int.parse(parts[0]);
       final month = int.parse(parts[1]);
@@ -137,7 +135,6 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Chybová hláška (ak existuje) - použitie MessageDisplay
                 if (_errorMessage != null)
                   MessageDisplay(
                     message: _errorMessage!,
@@ -150,7 +147,6 @@ class _CreateStudentScreenState extends State<CreateStudentScreen> {
                 ),
                 const SizedBox(height: 20),
                 
-                // Formulárové polia - už používajú vlastné komponenty
                 FormTextField(
                   label: 'Meno a priezvisko',
                   placeholder: 'Zadajte meno a priezvisko',

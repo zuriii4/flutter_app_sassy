@@ -14,7 +14,6 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final ApiService _apiService = ApiService();
   
-  // Form controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnameController = TextEditingController();
   final TextEditingController _birthdateController = TextEditingController();
@@ -61,12 +60,9 @@ class _SettingsPageState extends State<SettingsPage> {
         // Správne formátovanie dátumu narodenia
         if (userData['dateOfBirth'] != null) {
           try {
-            // Parsovanie dátumu z API
             final DateTime date = DateTime.parse(userData['dateOfBirth']);
-            // Formátovanie do DD/MM/YYYY (rovnaký formát ako používa FormDateField)
             _birthdateController.text = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
           } catch (e) {
-            // Ak parsovanie zlyhá, necháme pole prázdne
             _birthdateController.text = '';
           }
         }
@@ -200,7 +196,6 @@ class _SettingsPageState extends State<SettingsPage> {
       if (success) {
         setState(() {
           _successMessage = "Heslo bolo úspešne zmenené";
-          // Vyčistenie polí s heslami
           _currentPasswordController.clear();
           _newPasswordController.clear();
           _confirmPasswordController.clear();

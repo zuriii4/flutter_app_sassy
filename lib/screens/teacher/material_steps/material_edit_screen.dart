@@ -23,14 +23,11 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
   File? _imageFile;
   String? _serverImagePath;
 
-  // Controllers
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late String _selectedType;
   late Map<String, dynamic> _content;
   
-  // Specific controllers based on type
-  // Puzzle
   late TextEditingController _gridSizeController;
   
   // Quiz
@@ -51,13 +48,11 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize main controllers
     _titleController = TextEditingController(text: widget.material['title'] ?? '');
     _descriptionController = TextEditingController(text: widget.material['description'] ?? '');
     _selectedType = widget.material['type'] ?? 'puzzle';
     _content = Map<String, dynamic>.from(widget.material['content'] ?? {});
     
-    // Initialize type-specific controllers and data
     _initializeTypeSpecificData();
   }
 
@@ -237,7 +232,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
                     ),
                     const SizedBox(height: 16),
                     
-                    // Tlačidlo pre výber obrázka
                     FormImagePicker(
                       label: 'Obrázok odpovede',
                       onImagePathSelected: (path) {
@@ -266,7 +260,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
               TextButton(
                 onPressed: () {
                   if (answerController.text.isNotEmpty) {
-                    // Create the answer object
                     final Map<String, dynamic> answer = {
                       'text': answerController.text,
                       'correct': isCorrect,
@@ -276,10 +269,8 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
                       answer['image'] = answerImagePath;
                     }
                     
-                    // First close the dialog
                     Navigator.of(dialogContext).pop();
                     
-                    // Then update the state
                     setState(() {
                       if (_questions[questionIndex]['answers'] == null) {
                         _questions[questionIndex]['answers'] = [];
@@ -287,7 +278,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
                       _questions[questionIndex]['answers'].add(answer);
                     });
                   } else {
-                    // Show error if answer text is empty
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Prosím, zadajte text odpovede')),
                     );
@@ -434,10 +424,8 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
     setState(() => _isLoading = true);
     
     try {
-      // Update content based on selected type
       _updateContentBasedOnType();
       
-      // Call API to update material
 
       final success = await _apiService.updateMaterial(
         materialId: widget.materialId,
@@ -525,7 +513,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Základné informácie
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
@@ -580,17 +567,15 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
                                   value: 'connection',
                                   child: Text('Connections')),
                             ],
-                            onChanged: null, // Typ sa nedá meniť
+                            onChanged: null,
                           ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Type-specific settings
                   _buildTypeSpecificSettings(),
                   const SizedBox(height: 24),
-                  // Preview
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
@@ -670,8 +655,7 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
-            // Image selection
+            // Výber obrázkov
             FormImagePicker(
               label: 'Obrázok puzzle',
               onImagePathSelected: (path) {
@@ -684,8 +668,8 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             ),
             
             const SizedBox(height: 16),
-            
-            // Grid size
+
+            // Veľkosť mriežky
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -737,7 +721,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Add new pair
             TextField(
               controller: _leftController,
               decoration: const InputDecoration(
@@ -770,7 +753,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             
             const SizedBox(height: 16),
             
-            // List of pairs
             if (_pairs.isNotEmpty) ...[
               const Text(
                 'Existujúce páry',
@@ -852,7 +834,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Add new question
             TextField(
               controller: _questionController,
               decoration: const InputDecoration(
@@ -863,7 +844,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Question image selection
             FormImagePicker(
               label: 'Obrázok otázky',
               onImagePathSelected: (path) {
@@ -890,7 +870,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             
             const SizedBox(height: 24),
             
-            // List of questions
             if (_questions.isNotEmpty) ...[
               const Text(
                 'Existujúce otázky',
@@ -996,7 +975,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Add new word
             Row(
               children: [
                 Expanded(
@@ -1023,7 +1001,6 @@ class _MaterialEditScreenState extends State<MaterialEditScreen> {
             
             const SizedBox(height: 16),
             
-            // Shuffle words
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

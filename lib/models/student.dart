@@ -18,18 +18,15 @@ class Student {
     required this.needsDescription,
     required this.lastActive,
     required this.hasSpecialNeeds,
-    this.dateOfBirth,  // zmenené na nepovinné
+    this.dateOfBirth,
   });
 
-  // Factory metóda na vytvorenie Student objektu z JSON
   factory Student.fromJson(Map<String, dynamic> json) {
-    // Správne parsovanie dateOfBirth z JSON
     DateTime? parsedDate;
     if (json['dateOfBirth'] != null) {
       try {
         parsedDate = DateTime.parse(json['dateOfBirth']);
       } catch (e) {
-        // V prípade neplatného dátumu necháme null
         parsedDate = null;
       }
     }
@@ -43,11 +40,10 @@ class Student {
       needsDescription: json['needsDescription'] ?? '',
       lastActive: json['lastActive'] ?? 'Nezname',
       hasSpecialNeeds: json['hasSpecialNeeds'] ?? false,
-      dateOfBirth: parsedDate,  // použitie sparsovaného dátumu
+      dateOfBirth: parsedDate,
     );
   }
 
-  // Metóda na konvertovanie objektu Student na JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -58,7 +54,7 @@ class Student {
       'needsDescription': needsDescription,
       'lastActive': lastActive,
       'hasSpecialNeeds': hasSpecialNeeds,
-      'dateOfBirth': dateOfBirth?.toIso8601String(),  // konverzia na ISO string s null-safety
+      'dateOfBirth': dateOfBirth?.toIso8601String(),
     };
   }
 }

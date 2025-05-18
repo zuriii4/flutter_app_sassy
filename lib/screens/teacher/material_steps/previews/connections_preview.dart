@@ -17,7 +17,6 @@ class ConnectionsPreview extends StatefulWidget {
 }
 
 class _ConnectionsPreviewState extends State<ConnectionsPreview> {
-  // Pre interaktívny režim
   String? _selectedLeft;
   String? _selectedRight;
   List<Map<String, String>> _connectedPairs = [];
@@ -45,7 +44,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
     }
   }
   
-  // Pomocná metóda na porovnanie zoznamov
   bool listEquals<T>(List<T>? a, List<T>? b) {
     if (a == null) return b == null;
     if (b == null || a.length != b.length) return false;
@@ -93,7 +91,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
         
         const SizedBox(height: 16),
         
-        // Informácie o úlohe
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
@@ -125,8 +122,7 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
   }
   
   Widget _buildPreviewConnections() {
-    // Nepremiešavame pre náhľad - zobrazujeme správne páry v správnom poradí
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -158,7 +154,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
             ),
           ),
           
-          // Spojenie čiarami v náhľade
           CustomPaint(
             size: const Size(40, 300),
             painter: ConnectionPainter(
@@ -167,7 +162,7 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
             ),
           ),
           
-          // Pravá strana (v náhľade v rovnakom poradí)
+          // Pravá strana
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -282,7 +277,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
                         setState(() {
                           _selectedLeft = isSelected ? null : pair['left'];
                           
-                          // Ak máme vybrané obidve strany, vytvoríme spojenie
                           if (_selectedLeft != null && _selectedRight != null) {
                             _createConnection();
                           }
@@ -314,7 +308,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
               
               const SizedBox(width: 20),
               
-              // Pravá strana (náhodne preusporiadaná)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -325,7 +318,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
                         setState(() {
                           _selectedRight = isSelected ? null : rightItem;
                           
-                          // Ak máme vybrané obidve strany, vytvoríme spojenie
                           if (_selectedLeft != null && _selectedRight != null) {
                             _createConnection();
                           }
@@ -362,7 +354,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
   }
   
   void _createConnection() {
-    // Nájdeme ľavú položku podľa vybraného textu
     final leftPair = widget.pairs.firstWhere(
       (pair) => pair['left'] == _selectedLeft,
       orElse: () => {'left': '', 'right': ''},
@@ -379,7 +370,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
         _selectedLeft = null;
         _selectedRight = null;
         
-        // Volanie callbacku
         if (widget.onConnection != null) {
           widget.onConnection!(leftPair, _selectedRight!);
         }
@@ -388,7 +378,6 @@ class _ConnectionsPreviewState extends State<ConnectionsPreview> {
   }
 }
 
-// Pomocný painter pre vykreslenie spojení
 class ConnectionPainter extends CustomPainter {
   final int pairCount;
   final bool isShuffled;
@@ -410,10 +399,8 @@ class ConnectionPainter extends CustomPainter {
     final itemHeight = size.height / pairCount;
     
     for (int i = 0; i < pairCount; i++) {
-      // Vypočítame Y pozície pre spojenia
       final startY = i * itemHeight + itemHeight / 2;
       
-      // Pre náhľad, ak nie je náhodné premiešanie, spojíme priamo zodpovedajúce páry
       if (!isShuffled) {
         final endY = startY;
         canvas.drawLine(
@@ -422,7 +409,6 @@ class ConnectionPainter extends CustomPainter {
           paint,
         );
       } else {
-        // Pre náhodné prešmyčky by sme použili náhodnú permutáciu
         final endY = (i + 1) % pairCount * itemHeight + itemHeight / 2;
         canvas.drawLine(
           Offset(0, startY),

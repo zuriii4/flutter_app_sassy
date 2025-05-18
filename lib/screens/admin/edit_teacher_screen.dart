@@ -53,8 +53,7 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
     });
 
     try {
-      // Since we're working with teacher, let's assume we have a method to update teacher
-      // We'll pass the data to the API
+
       final teacherData = {
         'id': widget.teacher.id,
         'name': _nameController.text,
@@ -62,7 +61,6 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
         'specialization': _specializationController.text,
       };
       
-      // Call API to update teacher
       await _apiService.updateUserById(
         userId: widget.teacher.id,
         name: _nameController.text,
@@ -70,7 +68,6 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
         specialization: _specializationController.text,
       );
       
-      // Create updated teacher object to return
       final updatedTeacher = Teacher(
         id: widget.teacher.id,
         name: _nameController.text,
@@ -78,7 +75,6 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
         specialization: _specializationController.text,
       );
 
-      // Return to previous screen with updated teacher
       Navigator.pop(context, updatedTeacher);
     } catch (e) {
       setState(() {
@@ -141,7 +137,6 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
                           type: MessageType.error,
                         ),
 
-                      // Profile image placeholder
                       Center(
                         child: CircleAvatar(
                           radius: 50,
@@ -151,7 +146,6 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Name field
                       FormTextField(
                         label: 'Meno a priezvisko',
                         placeholder: 'Zadajte meno a priezvisko',
@@ -159,7 +153,6 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Email field
                       FormTextField(
                         label: 'E-mail',
                         placeholder: 'Zadajte e-mail',
@@ -176,7 +169,6 @@ class _EditTeacherScreenState extends State<EditTeacherScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Submit button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

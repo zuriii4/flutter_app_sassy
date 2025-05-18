@@ -25,12 +25,10 @@ class _WordJumblePreviewState extends State<WordJumblePreview> {
   @override
   void initState() {
     super.initState();
-    // Ak je interaktívny režim, začíname s premiešanými slovami
     if (widget.isInteractive) {
       _displayedWords = List<String>.from(widget.words);
       _displayedWords.shuffle();
     } else {
-      // Inak zobrazíme správne poradie pre náhľad
       _displayedWords = List<String>.from(widget.correctOrder);
     }
   }
@@ -38,8 +36,7 @@ class _WordJumblePreviewState extends State<WordJumblePreview> {
   @override
   void didUpdateWidget(WordJumblePreview oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Ak sa zmenili slová alebo správne poradie, aktualizujeme zobrazenie
-    if (!listEquals(oldWidget.words, widget.words) || 
+    if (!listEquals(oldWidget.words, widget.words) ||
         !listEquals(oldWidget.correctOrder, widget.correctOrder)) {
       if (widget.isInteractive) {
         _displayedWords = List<String>.from(widget.words);
@@ -50,7 +47,6 @@ class _WordJumblePreviewState extends State<WordJumblePreview> {
     }
   }
   
-  // Pomocná metóda na porovnanie zoznamov
   bool listEquals<T>(List<T>? a, List<T>? b) {
     if (a == null) return b == null;
     if (b == null || a.length != b.length) return false;
@@ -110,7 +106,6 @@ class _WordJumblePreviewState extends State<WordJumblePreview> {
         
         const SizedBox(height: 16),
         
-        // Informácie o úlohe
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),

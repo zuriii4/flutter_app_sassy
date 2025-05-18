@@ -40,7 +40,6 @@ class _CreateTeacherScreenState extends State<CreateTeacherScreen> {
   }
   
   Future<void> _registerTeacher() async {
-    // Jednoduchá validácia
     if (_nameController.text.trim().isEmpty) {
       setState(() {
         _errorMessage = "Zadajte meno učiteľa";
@@ -75,7 +74,6 @@ class _CreateTeacherScreenState extends State<CreateTeacherScreen> {
     });
     
     try {
-      // Parsovanie dátumu narodenia z formátu DD/MM/YYYY
       final parts = _dateOfBirthController.text.split('/');
       final day = int.parse(parts[0]);
       final month = int.parse(parts[1]);
@@ -135,7 +133,6 @@ class _CreateTeacherScreenState extends State<CreateTeacherScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Chybová hláška (ak existuje) - použitie MessageDisplay
                 if (_errorMessage != null)
                   MessageDisplay(
                     message: _errorMessage!,

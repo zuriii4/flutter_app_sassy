@@ -37,7 +37,7 @@ class NotificationService {
     final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
-      macOS: initializationSettingsMacOS, // ← toto tu pridaj
+      macOS: initializationSettingsMacOS,
     );
 
     await flutterLocalNotificationsPlugin.initialize(

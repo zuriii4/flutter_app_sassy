@@ -35,13 +35,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _setupAnimation() {
-    // Vytvorenie controllera pre animáciu s trvaním 2 sekundy
+    // Vytvorenie controllera
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
 
-    // Scale animácia - začíname od 0.5 (polovičná veľkosť) a končíme na 1.2 (120% veľkosť)
+    // Scale animácia
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1.2).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       ),
     );
 
-    // Fade animácia - na konci sa logo vytratí
+
     _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -107,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Alebo použite vašu vlastnú farbu pozadia
+      backgroundColor: Colors.white,
       body: Center(
         child: AnimatedBuilder(
           animation: _animationController,
@@ -121,7 +121,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             );
           },
           child: Image.asset(
-            'assets/img/Sassy.png', // Cesta k vášmu logu - upravte podľa potreby
+            'assets/img/Sassy.png',
             width: 150,
             height: 150,
           ),

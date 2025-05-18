@@ -22,7 +22,6 @@ class ConnectionWorkspace extends StatefulWidget {
 }
 
 class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTickerProviderStateMixin {
-  // Game state
   late List<int> _rightItemsOrder;
   List<Connection> _connections = [];
   int? _selectedLeftIndex;
@@ -30,13 +29,11 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
   Offset? _mousePosition;
   List<bool> _leftItemsConnected = [];
   List<bool> _rightItemsConnected = [];
-  
-  // Pre sledovanie času
+
   final int _startTime = DateTime.now().millisecondsSinceEpoch;
   int _timeSpent = 0;
   Timer? _timer;
-  
-  // Pre animáciu
+
   late AnimationController _animationController;
   late Animation<double> _animation;
   bool _isCompleted = false;
@@ -46,18 +43,18 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
     super.initState();
     _initializeGame();
     _startTimer();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _animation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.elasticOut,
     );
   }
-  
+
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted && !_isCompleted) {
@@ -67,7 +64,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
       }
     });
   }
-  
+
   String _formatTime(int milliseconds) {
     final seconds = (milliseconds / 1000).floor();
     final minutes = (seconds / 60).floor();
@@ -97,7 +94,6 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
     _selectedRightIndex = null;
     _leftItemsConnected = List.filled(widget.pairs.length, false);
     _rightItemsConnected = List.filled(widget.pairs.length, false);
-    
     for (var pair in widget.pairs) {
       pair.isConnected = false;
     }
@@ -108,7 +104,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
 
     setState(() {
       _selectedLeftIndex = index;
-      
+
       if (_selectedRightIndex != null) {
         _createConnection();
       }
@@ -120,79 +116,69 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
 
     setState(() {
       _selectedRightIndex = index;
-      
+
       if (_selectedLeftIndex != null) {
         _createConnection();
       }
     });
   }
 
-  // Vytvoří spojení mezi levou a pravou položkou bez ohledu na správnost
   void _createConnection() {
     final leftIndex = _selectedLeftIndex!;
     final rightIndex = _selectedRightIndex!;
     final rightItemIndex = _rightItemsOrder[rightIndex];
-    
-    // Určení, zda je spojení správné
+
     final isCorrect = widget.pairs[leftIndex].right == widget.pairs[rightItemIndex].right;
-    
+
     setState(() {
-      // Vytvoříme nové spojení
       _connections.add(Connection(
         leftIndex: leftIndex,
         rightIndex: rightIndex,
         isCorrect: isCorrect,
       ));
-      
-      // Označíme položky jako spojené
+
       _leftItemsConnected[leftIndex] = true;
       _rightItemsConnected[rightIndex] = true;
       widget.pairs[leftIndex].isConnected = true;
-      
-      // Resetujeme výběr
+
       _selectedLeftIndex = null;
       _selectedRightIndex = null;
     });
-    
-    // Kontrola dokončení - všechny položky jsou spojené
+
     if (_connections.length == widget.pairs.length) {
       _checkCompletion();
     }
   }
-  
-  // Zkontroluje, zda jsou všechna spojení správná a oznámí dokončení
+
   void _checkCompletion() {
     final allCorrect = _connections.every((connection) => connection.isCorrect);
-    
+
     setState(() {
       _isCompleted = true;
       _timer?.cancel();
     });
-    
+
     _animationController.forward(from: 0.0);
-    
+
     if (widget.onCompleted != null) {
       widget.onCompleted!(allCorrect, _timeSpent);
     }
   }
 
-  // Odstranění spojení
   void _removeConnection(int index) {
     if (_isCompleted) return;
-    
+
     final connection = _connections[index];
-    
+
     setState(() {
-      // Uvolníme položky
       _leftItemsConnected[connection.leftIndex] = false;
       _rightItemsConnected[connection.rightIndex] = false;
       widget.pairs[connection.leftIndex].isConnected = false;
-      
-      // Odstraníme spojení
+
       _connections.removeAt(index);
     });
   }
-  
+
   void _updateMousePosition(PointerEvent event) {
     setState(() {
       _mousePosition = event.localPosition;
@@ -221,7 +207,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: isConnected
-              ? Colors.grey.shade400 // Změněno ze zelené na neutrální šedou
+              ? Colors.grey.shade400
               : isSelected
                   ? backgroundColor?.withOpacity(0.7)
                   : backgroundColor,
@@ -343,8 +329,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
               ],
             ),
           ),
-          
-          // Main connection board
+
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -354,7 +339,6 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                     onPointerMove: _updateMousePosition,
                     child: Stack(
                       children: [
-                        // Connection lines
                         CustomPaint(
                           size: Size(constraints.maxWidth, constraints.maxHeight),
                           painter: EnhancedConnectionLinesPainter(
@@ -363,7 +347,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                               widget.pairs.length,
                               (i) => Offset(
                                 150, // Item width
-                                i * 70 + 35, // Position based on item height and spacing
+                                i * 70 + 35,
                               ),
                             ),
                             rightItemsPositions: List.generate(
@@ -378,8 +362,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                             lineWidth: 3,
                           ),
                         ),
-                        
-                        // Active line (when connecting)
+
                         if (!_isCompleted && (_selectedLeftIndex != null || _selectedRightIndex != null))
                           CustomPaint(
                             size: Size(constraints.maxWidth, constraints.maxHeight),
@@ -399,7 +382,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                               lineWidth: 2,
                             ),
                           ),
-                        
+
                         // Tlačítka pro smazání spojení
                         if (!_isCompleted)
                           ...List.generate(
@@ -408,7 +391,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                               final connection = _connections[index];
                               final leftPos = Offset(
                                 150, // Item width
-                                connection.leftIndex * 70 + 35, // Position based on item height and spacing
+                                connection.leftIndex * 70 + 35,
                               );
                               final rightPos = Offset(
                                 constraints.maxWidth - 150,
@@ -418,7 +401,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                                 (leftPos.dx + rightPos.dx) / 2,
                                 (leftPos.dy + rightPos.dy) / 2,
                               );
-                              
+
                               return Positioned(
                                 left: centerPos.dx - 15,
                                 top: centerPos.dy - 15,
@@ -448,8 +431,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                               );
                             },
                           ),
-                        
-                        // Items
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,7 +455,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                                 ),
                               ),
                             ),
-                            
+
                             // Right items
                             Padding(
                               padding: const EdgeInsets.all(16.0),
@@ -502,8 +484,7 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
               },
             ),
           ),
-          
-          // Result message when completed
+
           if (_isCompleted)
             AnimatedBuilder(
               animation: _animation,
@@ -564,8 +545,8 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
                 ),
               ),
             ),
-          
-          // Tlačítko "Dokončiť" když jsou všechny položky spojené, ale ještě nebylo dokončeno
+
+          // Tlačítko "Dokončiť"
           if (!_isCompleted && _connections.length == widget.pairs.length)
             Padding(
               padding: const EdgeInsets.all(16),
@@ -591,20 +572,18 @@ class _ConnectionWorkspaceState extends State<ConnectionWorkspace> with SingleTi
   }
 }
 
-// Třída pro reprezentaci spojení
 class Connection {
   final int leftIndex;
   final int rightIndex;
   final bool isCorrect;
-  
+
   Connection({
-    required this.leftIndex, 
-    required this.rightIndex, 
+    required this.leftIndex,
+    required this.rightIndex,
     required this.isCorrect
   });
 }
 
-// Vylepšený painter pro spojovací čáry
 class EnhancedConnectionLinesPainter extends CustomPainter {
   final List<Connection> connections;
   final List<Offset> leftItemsPositions;
@@ -624,41 +603,35 @@ class EnhancedConnectionLinesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Vykreslení bezierových křivek pro každé spojení
     for (final connection in connections) {
       final leftIndex = connection.leftIndex;
       final rightIndex = connection.rightIndex;
-      
+
       final startPoint = leftItemsPositions[leftIndex];
       final endPoint = rightItemsPositions[rightIndex];
-      
-      // Nastavení barvy podle správnosti spojení
+
       final paint = Paint()
         ..color = connection.isCorrect ? correctLineColor : incorrectLineColor
         ..strokeWidth = lineWidth
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
-      
-      // Vypočet kontrolních bodů pro bezierovu křivku
+
       final controlPointX = (startPoint.dx + endPoint.dx) / 2;
       final path = Path();
       path.moveTo(startPoint.dx, startPoint.dy);
-      
-      // Vytvoření Bezierovy křivky
+
       path.cubicTo(
-        controlPointX, startPoint.dy, // První kontrolní bod
-        controlPointX, endPoint.dy,   // Druhý kontrolní bod
-        endPoint.dx, endPoint.dy      // Koncový bod
+        controlPointX, startPoint.dy,
+        controlPointX, endPoint.dy,
+        endPoint.dx, endPoint.dy
       );
-      
-      // Vykreslení křivky
+
       canvas.drawPath(path, paint);
-      
-      // Vykreslení malých kruhů na koncích čáry
+
       final dotPaint = Paint()
         ..color = connection.isCorrect ? correctLineColor : incorrectLineColor
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(startPoint, lineWidth + 1, dotPaint);
       canvas.drawCircle(endPoint, lineWidth + 1, dotPaint);
     }
@@ -668,7 +641,6 @@ class EnhancedConnectionLinesPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-// Painter for active connection line (follows mouse)
 class ActiveConnectionLinePainter extends CustomPainter {
   final int? leftIndex;
   final int? rightIndex;
@@ -697,30 +669,24 @@ class ActiveConnectionLinePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     if (leftIndex != null && rightIndex != null) {
-      // Křivka mezi vybranými položkami
       final startPoint = leftItemsPositions[leftIndex!];
       final endPoint = rightItemsPositions[rightIndex!];
-      
-      // Vypočet kontrolních bodů pro bezierovu křivku
+
       final controlPointX = (startPoint.dx + endPoint.dx) / 2;
       final path = Path();
       path.moveTo(startPoint.dx, startPoint.dy);
-      
-      // Vytvoření Bezierovy křivky
+
       path.cubicTo(
-        controlPointX, startPoint.dy, // První kontrolní bod
-        controlPointX, endPoint.dy,   // Druhý kontrolní bod
-        endPoint.dx, endPoint.dy      // Koncový bod
+        controlPointX, startPoint.dy,
+        controlPointX, endPoint.dy,
+        endPoint.dx, endPoint.dy
       );
-      
-      // Vykreslení křivky
+
       canvas.drawPath(path, paint);
-      
+
     } else if (leftIndex != null && mousePosition != null) {
-      // Křivka od levé položky k myši
       final startPoint = leftItemsPositions[leftIndex!];
-      
-      // Bezierova křivka od položky k myši
+
       final controlPointX = (startPoint.dx + mousePosition!.dx) / 2;
       final path = Path();
       path.moveTo(startPoint.dx, startPoint.dy);
@@ -733,10 +699,8 @@ class ActiveConnectionLinePainter extends CustomPainter {
       canvas.drawPath(path, paint);
       
     } else if (rightIndex != null && mousePosition != null) {
-      // Křivka od pravé položky k myši
       final startPoint = rightItemsPositions[rightIndex!];
       
-      // Bezierova křivka od položky k myši
       final controlPointX = (startPoint.dx + mousePosition!.dx) / 2;
       final path = Path();
       path.moveTo(startPoint.dx, startPoint.dy);
@@ -754,7 +718,6 @@ class ActiveConnectionLinePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-// Simple class representing a connection pair
 class ConnectionPair {
   final String left;
   final String right;

@@ -62,12 +62,9 @@ class _AccountTabState extends State<AccountTab> {
         // Správne formátovanie dátumu narodenia
         if (userData['user']['dateOfBirth'] != null) {
           try {
-            // Parsovanie dátumu z API
             final DateTime date = DateTime.parse(userData['user']['dateOfBirth']);
-            // Formátovanie do DD/MM/YYYY (rovnaký formát ako používa FormDateField)
             widget.birthdateController.text = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
           } catch (e) {
-            // Ak parsovanie zlyhá, necháme pole prázdne
             widget.birthdateController.text = '';
           }
         }
@@ -112,14 +109,12 @@ class _AccountTabState extends State<AccountTab> {
         ),
         const SizedBox(height: 20),
         
-        // Init error message
         if (_initErrorMessage != null)
           MessageDisplay(
             message: _initErrorMessage!,
             type: MessageType.error,
           ),
           
-        // Status messages from parent
         if (widget.errorMessage != null)
           MessageDisplay(
             message: widget.errorMessage!,

@@ -10,7 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class ApiService {
   static String baseUrl = dotenv.env['API_URL'] as String;
 
-  // ✅ Prihlásenie používateľa
+  // Prihlásenie používateľa
   Future<String?> login(String email, String password) async {
     try {
       final body = jsonEncode({'email': email, 'password': password});
@@ -34,11 +34,11 @@ class ApiService {
         return null;
       }
     } catch (e) {
-      throw('❌ Chyba pri prihlasovaní: $e');
+      throw(' Chyba pri prihlasovaní: $e');
     }
   }
 
-  // ✅ Získanie materiálov pre študenta
+  // Získanie materiálov pre študenta
   Future<List<dynamic>> getStudentMaterials(String studentId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -55,7 +55,7 @@ class ApiService {
     }
   }
 
-  // 🟢 Získanie detailov konkrétneho materiálu
+  // Získanie detailov konkrétneho materiálu
   Future<Map<String, dynamic>?> getMaterialDetails(String materialId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -74,7 +74,7 @@ class ApiService {
     }
   }
 
-  // 🟡 Odoslanie odpovedí študenta
+  // Odoslanie odpovedí študenta
   Future<bool> submitMaterial({
     required String studentId,
     required String materialId,
@@ -125,7 +125,7 @@ class ApiService {
     return response.statusCode == 201;
   }
 
-  // ✅ Získanie informácií o aktuálnom používateľovi
+  // Získanie informácií o aktuálnom používateľovi
   Future<Map<String, dynamic>?> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -135,8 +135,8 @@ class ApiService {
       headers: {'Authorization': 'Bearer $token'},
     );
     
-    // print('📩 Status kód: ${response.statusCode}');
-    // print('📦 Response body: ${response.body}');
+    // print(' Status kód: ${response.statusCode}');
+    // print(' Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -145,7 +145,7 @@ class ApiService {
     }
   }
 
-  // ✅ Odhlásenie používateľa
+  // Odhlásenie používateľa
   Future<bool> logoutUser() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -196,15 +196,15 @@ class ApiService {
       }),
     );
     
-    // print('📩 Status kód: ${response.statusCode}');
-    // print('📦 Response body: ${response.body}');
+    // print(' Status kód: ${response.statusCode}');
+    // print(' Response body: ${response.body}');
     
     return response.statusCode == 200;
   }
 
-  // Aktualizácia používateľa podľa ID (pre admin/učiteľ funkcie)
+  // Aktualizácia používateľa podľa ID
   Future<bool> updateUserById({
-    required String userId,  // ID používateľa, ktorého aktualizujeme
+    required String userId,
     String? name,
     String? email,
     String? password,
@@ -235,13 +235,13 @@ class ApiService {
       }),
     );
     
-    // print('📩 Status kód: ${response.statusCode}');
-    // print('📦 Response body: ${response.body}');
+    // print('Status kód: ${response.statusCode}');
+    // print('Response body: ${response.body}');
     
     return response.statusCode == 200;
   }
 
-  // 🟢 Vytvorenie novej skupiny
+  // Vytvorenie novej skupiny
   Future<bool> createGroup({
     required String name,
     required String teacherId,
@@ -267,7 +267,7 @@ class ApiService {
     return response.statusCode == 201;
   }
 
-  // 🟢 Pridanie študenta do skupiny
+  // Pridanie študenta do skupiny
   Future<bool> addStudentToGroup({
     required String groupId,
     required String studentId,
@@ -290,7 +290,7 @@ class ApiService {
     return response.statusCode == 200;
   }
 
-  // 🔴 Odstránenie skupiny
+  // Odstránenie skupiny
   Future<bool> deleteGroup(String groupId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -303,7 +303,7 @@ class ApiService {
     return response.statusCode == 200;
   }
   
-  // 🟢 Nahrávanie obrázka na server
+  // Nahrávanie obrázka na server
   Future<String?> uploadImage(File imageFile) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -336,7 +336,7 @@ class ApiService {
           contentType = MediaType.parse('image/webp');
           break;
         default:
-          contentType = MediaType.parse('image/jpeg'); // Predvolený typ
+          contentType = MediaType.parse('image/jpeg');
       }
       
       // Vytvorenie FormData so správnym názvom poľa 'image'
@@ -366,12 +366,12 @@ class ApiService {
         // Vrátime cestu k nahranému obrázku
         return response.data['filePath'];
       } else {
-        // print('❌ Chyba pri nahrávaní obrázka: ${response.statusCode}');
-        // print('❌ Response data: ${response.data}');
+        // print('Chyba pri nahrávaní obrázka: ${response.statusCode}');
+        // print('Response data: ${response.data}');
         return null;
       }
     } catch (e) {
-      throw('❌ Výnimka pri nahrávaní obrázka: $e');
+      throw('Výnimka pri nahrávaní obrázka: $e');
     }
   }
   
@@ -392,11 +392,11 @@ class ApiService {
     if (response.statusCode == 200) {
       return response.bodyBytes;
     } else {
-      throw('❌ Chyba pri získavaní obrázka: ${response.statusCode}');
+      throw('Chyba pri získavaní obrázka: ${response.statusCode}');
     }
   }
   
-  // 🟡 Aktualizácia metódy createMaterial pre podporu nahrávania obrázkov
+  // Aktualizácia metódy createMaterial pre podporu nahrávania obrázkov
   Future<bool> createMaterial({
     required String title,
     required String type,
@@ -404,23 +404,20 @@ class ApiService {
     String? description,
     List<String>? assignedTo,
     List<String>? assignedGroups,
-    File? imageFile, // Nový parameter pre súbor obrázka
+    File? imageFile,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     
-    // Ak ide o typ puzzle a máme súbor obrázka, najprv ho nahráme
     if (type == 'puzzle' && imageFile != null) {
       final imagePath = await uploadImage(imageFile);
       if (imagePath != null) {
-        // Aktualizujeme obsah s cestou k obrázku
         content['image'] = imagePath;
       } else {
-        return false; // Zlyhalo nahrávanie obrázka
+        return false;
       }
     }
     
-    // Pokračujeme so štandardným vytvorením materiálu
     final body = {
       'title': title,
       'type': type,
@@ -444,21 +441,20 @@ class ApiService {
     return response.statusCode == 201;
   }
 
-  // 🟡 Aktualizácia materiálu s podporou obrázkov
+  // Aktualizácia materiálu s podporou obrázkov
   Future<bool> updateMaterial({
     required String materialId,
     String? title,
     String? description,
     String? type,
     Map<String, dynamic>? content,
-    List<String>? assignedTo,  // Zmena z String? na List<String>?
+    List<String>? assignedTo,
     List<String>? assignedGroups,
     File? imageFile,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
-    // Ak máme nový obrázok a content nie je null
     if (imageFile != null && content != null && type == 'puzzle') {
       final imagePath = await uploadImage(imageFile);
       if (imagePath != null) {
@@ -493,7 +489,7 @@ class ApiService {
 
 
 
-  // 🔴 Odstránenie materiálu
+  // Odstránenie materiálu
   Future<bool> deleteMaterial(String materialId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -506,7 +502,7 @@ class ApiService {
     return response.statusCode == 200;
   }
 
-  // 🟢 Získanie parametrov daného materiálu
+  // Získanie parametrov daného materiálu
   Future<Map<String, dynamic>?> getMaterialParams(String materialId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -523,7 +519,7 @@ class ApiService {
       return null;
     }
   }
-
+  // overenie tokenu
   Future<bool> isTokenValid() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -660,13 +656,13 @@ class ApiService {
     // print(response.body);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['teacher']; // Vraciaš konkrétny objekt učiteľa
+      return data['teacher'];
     } else {
       throw Exception('Nepodarilo sa načítať učiteľa');
     }
   }
 
-// ✅ Získanie detailov skupiny vrátane učiteľa a študentov
+// Získanie detailov skupiny vrátane učiteľa a študentov
   Future<Map<String, dynamic>> getGroupDetails(String groupId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -687,7 +683,7 @@ class ApiService {
     }
   }
 
-  // 🟢 Získanie všetkých skupín s detailmi učiteľa a študentov
+  // Získanie všetkých skupín s detailmi učiteľa a študentov
   Future<List<Map<String, dynamic>>> getAllGroupsWithDetails() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -709,6 +705,7 @@ class ApiService {
     }
   }
 
+  // ziskanie vestkych materialov
   Future<List<Map<String, dynamic>>> getAllMaterials() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -733,7 +730,7 @@ class ApiService {
 
   
   
-  // 🟥 Odstránenie aktuálne prihláseného používateľa
+  // Odstránenie aktuálne prihláseného používateľa
   Future<bool> deleteCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -750,7 +747,7 @@ class ApiService {
     return response.statusCode == 200;
   }
   
-  // 🟥 Odstránenie študenta podľa ID (admin alebo učiteľ)
+  // Odstránenie študenta podľa ID (admin alebo učiteľ)
   Future<bool> deleteStudentById(String studentId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -766,7 +763,7 @@ class ApiService {
   
     return response.statusCode == 200;
   }
-
+  // ulozit material ako sablonu
   Future<bool> saveMaterialAsTemplate(String materialId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -776,7 +773,7 @@ class ApiService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/materials/save-as-template'), // uprav podľa reálnej cesty
+      Uri.parse('$baseUrl/materials/save-as-template'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -792,7 +789,7 @@ class ApiService {
     }
   }
 
-  // 🟢 Získanie všetkých šablón materiálov
+  // Získanie všetkých šablón materiálov
   Future<List<Map<String, dynamic>>> getAllTemplates() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -937,7 +934,7 @@ class ApiService {
       throw Exception('Nepodarilo sa Zaznamenanie aktivity používateľa');
     }
   }
-// Set student PIN
+// NastavPIN
   Future<Map<String, dynamic>> setStudentPin(String studentId, String pin) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -962,7 +959,7 @@ class ApiService {
     }
   }
 
-  // Set student color code
+  // Nastav farebny kod
   Future<Map<String, dynamic>> setStudentColorCode(String studentId, List<String> colorCode) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -987,7 +984,7 @@ class ApiService {
     }
   }
 
-  // Generate random PIN for student
+  // generuj nahodny pin
   Future<Map<String, dynamic>> generateRandomPin(String studentId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -1011,7 +1008,7 @@ class ApiService {
     }
   }
 
-  // Generate random color code for student
+  // generuj nahodny farebny kod
   Future<Map<String, dynamic>> generateRandomColorCode(String studentId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -1035,7 +1032,7 @@ class ApiService {
     }
   }
 
-  // Check student authentication method
+  // Kontrola spôsobu overovania študentov
   Future<Map<String, dynamic>> checkStudentAuthMethod(String studentId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -1058,7 +1055,7 @@ class ApiService {
     }
   }
 
-  // Student login with PIN
+  // Prihlásenie študenta pomocou PIN kódu
   Future<Map<String, dynamic>> studentPinLogin(String studentId, String pin) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/student/login/pin'),
@@ -1086,7 +1083,7 @@ class ApiService {
     }
   }
 
-  // Student login with color code
+  // Prihlásenie študenta s farebným kódom
   Future<Map<String, dynamic>> studentColorCodeLogin(String studentId, List<String> colorCode) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/student/login/colorcode'),
@@ -1102,7 +1099,6 @@ class ApiService {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
 
-      // Save token if provided in response
       if (responseData['token'] != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', responseData['token']);
@@ -1251,7 +1247,6 @@ class ApiService {
     if (response.statusCode == 200) {
       return true;
     } else if (response.statusCode == 400) {
-      // Když učitel má skupiny nebo materiály, server vrátí 400
       final errorData = jsonDecode(response.body);
       throw Exception(errorData['message'] ?? 'Nepodarilo sa vymazať učiteľa');
     } else {

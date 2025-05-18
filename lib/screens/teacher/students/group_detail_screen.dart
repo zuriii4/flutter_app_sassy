@@ -84,7 +84,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Študent $studentName bol odstránený zo skupiny')),
         );
-        _loadGroupDetails(); // Obnoviť detaily skupiny
+        _loadGroupDetails();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Nepodarilo sa odstrániť študenta zo skupiny')),
@@ -111,14 +111,12 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     ),
   );
   
-  // If student was added successfully, refresh the group details
   if (result == true) {
     _loadGroupDetails();
   }
 }
   
   Future<String?> _showAddStudentDialog() async {
-    // Placeholder dialog - v reálnej aplikácii by ste získali zoznam študentov z API
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -167,7 +165,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Skupina bola odstránená')),
         );
-        Navigator.pop(context, true); // Vrátiť sa s výsledkom true pre obnovenie zoznamu
+        Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Nepodarilo sa odstrániť skupinu')),

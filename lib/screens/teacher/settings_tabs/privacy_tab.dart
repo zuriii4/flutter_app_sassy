@@ -120,39 +120,7 @@ class PrivacyTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 30),
-        // const Text(
-        //   "Nastavenia súkromia",
-        //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        // ),
-        // const SizedBox(height: 15),
-        // _buildSwitchOption(
-        //   "Viditeľný profil",
-        //   "Umožniť ostatným používateľom vidieť váš profil"
-        // ),
-        // const SizedBox(height: 10),
-        // _buildSwitchOption(
-        //   "Zdieľať aktivitu",
-        //   "Umožniť zdieľanie vašej aktivity v aplikácii"
-        // ),
-        // const SizedBox(height: 10),
-        // _buildSwitchOption(
-        //   "Povoliť cookies",
-        //   "Povoliť cookies pre lepšiu používateľskú skúsenosť"
-        // ),
       ],
     );
   }
-
-  // Widget _buildSwitchOption(String title, String subtitle) {
-  //   return SwitchListTile(
-  //     title: Text(title),
-  //     subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
-  //     value: true, // Predvolená hodnota, v reálnej aplikácii by sa získala z API
-  //     activeColor: const Color(0xFFF4A261),
-  //     contentPadding: EdgeInsets.zero,
-  //     onChanged: (bool value) {
-  //       // Implementácia zmeny nastavenia
-  //     },
-  //   );
-  // }
 }

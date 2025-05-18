@@ -22,7 +22,6 @@ class QuizPreview extends StatefulWidget {
 }
 
 class _QuizPreviewState extends State<QuizPreview> {
-  // Pre interaktívny režim sledujeme vybrané odpovede
   final Map<int, int> _selectedAnswers = {};
   
   @override
@@ -70,7 +69,6 @@ class _QuizPreviewState extends State<QuizPreview> {
                       ),
                     ),
                     
-                    // Zobrazenie obrázka otázky
                     if (question.containsKey('image') && question['image'] != null)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),

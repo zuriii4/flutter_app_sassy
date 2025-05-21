@@ -14,9 +14,8 @@ class SocketService {
   final NotificationService _notificationService = NotificationService();
   final OnlineStatusModel _onlineStatusModel = OnlineStatusModel();
 
-  // Inicializácia a pripojenie na server
+
   void initialize(String serverUrl, String userId, String userRole) {
-    // Inicializácia socketu
     socket = IO.io(
         serverUrl,
         IO.OptionBuilder()
@@ -25,12 +24,11 @@ class SocketService {
             .build()
     );
 
-    // Udalosti pripojenia
+
     socket.onConnect((_) {
       // print('Socket pripojený: ${socket.id}');
       isConnected = true;
 
-      // Autentifikácia používateľa
       authenticate(userId, userRole);
     });
 
@@ -93,7 +91,7 @@ class SocketService {
 
     // Dokončený materiál
     socket.on('materialCompleted', (data) {
-      // print('Dokončený materiál: $data');
+      print('Dokončený materiál: $data');
       if (userRole == 'teacher') {
         _notificationService.addNotification(
           id: data['notificationId'] ?? DateTime.now().millisecondsSinceEpoch.toString(),

@@ -1,11 +1,18 @@
 import 'package:flutter/foundation.dart';
 
 class OnlineStatusModel extends ChangeNotifier {
+  static final OnlineStatusModel _instance = OnlineStatusModel._internal();
+  factory OnlineStatusModel() => _instance;
+  OnlineStatusModel._internal();
+
   final Map<String, UserStatus> _userStatuses = {};
   final List<UserStatus> _onlineStudents = [];
+  
+  // Pridaj ValueNotifier pre zoznam študentov
+  final ValueNotifier<List<UserStatus>> studentsNotifier = 
+    ValueNotifier<List<UserStatus>>([]);
 
   Map<String, UserStatus> get userStatuses => _userStatuses;
-
   List<UserStatus> get onlineStudents => _onlineStudents;
 
   void updateUserStatus(String userId, bool isOnline, DateTime? lastActive) {
@@ -46,7 +53,10 @@ class OnlineStatusModel extends ChangeNotifier {
     for (final student in students) {
       _userStatuses[student.userId] = student;
     }
-
+    
+    // Aktualizuj studentsNotifier
+    studentsNotifier.value = List.from(_onlineStudents);
+    
     notifyListeners();
   }
 

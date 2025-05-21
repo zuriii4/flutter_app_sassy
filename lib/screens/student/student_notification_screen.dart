@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sassy/services/api_service.dart';
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sassy/services/notification_service.dart';
 
 class StudentNotificationPage extends StatefulWidget {
   const StudentNotificationPage({Key? key}) : super(key: key);
@@ -17,14 +17,64 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
   bool _hasError = false;
   String _errorMessage = '';
   bool _showUnreadOnly = false;
+  Timer? _pollingTimer;
+  int _currentNotificationCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadNotifications();
+    NotificationService().notificationsNotifier.addListener(_onNotificationsChanged);
+    
+    _pollingTimer = Timer.periodic(const Duration(seconds: 6), (_) => _checkForNewNotifications());
+    
+  }
+
+  @override
+  void dispose() {
+    NotificationService().notificationsNotifier.removeListener(_onNotificationsChanged);
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkForNewNotifications() async {
+    try {
+      final notifications = await _apiService.getNotifications(unreadOnly: _showUnreadOnly);
+      
+      if (notifications.length != _currentNotificationCount || 
+          (notifications.isNotEmpty && _notifications.isNotEmpty && 
+           notifications[0]['_id'] != _notifications[0]['_id'])) {
+        if (mounted) {
+          _loadNotifications();
+        }
+      } else {
+        print("No new notifications found during polling");
+      }
+    } catch (e) {
+      print("Error during notification polling: $e");
+    }
+  }
+
+  void _onNotificationsChanged() {
+    if (mounted) {
+      setState(() {
+        _notifications = List.from(NotificationService().notifications.map((item) => {
+          '_id': item.id,
+          'title': item.title,
+          'message': item.message,
+          'type': item.type,
+          'relatedId': item.relatedId,
+          'isRead': item.isRead,
+          'createdAt': item.timestamp.toIso8601String(),
+        }));
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadNotifications() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _hasError = false;
@@ -32,16 +82,25 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
 
     try {
       final notifications = await _apiService.getNotifications(unreadOnly: _showUnreadOnly);
-      setState(() {
-        _notifications = notifications;
-        _isLoading = false;
-      });
+      _currentNotificationCount = notifications.length;
+      
+      NotificationService().loadNotificationsFromServer(notifications);
+      
+      if (mounted) {
+        setState(() {
+          _notifications = notifications;
+          _isLoading = false;
+        });
+      }
+      
     } catch (e) {
-      setState(() {
-        _hasError = true;
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
       print('Error loading notifications: $e');
     }
   }
@@ -260,7 +319,6 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () async {
-                  // Mark as read when tapped
                   if (!isRead) {
                     try {
                       await _apiService.markNotificationAsRead(notification['_id']);
@@ -269,17 +327,13 @@ class _StudentNotificationPageState extends State<StudentNotificationPage> {
                       print('Error marking notification as read: $e');
                     }
                   }
-                  
-                  if (notification['relatedId'] != null) {
-
-                  }
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Icon section
+                      // Icon 
                       Container(
                         width: 40,
                         height: 40,

@@ -596,10 +596,18 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('userRole', userData['user']['role']);
 
         _socketService.initialize(
-            dotenv.env['WEB_SOCKET_URL'] as String,
-            userData['user']['_id'],
-            userData['user']['role']
+          dotenv.env['WEB_SOCKET_URL'] as String,
+          userData['user']['_id'],
+          userData['user']['role']
         );
+
+        // await Future.delayed(const Duration(seconds: 1));
+
+        // if (_socketService.isConnected) {
+        //   print('Socket úspešne pripojený: ${_socketService.socket.id}');
+        // } else {
+        //   print('Upozornenie: Socket sa nepripojil, ale pokračujem v prihlásení');
+        // }
 
         if (mounted) {
           Navigator.pushReplacement(

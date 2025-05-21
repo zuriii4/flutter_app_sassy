@@ -3,7 +3,10 @@ import 'package:sassy/services/api_service.dart';
 import 'package:sassy/screens/teacher/students/student_detail_screen.dart';
 import 'package:sassy/models/student.dart';
 import 'package:sassy/screens/teacher/material_steps/material_detail_screen.dart';
-import 'package:sassy/widgets/material_card.dart'; // Import nových komponentov
+import 'package:sassy/widgets/material_card.dart';
+import 'package:sassy/services/notification_service.dart';
+import 'package:sassy/models/online_status.dart';
+import 'dart:async';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -19,11 +22,186 @@ class _DashboardPageState extends State<DashboardPage> {
   List<dynamic> _notifications = [];
   bool _isLoading = true;
   String? _errorMessage;
+  
+
+  Timer? _notificationPollingTimer;
+  Timer? _studentsPollingTimer;
+  
+
+  int _currentNotificationCount = 0;
+  int _currentOnlineStudentsCount = 0;
+  String? _lastNotificationId;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+
+
+    NotificationService().notificationsNotifier.addListener(_onNotificationsChanged);
+    OnlineStatusModel().studentsNotifier.addListener(_onStudentsStatusChanged);
+    
+
+    _setupPollingTimers();
+  }
+  
+  void _setupPollingTimers() {
+    _notificationPollingTimer = Timer.periodic(
+      const Duration(seconds: 6), 
+      (_) => _checkForNewNotifications()
+    );
+    
+
+    _studentsPollingTimer = Timer.periodic(
+      const Duration(seconds: 10), 
+      (_) => _checkForOnlineStudentsChanges()
+    );
+  }
+
+  void _onNotificationsChanged() {
+    final notificationsList = NotificationService().notificationsNotifier.value.map((item) => {
+      '_id': item.id,
+      'title': item.title,
+      'message': item.message,
+      'type': item.type,
+      'relatedId': item.relatedId,
+      'isRead': item.isRead,
+      'createdAt': item.timestamp.toIso8601String()
+    }).toList();
+    
+    setState(() {
+      _notifications = notificationsList;
+    });
+  }
+
+  void _onStudentsStatusChanged() {
+    final onlineStudents = OnlineStatusModel().onlineStudents;
+    _updateStudentsList(onlineStudents);
+  }
+
+  @override
+  void dispose() {
+    _notificationPollingTimer?.cancel();
+    _studentsPollingTimer?.cancel();
+    
+    NotificationService().notificationsNotifier.removeListener(_onNotificationsChanged);
+    OnlineStatusModel().studentsNotifier.removeListener(_onStudentsStatusChanged);
+    
+
+    super.dispose();
+  }
+
+
+  Future<void> _checkForNewNotifications() async {
+
+    try {
+      final notifications = await _apiService.getNotifications(limit: 10);
+      
+
+      final String? newLastNotificationId = notifications.isNotEmpty ? notifications[0]['_id'] : null;
+      
+      if (notifications.length != _currentNotificationCount || 
+          newLastNotificationId != _lastNotificationId) {
+        
+
+
+        _currentNotificationCount = notifications.length;
+        _lastNotificationId = newLastNotificationId;
+        
+
+        NotificationService().loadNotificationsFromServer(notifications);
+        
+        if (mounted) {
+          setState(() {
+            _notifications = notifications;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error during notification polling on dashboard: $e");
+
+    }
+  }
+  
+
+  Future<void> _checkForOnlineStudentsChanges() async {
+    try {
+      final onlineStudentsResult = await _apiService.getOnlineStudents();
+      
+
+      if (onlineStudentsResult.length != _currentOnlineStudentsCount) {
+
+        _currentOnlineStudentsCount = onlineStudentsResult.length;
+        
+
+        List<UserStatus> onlineUsers = [];
+        for (var student in onlineStudentsResult) {
+          onlineUsers.add(UserStatus(
+            userId: student['studentId'] ?? student['_id'] ?? '',
+            isOnline: true,
+            lastActive: DateTime.now()
+          ));
+        }
+        
+
+        OnlineStatusModel().updateOnlineStudents(onlineUsers);
+        
+
+        List<Student> completeStudents = [];
+        for (var onlineStudent in onlineStudentsResult) {
+          String? studentId = onlineStudent['studentId'] ?? onlineStudent['_id'];
+          if (studentId == null) continue;
+
+          try {
+            final studentDetails = await _apiService.getStudentDetails(studentId);
+            completeStudents.add(Student.fromJson(studentDetails));
+          } catch (e) {
+            print('Failed to fetch details for student $studentId: $e');
+          }
+        }
+        
+        if (mounted) {
+          setState(() {
+            _students = completeStudents;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error during online students polling: $e");
+    }
+  }
+
+  Future<void> _updateStudentsList(List<UserStatus> onlineStudents) async {
+    List<Student> completeStudents = [];
+    
+    for (var status in onlineStudents) {
+      String? studentId = status.userId;
+      if (studentId == null) continue;
+      
+      Student? existingStudent;
+      try {
+        existingStudent = _students.firstWhere((student) => student.id == studentId);
+      } catch (e) {
+        existingStudent = null;
+      }
+      
+      if (existingStudent != null) {
+        completeStudents.add(existingStudent);
+      } else {
+        try {
+          final studentDetails = await _apiService.getStudentDetails(studentId);
+          completeStudents.add(Student.fromJson(studentDetails));
+        } catch (e) {
+          print('Failed to fetch details for student $studentId: $e');
+        }
+      }
+    }
+    
+    if (mounted) {
+      setState(() {
+        _students = completeStudents;
+      });
+    }
   }
 
   Future<void> _loadData() async {
@@ -36,6 +214,24 @@ class _DashboardPageState extends State<DashboardPage> {
       final onlineStudentsResult = await _apiService.getOnlineStudents();
       final materialsResult = await _apiService.getAllMaterials();
       final notificationsResult = await _apiService.getNotifications(limit: 10);
+
+
+      _currentOnlineStudentsCount = onlineStudentsResult.length;
+      _currentNotificationCount = notificationsResult.length;
+      _lastNotificationId = notificationsResult.isNotEmpty ? notificationsResult[0]['_id'] : null;
+
+      NotificationService().loadNotificationsFromServer(notificationsResult);
+      
+
+      List<UserStatus> onlineUsers = [];
+      for (var student in onlineStudentsResult) {
+        onlineUsers.add(UserStatus(
+          userId: student['studentId'] ?? student['_id'] ?? '',
+          isOnline: true,
+          lastActive: DateTime.now()
+        ));
+      }
+      OnlineStatusModel().updateOnlineStudents(onlineUsers);
 
 
       List<Student> completeStudents = [];

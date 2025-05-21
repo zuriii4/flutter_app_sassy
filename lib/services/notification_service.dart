@@ -9,14 +9,12 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
-  // Pre sledovanie notifikácií v aplikácii
   final List<NotificationItem> notifications = [];
   final ValueNotifier<int> unreadCount = ValueNotifier<int>(0);
   final ValueNotifier<List<NotificationItem>> notificationsNotifier =
   ValueNotifier<List<NotificationItem>>([]);
 
   Future<void> initialize() async {
-    // Inicializácia lokálnych notifikácií
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -45,7 +43,7 @@ class NotificationService {
     );
   }
 
-  // Zobrazenie lokálnej notifikácie
+
   Future<void> showNotification(String title, String body, {String? payload}) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
     AndroidNotificationDetails(
@@ -73,7 +71,7 @@ class NotificationService {
     );
   }
 
-  // Pridanie novej notifikácie do zoznamu
+
   void addNotification({
     required String id,
     required String title,
@@ -95,11 +93,11 @@ class NotificationService {
     unreadCount.value++;
     notificationsNotifier.value = List.from(notifications);
 
-    // Zobraziť aj lokálnu notifikáciu
+
     showNotification(title, message, payload: relatedId);
   }
 
-  // Označenie notifikácie ako prečítanej
+
   void markAsRead(String id) {
     final index = notifications.indexWhere((n) => n.id == id);
     if (index != -1) {
@@ -112,7 +110,7 @@ class NotificationService {
     }
   }
 
-  // Označenie všetkých notifikácií ako prečítaných
+
   void markAllAsRead() {
     int count = 0;
     for (final notification in notifications) {
@@ -128,7 +126,7 @@ class NotificationService {
     }
   }
 
-  // Načítanie notifikácií zo servera
+
   void loadNotificationsFromServer(List<dynamic> serverNotifications) {
     notifications.clear();
     unreadCount.value = 0;

@@ -261,7 +261,7 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
                 backgroundColor: Colors.orange,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
-              child: const Text('Dokončiť'),
+              child: const Text('Dokončiť', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -365,7 +365,7 @@ class _QuizWorkspaceState extends State<QuizWorkspace> {
         Expanded(
           child: PageView.builder(
             controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(), // Zabráni swipovaniu
+            physics: const NeverScrollableScrollPhysics(), 
             onPageChanged: (index) {
               setState(() {
                 _currentQuestionIndex = index;

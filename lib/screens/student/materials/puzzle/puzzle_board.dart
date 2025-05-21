@@ -199,7 +199,7 @@ class _PuzzleWorkspaceState extends State<PuzzleWorkspace> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
               ),
-              child: const Text('Super!'),
+              child: const Text('Super!', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

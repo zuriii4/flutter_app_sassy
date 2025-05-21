@@ -86,14 +86,14 @@ class _WordJumbleWorkspaceState extends State<WordJumbleWorkspace> with SingleTi
       _selectedIndices.add(index);
     });
     
-    // If all words are selected, check if answer is correct
+
     if (_selectedWords.length == widget.correctOrder.length) {
       if (_isCorrect) {
         _animationController.forward(from: 0.0);
         _completed = true;
         _timer?.cancel();
         
-        // Oznámení o dokončení s časem
+
         if (widget.onCompleted != null) {
           widget.onCompleted!(true, _elapsedTime);
         }
